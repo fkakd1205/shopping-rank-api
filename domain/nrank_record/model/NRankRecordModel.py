@@ -1,4 +1,5 @@
 from utils.db.DBUtils import db
+from utils.type.CustomUTCDateTime import CustomUTCDateTime
 
 class NRankRecordModel(db.Model):
     __tablename__ = 'nrank_record'
@@ -8,7 +9,7 @@ class NRankRecordModel(db.Model):
     keyword = db.Column("keyword", db.String(50), nullable=False)
     mall_name = db.Column("mall_name", db.String(50), nullable=False)
     workspace_id = db.Column("workspace_id", db.String(36), nullable=False)
-    created_at = db.Column("created_at", db.DateTime(timezone=True), nullable=False)
+    created_at = db.Column("created_at", CustomUTCDateTime, nullable=False)
     created_by_member_id = db.Column("created_by_member_id", db.String(36), nullable=False)
 
     def __init__(self):
@@ -59,6 +60,6 @@ class NRankRecordModel(db.Model):
         entity.set_keyword(dto.keyword)
         entity.set_mall_name(dto.mall_name)
         entity.set_workspace_id(dto.workspace_id)
-        entity.set_created_at((dto.created_at).strftime("%Y-%m-%d %H:%M:%S"))
+        entity.set_created_at(dto.created_at)
         entity.set_created_by_member_id(dto.created_by_member_id)
         return entity

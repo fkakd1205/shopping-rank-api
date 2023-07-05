@@ -50,6 +50,6 @@ class NRankRecordDto():
         dto.set_keyword(entity.keyword)
         dto.set_mall_name(entity.mall_name)
         dto.set_workspace_id(entity.workspace_id)
-        dto.set_created_at((entity.created_at).strftime("%Y-%m-%dT%H:%M:%SZ"))
+        dto.set_created_at(entity.created_at)
         dto.set_created_by_member_id(entity.created_by_member_id)
         return dto.__dict__
