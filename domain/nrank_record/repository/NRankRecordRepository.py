@@ -9,3 +9,6 @@ class NRankRecordRepository():
 
     def search_list_by_member_id(self, member_id):
         return db.session.query(NRankRecordModel).filter(NRankRecordModel.created_by_member_id == str(member_id)).all()
+    
+    def search_one(self, id):
+        return db.session.query(NRankRecordModel).filter(NRankRecordModel.id == id).one()

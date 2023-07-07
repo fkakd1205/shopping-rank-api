@@ -2,7 +2,7 @@ from flask_restx import Api
 from flask import Flask
 from flask_cors import CORS
 
-from utils.db.DBUtils import db, init_app
+from utils.db.DBUtils import init_app
 from domain.nrank_record.controller.NRankRecordApi import NRankRecordApi
 
 app = Flask(__name__)

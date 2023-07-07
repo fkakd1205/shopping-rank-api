@@ -5,8 +5,6 @@ from config.db.DatabaseConfig import db_url
 
 db = SQLAlchemy()
 
-Base = db.Model
-
 def get_session() -> Session:
     return db.session
 

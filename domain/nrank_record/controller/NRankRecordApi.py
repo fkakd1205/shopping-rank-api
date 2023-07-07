@@ -17,7 +17,7 @@ class NRankRecord(Resource):
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 
-        return SnakeAndCamelCaseConvertor.snack_to_camel(message.__dict__), message.status_code
+        return SnakeAndCamelCaseConvertor.snake_to_camel(message.__dict__), message.status_code
     
     def get(self):
         message = MessageDto()
@@ -27,5 +27,17 @@ class NRankRecord(Resource):
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 
-        return SnakeAndCamelCaseConvertor.snack_to_camel(message.__dict__), message.status_code
+        return SnakeAndCamelCaseConvertor.snake_to_camel(message.__dict__), message.status_code
     
+
+@NRankRecordApi.route('/<id>', methods=['GET'])
+class NRankRecordIncludeId(Resource):
+    def get(self, id):
+        message = MessageDto()
+
+        nRankRecordService = NRankRecordService()
+        message.set_data(nRankRecordService.search_one(id))
+        message.set_status(HTTPStatus.OK)
+        message.set_message("success")
+
+        return SnakeAndCamelCaseConvertor.snake_to_camel(message.__dict__), message.status_code

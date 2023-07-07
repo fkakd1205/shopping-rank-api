@@ -31,6 +31,12 @@ class NRankRecordService():
         entities = repository.search_list_by_member_id(uuid.UUID("212935ba-a222-40a6-8827-dcafedd3cd6c"))
         dtos = list(map(lambda entity: NRankRecordDto.to_dto(entity), entities))
         return dtos
+    
+    def search_one(self, id):
+        repository = NRankRecordRepository()
+        entity = repository.search_one(id)
+        dto = NRankRecordDto.to_dto(entity)
+        return dto
         
 
         

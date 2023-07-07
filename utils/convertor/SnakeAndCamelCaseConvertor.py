@@ -1,7 +1,7 @@
 class SnakeAndCamelCaseConvertor():
-    
+
     @staticmethod
-    def snack_to_camel(data):
+    def snake_to_camel(data):
         result = {}
         for key, value in data.items():
             if(key == 'data'):
