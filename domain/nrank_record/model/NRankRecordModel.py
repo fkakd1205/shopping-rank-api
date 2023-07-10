@@ -9,6 +9,7 @@ class NRankRecordModel(db.Model):
     keyword = db.Column("keyword", db.String(50), nullable=False)
     mall_name = db.Column("mall_name", db.String(50), nullable=False)
     workspace_id = db.Column("workspace_id", db.String(36), nullable=False)
+    # last_searched_at = db.Column("last_searched_at", CustomUTCDateTime, nullable=False)
     created_at = db.Column("created_at", CustomUTCDateTime, nullable=False)
     created_by_member_id = db.Column("created_by_member_id", db.String(36), nullable=False)
 
@@ -20,46 +21,13 @@ class NRankRecordModel(db.Model):
         self.created_at = None
         self.created_by_member_id = None
 
-    def set_id(self, id):
-        self.id = id
-
-    def get_keyword(self):
-        return self.keyword
-    
-    def set_keyword(self, keyword):
-        self.keyword = keyword
-
-    def get_mall_name(self):
-        return self.mall_name
-    
-    def set_mall_name(self, mall_name):
-        self.mall_name = mall_name
-
-    def get_workspace_id(self):
-        return self.workspace_id
-    
-    def set_workspace_id(self, workspace_id):
-        self.workspace_id = workspace_id
-
-    def get_created_at(self):
-        return self.created_at
-    
-    def set_created_at(self, created_at):
-        self.created_at = created_at
-
-    def get_created_by_member_id(self):
-        return self.created_by_member_id
-
-    def set_created_by_member_id(self, created_by_member_id):
-        self.created_by_member_id = created_by_member_id
-
     @staticmethod
     def to_entity(dto):
         entity = NRankRecordModel()
-        entity.set_id(dto.id)
-        entity.set_keyword(dto.keyword)
-        entity.set_mall_name(dto.mall_name)
-        entity.set_workspace_id(dto.workspace_id)
-        entity.set_created_at(dto.created_at)
-        entity.set_created_by_member_id(dto.created_by_member_id)
+        entity.id = dto.id
+        entity.keyword = dto.keyword
+        entity.mall_name = dto.mall_name
+        entity.workspace_id = dto.workspace_id
+        entity.created_at = dto.created_at
+        entity.created_by_member_id = dto.created_by_member_id
         return entity
