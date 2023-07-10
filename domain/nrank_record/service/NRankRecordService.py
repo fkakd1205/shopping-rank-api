@@ -26,9 +26,11 @@ class NRankRecordService():
         new_data = NRankRecordModel.to_entity(dto)
         repository.save(new_data)
 
-    def search_list_by_member_id(self):
+    def search_list_by_workspace_id(self):
         repository = NRankRecordRepository()
-        entities = repository.search_list_by_member_id(uuid.UUID("212935ba-a222-40a6-8827-dcafedd3cd6c"))
+
+        headers = request.headers
+        entities = repository.search_list_by_workspace_id(headers['Wsid'])
         dtos = list(map(lambda entity: NRankRecordDto.to_dto(entity), entities))
         return dtos
     

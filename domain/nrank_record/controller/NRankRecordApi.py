@@ -23,7 +23,7 @@ class NRankRecord(Resource):
         message = MessageDto()
 
         nRankRecordService = NRankRecordService()
-        message.set_data(nRankRecordService.search_list_by_member_id())
+        message.set_data(nRankRecordService.search_list_by_workspace_id())
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 
