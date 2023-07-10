@@ -10,7 +10,7 @@ class MessageDto():
         self.memo = None
         self.data = None
         self.datetime = str(datetime.now())
-
+        
     def set_status(self, status):
         self.status = status.phrase
         self.status_code = status.value

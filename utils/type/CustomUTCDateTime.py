@@ -1,11 +1,11 @@
-from sqlalchemy.types import TypeDecorator, DateTime
+from datetime import datetime
 
-# UTC로 표현하기 위한 커스텀 타입 정의
-class CustomUTCDateTime(TypeDecorator):
-    impl = DateTime
+class CustomUTCDateTime():
 
-    def process_result_value(self, value, dialect):
-        if value is not None:
-            # 데이터베이스에서 받은 값에 타임존 설정
+    @staticmethod
+    def convert_timezone_format(value):
+        if (value is not None) & (type(value) is datetime):
+            # 데이터베이스에서 datetime 값 형식 변경
+            # strftime : datetime을 원하는 형식의 string으로 변경해 리턴
             value = value.strftime("%Y-%m-%dT%H:%M:%SZ")
         return value
