@@ -14,7 +14,7 @@ class NRankRecordDetail(Resource):
         message = MessageDto()
 
         # TODO :: page_size 구하는 로직 추가
-        page_size = 1
+        page_size = 2
         nRankRecordDetailService = NRankRecordDetailService(page_size)
         asyncio.run(nRankRecordDetailService.create_list())
         message.set_status(HTTPStatus.OK)

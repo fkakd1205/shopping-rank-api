@@ -32,6 +32,7 @@ class NRankRecordDetailDto():
     @staticmethod
     def to_dto(entity):
         dto = NRankRecordDetailDto()
+        dto.id = entity.id
         dto.mall_name = entity.mall_name
         dto.rank = entity.rank
         dto.product_title = entity.product_title
@@ -45,7 +46,7 @@ class NRankRecordDetailDto():
         dto.low_mall_count = entity.low_mall_count
         dto.review_count = entity.review_count
         dto.score_info = entity.score_info
-        dto.registration_date = entity.registration_date
+        dto.registration_date = str(entity.registration_date)
         dto.thumbnail_url = entity.thumbnail_url
         dto.purchase_count = entity.purchase_count
         dto.keep_count = entity.keep_count
