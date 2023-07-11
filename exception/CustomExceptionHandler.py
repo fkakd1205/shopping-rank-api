@@ -6,7 +6,6 @@ from domain.message.dto.MessageDto import MessageDto
 def CustomExceptionHandler(app):
     message = MessageDto()
 
-    # snake to camel 적용 전. 추후에 이 과정 제거 예정이므로
     @app.errorhandler(CustomDuplicationException)
     def CustomDuplicationExceptionHandler(e):
         message.set_data(None)

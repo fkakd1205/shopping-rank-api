@@ -30,8 +30,8 @@ class NRankRecordDetailService():
     def set_request_info(self):
         body = request.get_json()
         self.keyword = body['keyword']
-        self.mall_name = body['mallName']
-        self.nrank_record_id = body['nrankRecordId']
+        self.mall_name = body['mall_name']
+        self.nrank_record_id = body['nrank_record_id']
 
     async def get_current_page_response(self, page_index):
         params = {

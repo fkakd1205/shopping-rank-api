@@ -4,7 +4,6 @@ import asyncio
 
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record_detail.service.NRankRecordDetailService import NRankRecordDetailService
-from utils.convertor.SnakeAndCamelCaseConvertor import SnakeAndCamelCaseConvertor
 
 NRankRecordDetailApi = Namespace('NRankRecordDetail')
 
@@ -20,7 +19,7 @@ class NRankRecordDetail(Resource):
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 
-        return SnakeAndCamelCaseConvertor.snake_to_camel(message.__dict__), message.status_code
+        return message.__dict__, message.status_code
     
 @NRankRecordDetailApi.route('/nrank-records/<record_id>', methods=['GET'])
 class NRankRecordDetailIncludeNRankRecordId(Resource):
@@ -32,5 +31,5 @@ class NRankRecordDetailIncludeNRankRecordId(Resource):
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 
-        return SnakeAndCamelCaseConvertor.snake_to_camel(message.__dict__), message.status_code
+        return message.__dict__, message.status_code
         

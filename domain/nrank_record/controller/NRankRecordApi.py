@@ -3,7 +3,6 @@ from http import HTTPStatus
 
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record.service.NRankRecordService import NRankRecordService
-from utils.convertor.SnakeAndCamelCaseConvertor import SnakeAndCamelCaseConvertor
 
 NRankRecordApi = Namespace('NRankRecordApi')
 
@@ -17,7 +16,7 @@ class NRankRecord(Resource):
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 
-        return SnakeAndCamelCaseConvertor.snake_to_camel(message.__dict__), message.status_code
+        return message.__dict__, message.status_code
     
     def get(self):
         message = MessageDto()
@@ -27,5 +26,5 @@ class NRankRecord(Resource):
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 
-        return SnakeAndCamelCaseConvertor.snake_to_camel(message.__dict__), message.status_code
+        return message.__dict__, message.status_code
     

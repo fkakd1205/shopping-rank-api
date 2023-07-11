@@ -19,15 +19,15 @@ class NRankRecordService():
         
         dto.id = uuid.uuid4()
         dto.keyword = body['keyword']
-        dto.mall_name = body['mallName']
+        dto.mall_name = body['mall_name']
         dto.workspace_id = headers['Wsid']
         dto.created_at = DateTimeUtils.get_current_datetime()
         dto.created_by_member_id = uuid.UUID("212935ba-a222-40a6-8827-dcafedd3cd6c")
 
         self.check_duplication(dto)
         
-        new_data = NRankRecordModel.to_entity(dto)
-        repository.save(new_data)
+        new_entity = NRankRecordModel.to_entity(dto)
+        repository.save(new_entity)
 
     def search_list_by_workspace_id(self):
         repository = NRankRecordRepository()
