@@ -11,7 +11,7 @@ from aiohttp.client_exceptions import ClientProxyConnectionError, ClientOSError,
 from domain.nrank_record_detail.dto.NRankRecordDetailDto import NRankRecordDetailDto
 from domain.nrank_record_detail.model.NRankRecordDetailModel import NRankRecordDetailModel
 from domain.nrank_record_detail.repository.NRankRecordDetailRepository import NRankRecordDetailRepository
-from domain.nrank_record_detail.nrank_record.repository.NRankRecordOfNRankRecordDetailRepository import NRankRecordOfNRankRecordDetailRepository
+from domain.nrank_record_detail.sub_domain.nrank_record.repository.NRankRecordOfNRankRecordDetailRepository import NRankRecordOfNRankRecordDetailRepository
 
 PROXY_REQUEST_URL = "http://kr.smartproxy.com:10000"
 NAVER_SHOPPINT_RANK_URL = "https://search.shopping.naver.com/search/all"
@@ -202,8 +202,9 @@ class NRankRecordDetailService():
         for result in tasks.result():
             results.extend(result)
         
+        # TODO :: bulk_delete 성공한다면 bulk_save 실행. bulk_save 성공한다면 nrank_record update 실행
+        nRankRecordDetailRepository.bulk_delete(self.nrank_record_id)
         nRankRecordDetailRepository.bulk_save(results)
-        # TODO :: bulksave가 모두 성공된다면 다음 실행
         self.update_nrank_record_last_searched_at()
 
     def update_nrank_record_last_searched_at(self):

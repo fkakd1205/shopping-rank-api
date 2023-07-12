@@ -6,11 +6,7 @@ from utils.date.DateTimeUtils import DateTimeUtils
 class NRankRecordOfNRankRecordDetailRepository():
 
     def search_one(self, id):
-        return db.session.execute(
-            db
-                .select(NRankRecordModel)
-                .where(NRankRecordModel.id == id)
-        ).scalar()
+        return NRankRecordModel.query.filter(NRankRecordModel.id == id).one()
     
     def change_last_searched_at(self, entity):
         try:

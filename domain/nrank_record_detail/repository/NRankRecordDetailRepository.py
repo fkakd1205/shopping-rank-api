@@ -16,10 +16,14 @@ class NRankRecordDetailRepository():
             db.session.close()
 
     def search_list_by_record_id(self, record_id):
-        return db.session.execute(
-            db
-                .select(NRankRecordDetailModel)
-                .where(NRankRecordDetailModel.nrank_record_id == record_id)
-            ).scalars()
-            # ).scalars().all()
+        return NRankRecordDetailModel.query.filter(NRankRecordDetailModel.nrank_record_id == record_id).all()
+
+    def bulk_delete(self, record_id):
+        try:
+            NRankRecordDetailModel.query.filter(NRankRecordDetailModel.nrank_record_id == record_id).delete()
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
         
