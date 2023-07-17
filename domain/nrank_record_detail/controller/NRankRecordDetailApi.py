@@ -3,7 +3,7 @@ from http import HTTPStatus
 import asyncio
 
 from domain.message.dto.MessageDto import MessageDto
-from domain.nrank_record_detail.service.NRankRecordDetailService import NRankRecordDetailService
+from domain.nrank_record_detail.service.NRankRecordDetailServiceV2 import NRankRecordDetailService
 
 NRankRecordDetailApi = Namespace('NRankRecordDetail')
 

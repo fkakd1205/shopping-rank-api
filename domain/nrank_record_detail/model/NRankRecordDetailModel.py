@@ -14,7 +14,7 @@ class NRankRecordDetailModel(db.Model):
     mall_product_id = db.Column("mall_product_id", db.String(15), nullable=True)
 
     advertising_yn = db.Column("advertising_yn", db.String(1), nullable=False)
-    excluded_ad_rank = db.Column("excluded_ad_rank", db.Integer, nullable=True)
+    included_ad_rank = db.Column("included_ad_rank", db.Integer, nullable=True)
     price_comparision_yn = db.Column("price_comparision_yn", db.String(1), nullable=False)
     comparision_rank = db.Column("comparision_rank", db.Integer, nullable=True)
     low_mall_count = db.Column("low_mall_count", db.Integer, nullable=True)
@@ -44,7 +44,7 @@ class NRankRecordDetailModel(db.Model):
         self.mall_product_id = None     # 상품 id
         
         self.advertising_yn = 'n'      # 광고 여부
-        self.excluded_ad_rank = 0     # 실제 순위
+        self.included_ad_rank = 0     # 실제 순위
         self.price_comparision_yn = 'n'     # 가격 비교 여부
         self.comparision_rank = 0        # 가격 비교 순위
         self.low_mall_count = 0       # 가격비교 쇼핑몰 개수

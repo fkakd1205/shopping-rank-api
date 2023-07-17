@@ -9,7 +9,7 @@ class NRankRecordDetailDto():
         self.mall_product_id = None     # 상품 id
         
         self.advertising_yn = 'n'      # 광고 여부
-        self.excluded_ad_rank = 0     # 실제 순위
+        self.included_ad_rank = 0     # 광고 포함 노출 순위
         self.price_comparision_yn = 'n'     # 가격 비교 여부
         self.comparision_rank = 0        # 가격 비교 순위
         self.low_mall_count = 0       # 가격비교 쇼핑몰 개수
@@ -40,7 +40,7 @@ class NRankRecordDetailDto():
         dto.page = entity.page
         dto.mall_product_id = entity.mall_product_id
         dto.advertising_yn = entity.advertising_yn
-        dto.excluded_ad_rank = entity.excluded_ad_rank
+        dto.included_ad_rank = entity.included_ad_rank
         dto.price_comparision_yn = entity.price_comparision_yn
         dto.comparision_rank = entity.comparision_rank
         dto.low_mall_count = entity.low_mall_count

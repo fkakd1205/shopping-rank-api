@@ -3,8 +3,8 @@ import uuid
 
 from domain.nrank_record.dto.NRankRecordDto import NRankRecordDto
 from domain.nrank_record.model.NRankRecordModel import NRankRecordModel
-from domain.nrank_record.repository.NRankRecordRepository import NRankRecordRepository
-from domain.nrank_record.sub_domain.nrank_record_detail.repository.NRankRecordDetailOfNRankRecordRepository import NRankRecordDetailOfNRankRecordRepository
+from domain.nrank_record.repository.NRankRecordRepositoryV2 import NRankRecordRepository
+from domain.nrank_record_detail.repository.NRankRecordDetailRepositoryV2 import NRankRecordDetailRepository
 
 from utils.date.DateTimeUtils import DateTimeUtils
 from exception.types.CustomDuplicationException import CustomDuplicationException
@@ -21,7 +21,7 @@ class NRankRecordService():
         dto.id = uuid.uuid4()
         dto.keyword = body['keyword']
         dto.mall_name = body['mall_name']
-        dto.workspace_id = headers['Wsid']
+        dto.workspace_id = headers['wsId']
         dto.created_at = DateTimeUtils.get_current_datetime()
         dto.created_by_member_id = uuid.UUID("212935ba-a222-40a6-8827-dcafedd3cd6c")
 
@@ -34,7 +34,7 @@ class NRankRecordService():
         repository = NRankRecordRepository()
 
         headers = request.headers
-        entities = repository.search_list_by_workspace_id(headers['Wsid'])
+        entities = repository.search_list_by_workspace_id(headers['wsId'])
         dtos = list(map(lambda entity: NRankRecordDto.to_dto(entity), entities))
         return dtos
     
@@ -54,7 +54,7 @@ class NRankRecordService():
     
     def deleteOne(self, id):
         repository = NRankRecordRepository()
-        nrankRecordRepository = NRankRecordDetailOfNRankRecordRepository()
+        nrankRecordRepository = NRankRecordDetailRepository()
 
         entity = repository.search_one(id)
         repository.delete_one(entity)

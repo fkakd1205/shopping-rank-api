@@ -21,7 +21,7 @@ TOTAL_REQUEST_TIMEOUT_SIZE = 60
 UNIT_REQUEST_TIMEOUT_SIZE = 30
 
 class NRankRecordDetailService():
-    
+
     def __init__(self, page_size = 0):
         self.keyword = None
         self.mall_name = None
@@ -89,22 +89,23 @@ class NRankRecordDetailService():
         try:
             # 한 페이지에 여러 상품이 노출될 수 있으므로 list 반환
             result = []
-            rank = DEFAULT_PAGINGSIZE * (page_index-1)
+            included_ad_rank = DEFAULT_PAGINGSIZE * (page_index-1)
             for responseObj in searchResponse: 
                 models = []
                 item = responseObj['item']
-                rank += 1
+                included_ad_rank += 1
 
                 if (item['mallName'] == self.mall_name):
                     model = NRankRecordDetailModel()
                     model.id = uuid.uuid4()
                     model.mall_name = self.mall_name
-                    model.rank = rank
+                    model.rank = int(item['rank'])
                     model.product_title = item['productTitle']
                     model.price = item['price']
-                    model.page = page_index
+                    # rank % 80 결과가 40보다 작으면 (page_index * 2) - 1, 40보다 크면 (page_index * 2)
+                    model.page = ((page_index * 2) - 1) if ((model.rank % DEFAULT_PAGINGSIZE) <= (DEFAULT_PAGINGSIZE / 2)) else (page_index * 2)
                     model.mall_product_id = item['mallProductId']
-                    model.excluded_ad_rank = item['rank']
+                    model.included_ad_rank = included_ad_rank
                     model.review_count = item['reviewCount']
                     model.score_info = item['scoreInfo']
                     model.registration_date = item['openDate']
@@ -119,6 +120,8 @@ class NRankRecordDetailService():
                     model.nrank_record_id = self.nrank_record_id
 
                     if('adId' in item):
+                        model.thumbnail_url = item.get('adImageUrl', model.thumbnail_url)
+                        model.rank = 0
                         model.advertising_yn = 'y'
 
                     models.append(model)
@@ -129,8 +132,8 @@ class NRankRecordDetailService():
                 if (item['lowMallList'] is not None):
                     # 가격비교 상품들의 공통 필드
                     comparition_rank = 0
+                    rank = int(item['rank'])
                     product_title = item['productTitle']
-                    excluded_ad_rank = item['rank']
                     review_count = item['reviewCount']
                     score_info = item['scoreInfo']
                     registration_date = item['openDate']
@@ -143,6 +146,7 @@ class NRankRecordDetailService():
                     category3_name = item['category3Name']
                     category4_name = item['category4Name']
                     low_mall_count = item['mallCount']
+                    page = ((page_index * 2) - 1) if ((rank % DEFAULT_PAGINGSIZE) <= (DEFAULT_PAGINGSIZE / 2)) else (page_index * 2)
 
                     for low_item in item['lowMallList']:
                         comparition_rank += 1
@@ -151,12 +155,12 @@ class NRankRecordDetailService():
                             model.id = uuid.uuid4()
                             model.mall_name = self.mall_name
                             model.rank = rank
-                            model.excluded_ad_rank = excluded_ad_rank
+                            model.included_ad_rank = included_ad_rank
                             model.price_comparision_yn = 'y'
                             model.comparision_rank = comparition_rank
                             model.product_title = product_title
                             model.price = low_item['price']
-                            model.page = page_index
+                            model.page = page
                             model.mall_product_id = low_item['mallPid']
                             model.review_count = review_count
                             model.score_info = score_info
@@ -202,9 +206,9 @@ class NRankRecordDetailService():
         for result in tasks.result():
             results.extend(result)
         
-        # TODO :: bulk_delete 성공한다면 bulk_save 실행. bulk_save 성공한다면 nrank_record update 실행
-        nRankRecordDetailRepository.bulk_save(results)
+        # TODO :: bulk_save 성공한다면 bulk_delete 실행. bulk_delete 성공한다면 nrank_record update 실행
         nRankRecordDetailRepository.bulk_delete(self.nrank_record_id)
+        nRankRecordDetailRepository.bulk_save(results)
         self.update_nrank_record_last_searched_at()
 
     def update_nrank_record_last_searched_at(self):
