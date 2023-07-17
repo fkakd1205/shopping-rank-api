@@ -22,16 +22,18 @@ UNIT_REQUEST_TIMEOUT_SIZE = 30
 
 class NRankRecordDetailService():
 
-    def __init__(self, page_size = 0):
+    def __init__(self, page_size = 0, record_id = None):
         self.keyword = None
         self.mall_name = None
         self.page_size = page_size
+        self.record_id = record_id
 
     def set_request_info(self):
-        body = request.get_json()
-        self.keyword = body['keyword']
-        self.mall_name = body['mall_name']
-        self.nrank_record_id = body['nrank_record_id']
+        nRankRecordRepository = NRankRecordRepository()
+        recordModel = nRankRecordRepository.search_one(self.record_id)
+
+        self.keyword = recordModel.keyword
+        self.mall_name = recordModel.mall_name
 
     async def get_current_page_response(self, page_index):
         params = {
@@ -90,11 +92,15 @@ class NRankRecordDetailService():
             # 한 페이지에 여러 상품이 노출될 수 있으므로 list 반환
             result = []
             included_ad_rank = DEFAULT_PAGINGSIZE * (page_index-1)
+            ad_rank = DEFAULT_PAGINGSIZE * (page_index-1)
             for responseObj in searchResponse: 
                 models = []
                 item = responseObj['item']
                 included_ad_rank += 1
-
+                
+                if('adId' in item):
+                    ad_rank += 1
+                
                 if (item['mallName'] == self.mall_name):
                     model = NRankRecordDetailModel()
                     model.id = uuid.uuid4()
@@ -117,11 +123,12 @@ class NRankRecordDetailService():
                     model.category2_name = item['category2Name']
                     model.category3_name = item['category3Name']
                     model.category4_name = item['category4Name']
-                    model.nrank_record_id = self.nrank_record_id
+                    model.nrank_record_id = self.record_id
 
                     if('adId' in item):
                         model.thumbnail_url = item.get('adImageUrl', model.thumbnail_url)
-                        model.rank = 0
+                        model.page = None
+                        model.rank = ad_rank
                         model.advertising_yn = 'y'
 
                     models.append(model)
@@ -174,7 +181,7 @@ class NRankRecordDetailService():
                             model.category3_name = category3_name
                             model.category4_name = category4_name
                             model.low_mall_count = low_mall_count
-                            model.nrank_record_id = self.nrank_record_id
+                            model.nrank_record_id = self.record_id
                             models.append(model)
 
                 result.extend(models)
@@ -207,14 +214,14 @@ class NRankRecordDetailService():
             results.extend(result)
         
         # TODO :: bulk_save 성공한다면 bulk_delete 실행. bulk_delete 성공한다면 nrank_record update 실행
-        nRankRecordDetailRepository.bulk_delete(self.nrank_record_id)
+        nRankRecordDetailRepository.bulk_delete(self.record_id)
         nRankRecordDetailRepository.bulk_save(results)
         self.update_nrank_record_last_searched_at()
 
     def update_nrank_record_last_searched_at(self):
         nRankRecordRepository = NRankRecordRepository()
 
-        entity = nRankRecordRepository.search_one(self.nrank_record_id)
+        entity = nRankRecordRepository.search_one(self.record_id)
         nRankRecordRepository.change_last_searched_at(entity)
         
 

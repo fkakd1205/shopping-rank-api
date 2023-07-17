@@ -7,14 +7,14 @@ from domain.nrank_record_detail.service.NRankRecordDetailServiceV2 import NRankR
 
 NRankRecordDetailApi = Namespace('NRankRecordDetail')
 
-@NRankRecordDetailApi.route('', methods=['POST'])
+@NRankRecordDetailApi.route('/<record_id>', methods=['POST'])
 class NRankRecordDetail(Resource):
-    def post(self):
+    def post(self, record_id):
         message = MessageDto()
 
         # TODO :: page_size 구하는 로직 추가
-        page_size = 2
-        nRankRecordDetailService = NRankRecordDetailService(page_size)
+        page_size = 3
+        nRankRecordDetailService = NRankRecordDetailService(page_size, record_id)
         asyncio.run(nRankRecordDetailService.create_list())
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
