@@ -1,0 +1,2 @@
+class CustomInvalidValueException(Exception):
+    pass

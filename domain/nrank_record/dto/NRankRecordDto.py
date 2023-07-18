@@ -6,18 +6,18 @@ class NRankRecordDto():
         self.keyword = None
         self.mall_name = None
         self.workspace_id = None
-        self.last_searched_at = None
         self.created_at = None
         self.created_by_member_id = None
+        self.current_nrank_record_info_id = None
 
     @staticmethod
-    def to_dto(entity):
+    def to_dto(model):
         dto = NRankRecordDto()
-        dto.id = entity.id
-        dto.keyword = entity.keyword
-        dto.mall_name = entity.mall_name
-        dto.workspace_id = entity.workspace_id
-        dto.last_searched_at = CustomUTCDateTime.convert_timezone_format(entity.last_searched_at)
-        dto.created_at = CustomUTCDateTime.convert_timezone_format(entity.created_at)
-        dto.created_by_member_id = entity.created_by_member_id
+        dto.id = model.id
+        dto.keyword = model.keyword
+        dto.mall_name = model.mall_name
+        dto.workspace_id = model.workspace_id
+        dto.created_at = CustomUTCDateTime.convert_timezone_format(model.created_at)
+        dto.created_by_member_id = model.created_by_member_id
+        dto.current_nrank_record_info_id = model.current_nrank_record_info_id
         return dto.__dict__

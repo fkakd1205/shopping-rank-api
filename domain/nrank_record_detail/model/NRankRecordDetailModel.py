@@ -32,7 +32,7 @@ class NRankRecordDetailModel(db.Model):
     category3_name = db.Column("category3_name", db.String(30), nullable=True)
     category4_name = db.Column("category4_name", db.String(30), nullable=True)
 
-    nrank_record_id = db.Column("nrank_record_id", db.String(36), nullable=False)
+    nrank_record_info_id = db.Column("nrank_record_info_id", db.String(36), nullable=False)
 
     def __init__(self):
         self.id = None
@@ -62,4 +62,4 @@ class NRankRecordDetailModel(db.Model):
         self.category3_name = None       # 카테고리3
         self.category4_name = None       # 카테고리4
         
-        self.nrank_record_id = None
+        self.nrank_record_info_id = None

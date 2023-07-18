@@ -27,7 +27,7 @@ class NRankRecordDetailDto():
         self.category3_name = None       # 카테고리3
         self.category4_name = None       # 카테고리4
         
-        self.nrank_record_id = None
+        self.nrank_record_info_id = None
 
     @staticmethod
     def to_dto(entity):
@@ -55,5 +55,5 @@ class NRankRecordDetailDto():
         dto.category2_name = entity.category2_name
         dto.category3_name = entity.category3_name
         dto.category4_name = entity.category4_name
-        dto.nrank_record_id = entity.nrank_record_id
+        dto.nrank_record_info_id = entity.nrank_record_info_id
         return dto.__dict__
