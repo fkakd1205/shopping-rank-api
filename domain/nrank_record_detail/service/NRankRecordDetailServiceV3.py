@@ -39,15 +39,6 @@ class NRankRecordDetailService():
         self.keyword = record_model.keyword
         self.mall_name = record_model.mall_name
 
-    def init_nrank_record_info(self):
-        record_info_id = uuid.uuid4()
-        record_info_dto = NRankRecordInfoDto()
-        record_info_dto.id = record_info_id
-        record_info_dto.nrank_record_id = self.record_id
-
-        self.record_info_id = record_info_id
-        return record_info_dto
-
     async def get_current_page_response(self, page_index):
         params = {
             'frm': 'NVSHTTL',
@@ -105,15 +96,11 @@ class NRankRecordDetailService():
             # 한 페이지에 여러 상품이 노출될 수 있으므로 list 반환
             result = []
             included_ad_rank = DEFAULT_PAGINGSIZE * (page_index-1)
-            ad_rank = DEFAULT_PAGINGSIZE * (page_index-1)
             for responseObj in searchResponse: 
                 models = []
                 item = responseObj['item']
                 included_ad_rank += 1
-                
-                if('adId' in item):
-                    ad_rank += 1
-                
+
                 if (item['mallName'] == self.mall_name):
                     model = NRankRecordDetailModel()
                     model.id = uuid.uuid4()
@@ -141,7 +128,8 @@ class NRankRecordDetailService():
                     if('adId' in item):
                         model.thumbnail_url = item.get('adImageUrl', model.thumbnail_url)
                         model.page = None
-                        model.rank = ad_rank
+                        # TODO :: 광고 상품 순위 설정
+                        model.rank = 0
                         model.advertising_yn = 'y'
 
                     models.append(model)
@@ -208,10 +196,13 @@ class NRankRecordDetailService():
         nRankRecordDetailRepository = NRankRecordDetailRepository()
         nRankRecordRepository = NRankRecordRepository()
         record_model = nRankRecordRepository.search_one(self.record_id)
-
         self.set_request_info(record_model)
-        record_info_dto = self.init_nrank_record_info()
 
+        record_info_dto = NRankRecordInfoDto()
+        record_info_dto.id = uuid.uuid4()
+        record_info_dto.nrank_record_id = self.record_id
+
+        self.record_info_id = record_info_dto.id
         results = asyncio.run(self.request_shopping_ranking())
 
         # 1. 랭킹 조회가 완료되면 nrank_record_detail 생성, nrank_record_info 생성. nrank_record의 current_nrank_record_id 업데이트
@@ -236,7 +227,7 @@ class NRankRecordDetailService():
         
         for result in tasks.result():
             results.extend(result)
-        
+
         return results
 
     def create_nrank_record_info(self, record_info_dto, results):

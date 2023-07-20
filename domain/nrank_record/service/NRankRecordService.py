@@ -69,7 +69,6 @@ class NRankRecordService():
 
         return record_related_record_info
         
-
     def search_one(self, id):
         repository = NRankRecordRepository()
 

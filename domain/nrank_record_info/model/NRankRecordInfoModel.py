@@ -8,6 +8,7 @@ class NRankRecordInfoModel(db.Model):
     thumbnail_url = db.Column("thumbnail_url", db.String(600), nullable=True)
     created_at = db.Column("created_at", db.DateTime(timezone = True), nullable=True)
     nrank_record_id = db.Column("nrank_record_id", db.String(36), nullable=False)
+    # nrank_record_id = db.Column("nrank_record_id", db.String(36), db.ForeignKey("nrank_record.id"), nullable=False)
 
     def __init__(self):
         self.id = None

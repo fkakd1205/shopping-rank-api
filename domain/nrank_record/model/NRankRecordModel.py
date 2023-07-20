@@ -12,6 +12,8 @@ class NRankRecordModel(db.Model):
     created_by_member_id = db.Column("created_by_member_id", db.String(36), nullable=False)
     current_nrank_record_info_id = db.Column("current_nrank_record_info_id", db.String(36), nullable=False)
 
+    # nrank_record_infos = db.relationship("NRankRecordInfoModel")
+
     def __init__(self):
         self.id = None
         self.keyword = None
