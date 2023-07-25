@@ -1,6 +1,6 @@
-from utils.db.DBUtils import db
+from utils.db.v1.DBUtils import db
 
-from domain.nrank_record_info.model.NRankRecordInfoModel import NRankRecordInfoModel
+from domain.nrank_record_info.model.NRankRecordInfoModelV2 import NRankRecordInfoModel
 
 class NRankRecordInfoRepository():
 
@@ -15,11 +15,11 @@ class NRankRecordInfoRepository():
         
     def bulk_delete(self, record_id):
         try:
-            db.sesison.execute(
-                db
-                    .delete(NRankRecordInfoModel)
+            query = db\
+                    .delete(NRankRecordInfoModel)\
                     .where(NRankRecordInfoModel.nrank_record_id == record_id)
-            )
+            
+            db.sesison.execute(query)
             db.session.commit()
         except:
             db.session.rollback()
@@ -27,8 +27,6 @@ class NRankRecordInfoRepository():
             db.session.close()
 
     def searh_list_by_record_ids(self, record_ids):
-        return db.session.execute(
-            db
-                .select(NRankRecordInfoModel)
-                .where(NRankRecordInfoModel.nrank_record_id.in_(record_ids))
-        ).scalars().all()
+        query = db.select(NRankRecordInfoModel).where(NRankRecordInfoModel.nrank_record_id.in_(record_ids))
+        return db.execute(query).scalars().all()
+    

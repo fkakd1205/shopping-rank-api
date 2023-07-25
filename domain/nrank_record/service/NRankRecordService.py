@@ -2,10 +2,10 @@ from flask import request
 import uuid
 
 from domain.nrank_record.dto.NRankRecordDto import NRankRecordDto
-from domain.nrank_record.model.NRankRecordModel import NRankRecordModel
-from domain.nrank_record.repository.NRankRecordRepositoryV3 import NRankRecordRepository
+from domain.nrank_record.model.NRankRecordModelV2 import NRankRecordModel
+from domain.nrank_record.repository.NRankRecordRepositoryV2 import NRankRecordRepository
 from domain.nrank_record_detail.repository.NRankRecordDetailRepositoryV2 import NRankRecordDetailRepository
-from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankRecordInfoRepository
+from domain.nrank_record_info.repository.NRankRecordInfoRepositoryV2 import NRankRecordInfoRepository
 from domain.nrank_record_info.dto.NRankRecordInfoDto import NRankRecordInfoDto
 
 from utils.date.DateTimeUtils import DateTimeUtils
@@ -78,13 +78,15 @@ class NRankRecordService():
     
     def deleteOne(self, id):
         repository = NRankRecordRepository()
-        nrankRecordRepository = NRankRecordDetailRepository()
+        nrankRecordDetailRepository = NRankRecordDetailRepository()
         nRankRecordInfoRepository = NRankRecordInfoRepository()
 
         # TODO :: 예외처리하기
-        entity = repository.search_one(id)
-        repository.delete_one(entity)
-        nrankRecordRepository.bulk_delete(entity.id)
-        nRankRecordInfoRepository.bulk_delete(entity.id)        
+        model = repository.search_one(id)
+        repository.delete_one(model)
+        info_models = nRankRecordInfoRepository.search_list_by_record_id(model.id)
+        info_ids = list(map(lambda info: info.id, info_models))
+        nrankRecordDetailRepository.bulk_delete_by_record_info_ids(info_ids)
+        nRankRecordInfoRepository.bulk_delete_by_ids(info_ids)
         
     

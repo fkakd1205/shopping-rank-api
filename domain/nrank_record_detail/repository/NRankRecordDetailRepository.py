@@ -1,29 +1,25 @@
-from utils.db.DBUtils import db
+from utils.db.v1.DBUtils import db
 
-from domain.nrank_record_detail.model.NRankRecordDetailModel import NRankRecordDetailModel
+from domain.nrank_record_detail.model.NRankRecordDetailModelV2 import NRankRecordDetailModel
 
 class NRankRecordDetailRepository():
 
     def bulk_save(self, entities):
         try:
+            # 객체 리스트를 대량 저장
+            # bulk_insert_mappings()는 dict list를 대량 저장
+            # add_all()은 반복적으로 add()를 실행
             db.session.bulk_save_objects(entities)
             db.session.commit()
         except:
             db.session.rollback()
-            raise
-            # TODO :: 예외를 발생시키고, service단에서 nrank_record의 last_searched_at의 업데이트를 막아햐함
         finally:
             db.session.close()
 
-    def search_list_by_record_id(self, record_id):
-        return NRankRecordDetailModel.query.filter(NRankRecordDetailModel.nrank_record_id == record_id).all()
-
-    def bulk_delete(self, record_id):
-        try:
-            NRankRecordDetailModel.query.filter(NRankRecordDetailModel.nrank_record_id == record_id).delete()
-            db.session.commit()
-        except:
-            db.session.rollback()
-        finally:
-            db.session.close()
+    def search_list_by_record_info_id(self, record_info_id):
+        query = db\
+                .select(NRankRecordDetailModel)\
+                .where(NRankRecordDetailModel.nrank_record_info_id == record_info_id)
+        
+        return db.session.execute(query).scalars().all()
         

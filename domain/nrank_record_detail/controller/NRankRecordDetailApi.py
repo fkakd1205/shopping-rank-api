@@ -1,11 +1,10 @@
 from flask_restx import Namespace, Resource
 from http import HTTPStatus
-import asyncio
 
 from domain.message.dto.MessageDto import MessageDto
-from domain.nrank_record_detail.service.NRankRecordDetailServiceV3 import NRankRecordDetailService
+from domain.nrank_record_detail.service.NRankRecordDetailService import NRankRecordDetailService
 
-NRankRecordDetailApi = Namespace('NRankRecordDetail')
+NRankRecordDetailApi = Namespace('NRankRecordDetailApi')
 
 @NRankRecordDetailApi.route('/<record_id>', methods=['POST'])
 class NRankRecordDetail(Resource):
