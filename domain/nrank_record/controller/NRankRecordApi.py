@@ -31,17 +31,6 @@ class NRankRecord(Resource):
 @NRankRecordApi.route('/<id>', methods=['GET', 'DELETE'])
 class NRankRecordIncludeId(Resource):
     
-    # deprecated
-    # def get(self, id):
-    #     message = MessageDto()
-
-    #     nRankRecordService = NRankRecordService()
-    #     message.set_data(nRankRecordService.search_one(id))
-    #     message.set_status(HTTPStatus.OK)
-    #     message.set_message("success")
-
-    #     return message.__dict__, message.status_code
-    
     def delete(self, id):
         message = MessageDto()
 

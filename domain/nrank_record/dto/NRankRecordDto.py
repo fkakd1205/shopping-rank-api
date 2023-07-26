@@ -1,7 +1,5 @@
 from utils.type.CustomUTCDateTime import CustomUTCDateTime
 
-from domain.nrank_record_info.dto.NRankRecordInfoDto import NRankRecordInfoDto
-
 class NRankRecordDto():
     def __init__(self):
         self.id = None

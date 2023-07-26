@@ -2,14 +2,13 @@ from flask import request
 import uuid
 
 from domain.nrank_record.dto.NRankRecordDto import NRankRecordDto
-from domain.nrank_record.model.NRankRecordModelV2 import NRankRecordModel
-from domain.nrank_record.repository.NRankRecordRepositoryV2 import NRankRecordRepository
-from domain.nrank_record_detail.repository.NRankRecordDetailRepositoryV2 import NRankRecordDetailRepository
-from domain.nrank_record_info.repository.NRankRecordInfoRepositoryV2 import NRankRecordInfoRepository
+from domain.nrank_record.model.NRankRecordModel import NRankRecordModel
+from domain.nrank_record.repository.NRankRecordRepository import NRankRecordRepository
+from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankRecordInfoRepository
 from domain.nrank_record_info.dto.NRankRecordInfoDto import NRankRecordInfoDto
 
 from utils.date.DateTimeUtils import DateTimeUtils
-from exception.types.CustomException import CustomDuplicationException, CustomNotFoundException
+from exception.types.CustomException import CustomDuplicationException
 from utils.db.v2.QueryUtils import transactional
 
 class NRankRecordService():
@@ -95,30 +94,6 @@ class NRankRecordService():
                 
             dtos.append(NRankRecordDto.RelatedNRankRecordInfos(record_dto, infos).__dict__)
         return dtos
-        
-    # deprecated
-    # def search_one(self, id):
-    #     repository = NRankRecordRepository()
-
-    #     entity = repository.search_one(id)
-    #     dto = NRankRecordDto.to_dto(entity)
-    #     return dto
-    
-    # deprecated
-    # def delete_one(self, id):
-    #     nRankRecordRepository = NRankRecordRepository()
-    #     nRankRecordDetailRepository = NRankRecordDetailRepository()
-    #     nRankRecordInfoRepository = NRankRecordInfoRepository()
-
-    #     # TODO :: search_one 제거
-    #     model = nRankRecordRepository.search_one(id)
-    #     if (model is None): raise CustomNotFoundException("데이터가 존재하지 않습니다.")
-    #     nRankRecordRepository.delete_one_by_id(model.id)
-
-    #     info_models = nRankRecordInfoRepository.search_list_by_record_id(model.id)
-    #     info_ids = list(map(lambda info: info.id, info_models))
-    #     nRankRecordDetailRepository.bulk_delete_by_record_info_ids(info_ids)
-    #     nRankRecordInfoRepository.bulk_delete_by_ids(info_ids)
 
     @transactional
     def delete_one(self, id):

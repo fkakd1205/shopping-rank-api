@@ -1,26 +1,29 @@
-# from utils.db.DBUtils import db
+from utils.db.v2.DBUtils import Base
+from sqlalchemy import Column, BigInteger, String, DateTime, Boolean
 
-# class NRankRecordInfoModel(db.Model):
-#     __tablename__ = 'nrank_record_info'
+class NRankRecordInfoModel(Base):
+    __tablename__ = 'nrank_record_info'
 
-#     cid = db.Column("cid", db.BigInteger, primary_key=True, autoincrement=True)
-#     id = db.Column("id", db.String(36), unique=True, nullable=False)
-#     thumbnail_url = db.Column("thumbnail_url", db.String(600), nullable=True)
-#     created_at = db.Column("created_at", db.DateTime(timezone = True), nullable=True)
-#     nrank_record_id = db.Column("nrank_record_id", db.String(36), nullable=False)
-#     # nrank_record_id = db.Column("nrank_record_id", db.String(36), db.ForeignKey("nrank_record.id"), nullable=False)
+    cid = Column("cid", BigInteger, primary_key=True, autoincrement=True)
+    id = Column("id", String(36), unique=True, nullable=False)
+    thumbnail_url = Column("thumbnail_url", String(600), nullable=True)
+    created_at = Column("created_at", DateTime(timezone = True), nullable=True)
+    nrank_record_id = Column("nrank_record_id", String(36), nullable=False)
+    deleted_flag = Column("deleted_flag", Boolean, nullable=False)
 
-#     def __init__(self):
-#         self.id = None
-#         self.thumbnail_url = None
-#         self.created_at = None
-#         self.nrank_record_id = None
+    def __init__(self):
+        self.id = None
+        self.thumbnail_url = None
+        self.created_at = None
+        self.nrank_record_id = None
+        self.deleted_flag = None
 
-#     @staticmethod
-#     def to_model(dto):
-#         model = NRankRecordInfoModel()
-#         model.id = dto.id
-#         model.thumbnail_url = dto.thumbnail_url
-#         model.created_at = dto.created_at
-#         model.nrank_record_id = dto.nrank_record_id
-#         return model
+    @staticmethod
+    def to_model(dto):
+        model = NRankRecordInfoModel()
+        model.id = dto.id
+        model.thumbnail_url = dto.thumbnail_url
+        model.created_at = dto.created_at
+        model.nrank_record_id = dto.nrank_record_id
+        model.deleted_flag = dto.deleted_flag
+        return model
