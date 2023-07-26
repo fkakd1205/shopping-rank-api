@@ -1,5 +1,5 @@
 from utils.db.v2.DBUtils import Base
-from sqlalchemy import Column, BigInteger, String, Integer, DateTime
+from sqlalchemy import Column, BigInteger, String, Integer, DateTime, Boolean
 
 class NRankRecordDetailModel(Base):
     __tablename__ = 'nrank_record_detail'
@@ -33,6 +33,7 @@ class NRankRecordDetailModel(Base):
     category4_name = Column("category4_name", String(30), nullable=True)
 
     nrank_record_info_id = Column("nrank_record_info_id", String(36), nullable=False)
+    deleted_flag = Column("deleted_flag", Boolean, nullable=False)
 
     def __init__(self):
         self.id = None
@@ -63,3 +64,4 @@ class NRankRecordDetailModel(Base):
         self.category4_name = None       # 카테고리4
         
         self.nrank_record_info_id = None
+        self.deleted_flag = False

@@ -1,2 +1,0 @@
-class CustomDuplicationException(Exception):
-    pass

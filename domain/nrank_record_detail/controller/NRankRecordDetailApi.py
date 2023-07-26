@@ -11,7 +11,7 @@ class NRankRecordDetail(Resource):
     def post(self, record_id):
         message = MessageDto()
 
-        # TODO :: page_size 구하는 로직 추가
+        # TODO :: page_size 설정하는 로직 추가
         page_size = 2
         nRankRecordDetailService = NRankRecordDetailService(page_size, record_id)
         nRankRecordDetailService.create_list()

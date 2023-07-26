@@ -4,6 +4,7 @@ import asyncio
 import aiohttp
 import uuid
 from fake_useragent import UserAgent
+import copy
 
 from aiohttp.client_exceptions import ClientProxyConnectionError, ClientOSError, ClientHttpProxyError
 
@@ -16,7 +17,8 @@ from domain.nrank_record_info.repository.NRankRecordInfoRepositoryV2 import NRan
 from domain.nrank_record_info.model.NRankRecordInfoModelV2 import NRankRecordInfoModel
 
 from utils.date.DateTimeUtils import DateTimeUtils
-from exception.types.CustomInvalidValueException import CustomInvalidValueException
+from exception.types.CustomException import CustomInvalidValueException
+from utils.db.v2.QueryUtils import transactional
 
 PROXY_REQUEST_URL = "http://kr.smartproxy.com:10000"
 NAVER_SHOPPINT_RANK_URL = "https://search.shopping.naver.com/search/all"
@@ -26,7 +28,6 @@ TOTAL_REQUEST_TIMEOUT_SIZE = 60
 UNIT_REQUEST_TIMEOUT_SIZE = 30
 
 class NRankRecordDetailService():
-    ad_products = {}
 
     def __init__(self, page_size = 0, record_id = None):
         self.keyword = None
@@ -34,6 +35,7 @@ class NRankRecordDetailService():
         self.page_size = page_size
         self.record_id = record_id
         self.record_info_id = None
+        self.ad_products = {}
 
     def set_request_info(self, record_model):
         self.keyword = record_model.keyword
@@ -93,7 +95,7 @@ class NRankRecordDetailService():
         searchResponse = await asyncio.create_task(self.get_current_page_response(page_index))
 
         try:
-            # 한 페이지에 여러 상품이 노출될 수 있으므로 list 반환
+            # 한 페이지에 스토어의 여러 상품이 노출될 수 있으므로 list로 반환
             result = []
             included_ad_rank = DEFAULT_PAGINGSIZE * (page_index-1)
             for responseObj in searchResponse: 
@@ -130,14 +132,13 @@ class NRankRecordDetailService():
                     model.nrank_record_info_id = self.record_info_id
 
                     if('adId' in item):
+                        model.advertising_yn = 'y'
                         model.thumbnail_url = item.get('adImageUrl', model.thumbnail_url)
                         model.page = None
                         model.rank = 0
                         model.included_ad_rank = included_ad_rank
-                        model.advertising_yn = 'y'
 
                     models.append(model)
-                    # continue
 
                 # 가격비교 쇼핑몰 검색
                 # item['lowMallList'] = null or []
@@ -196,44 +197,49 @@ class NRankRecordDetailService():
         except AttributeError as e:
             raise CustomInvalidValueException(e)
 
+    @transactional
     def create_list(self):
-        self.ad_products = {}
         nRankRecordDetailRepository = NRankRecordDetailRepository()
         nRankRecordRepository = NRankRecordRepository()
+        
+        # 조회된 nrank_record의 keyword & mallname으로 랭킹 검색 값 설정
         record_model = nRankRecordRepository.search_one(self.record_id)
         self.set_request_info(record_model)
 
-        record_info_dto = NRankRecordInfoDto()
-        record_info_dto.id = uuid.uuid4()
-        record_info_dto.nrank_record_id = self.record_id
+        # nrank_record_info 초기화
+        record_info_model = NRankRecordInfoModel()
+        record_info_model.id = uuid.uuid4()
+        record_info_model.nrank_record_id = self.record_id
+        record_info_model.deleted_flag = False
 
-        self.record_info_id = record_info_dto.id
+        self.record_info_id = record_info_model.id
         results = asyncio.run(self.request_shopping_ranking())
-
-        sorted_ad_products = dict(sorted(self.ad_products.items()))
-        self.ad_products = sorted_ad_products
         updated_results = self.updateRankForAdProduct(results)
         
-        # 1. 랭킹 조회가 완료되면 nrank_record_detail 생성, nrank_record_info 생성. nrank_record의 current_nrank_record_id 업데이트
+        # 1. nrank_record_detail 생성
+        # 2. nrank_record_info 생성
+        # 3. nrank_record의 current_nrank_record_id 업데이트
         nRankRecordDetailRepository.bulk_save(updated_results)
-        self.create_nrank_record_info(record_info_dto, updated_results)
+        self.create_nrank_record_info(record_info_model, updated_results)
         record_model.current_nrank_record_info_id = self.record_info_id
-        nRankRecordRepository.save(record_model)
 
     def updateRankForAdProduct(self, results):
-        cnt = 0
-        ad_detail_ids = self.ad_products.values()
-        for ad_detail_id in ad_detail_ids:
-            cnt += 1
-            for result in results:
-                if(result.id == ad_detail_id):
-                    result.rank = cnt
+        sorted_ad_products = dict(sorted(self.ad_products.items()))
+        self.ad_products = sorted_ad_products
+        
+        # 광고상품 순위 설정된 results
+        updated_results = copy.deepcopy(results)
 
-        return results
+        ad_detail_ids = self.ad_products.values()
+        for idx, ad_detail_id in enumerate(ad_detail_ids):
+            for result in updated_results:
+                if(result.id == ad_detail_id):
+                    result.rank = idx + 1
+
+        return updated_results
 
     async def request_shopping_ranking(self):
-        results = []
-
+        ranking_results = []
         # pageSize 만큼 비동기 요청
         rank_entities = [self.search_page_and_get_rank_models(i+1) for i in range(self.page_size)]
         tasks = asyncio.gather(*rank_entities)
@@ -246,11 +252,11 @@ class NRankRecordDetailService():
             raise TimeoutError("request time out")
         
         for result in tasks.result():
-            results.extend(result)
+            ranking_results.extend(result)
 
-        return results
+        return ranking_results
 
-    def create_nrank_record_info(self, record_info_dto, results):
+    def create_nrank_record_info(self, record_info, results):
         nRankRecordInfoRepository = NRankRecordInfoRepository()
         ad_thumbnail_url = None
         thumbnail_url = None
@@ -259,14 +265,13 @@ class NRankRecordDetailService():
         for result in results:
             if (result.advertising_yn == 'y' and ad_thumbnail_url is None):
                 ad_thumbnail_url = result.thumbnail_url
-            else:
+            elif(result.advertising_yn == 'n'):
                 thumbnail_url = result.thumbnail_url
                 break
         
-        record_info_dto.thumbnail_url = ad_thumbnail_url if (thumbnail_url is None) else thumbnail_url
-        record_info_dto.created_at = DateTimeUtils.get_current_datetime()
-        model = NRankRecordInfoModel.to_model(record_info_dto)
-        nRankRecordInfoRepository.save(model)
+        record_info.thumbnail_url = ad_thumbnail_url if (thumbnail_url is None) else thumbnail_url
+        record_info.created_at = DateTimeUtils.get_current_datetime()
+        nRankRecordInfoRepository.save(record_info)
 
     def search_list_by_record_info_id(self, record_info_id):
         nRankRecordDetailRepository = NRankRecordDetailRepository()

@@ -6,6 +6,7 @@ class NRankRecordInfoDto():
         self.thumbnail_url = None
         self.created_at = None
         self.nrank_record_id = None
+        self.deleted_flag = False
 
     @staticmethod
     def to_dto(model):
@@ -14,4 +15,5 @@ class NRankRecordInfoDto():
         dto.thumbnail_url = model.thumbnail_url
         dto.created_at = CustomUTCDateTime.convert_timezone_format(model.created_at)
         dto.nrank_record_id = model.nrank_record_id
-        return dto.__dict__
+        dto.deleted_flag = model.deleted_flag
+        return dto

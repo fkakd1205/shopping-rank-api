@@ -1,2 +1,0 @@
-class CustomInvalidValueException(Exception):
-    pass

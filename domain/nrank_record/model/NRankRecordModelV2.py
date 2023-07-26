@@ -1,5 +1,5 @@
 from utils.db.v2.DBUtils import Base
-from sqlalchemy import Column, BigInteger, String, DateTime
+from sqlalchemy import Column, BigInteger, String, DateTime, Boolean
 
 class NRankRecordModel(Base):
     __tablename__ = 'nrank_record'
@@ -12,6 +12,7 @@ class NRankRecordModel(Base):
     created_at = Column("created_at", DateTime(timezone = True), nullable=True)
     created_by_member_id = Column("created_by_member_id", String(36), nullable=False)
     current_nrank_record_info_id = Column("current_nrank_record_info_id", String(36), nullable=False)
+    deleted_flag = Column("deleted_flag", Boolean, nullable=False)
 
     def __init__(self):
         self.id = None
@@ -21,6 +22,7 @@ class NRankRecordModel(Base):
         self.created_at = None
         self.created_by_member_id = None
         self.current_nrank_record_info_id = None
+        self.deleted_flag = False
 
     @staticmethod
     def to_model(dto):
@@ -32,4 +34,5 @@ class NRankRecordModel(Base):
         model.created_at = dto.created_at
         model.created_by_member_id = dto.created_by_member_id
         model.current_nrank_record_info_id = dto.current_nrank_record_info_id
+        model.deleted_flag = dto.deleted_flag
         return model
