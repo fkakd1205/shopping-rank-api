@@ -9,3 +9,6 @@ class CustomNotFoundException(Exception):
 
 class CustomMethodNotAllowedException(Exception):
     pass
+
+class CustomInvalidUserException(Exception):
+    pass
