@@ -1,7 +1,9 @@
 from utils.db.v2.DBUtils import db_session
-from sqlalchemy import select, text
+from sqlalchemy import select, text, update
 
 from domain.nrank_record.model.NRankRecordModel import NRankRecordModel
+from domain.nrank_record_info.model.NRankRecordInfoModel import NRankRecordInfoModel
+from domain.nrank_record_detail.model.NRankRecordDetailModel import NRankRecordDetailModel
 
 class NRankRecordRepository():
     def save(self, entity):
@@ -21,11 +23,12 @@ class NRankRecordRepository():
     
     def deleted_one_related_nrank_record_info_and_nrank_recrod_detail(self, id):
         query = text("""
-            UPDATE nrank_record record, nrank_record_info info, nrank_record_detail detail
+            UPDATE nrank_record record
+            LEFT OUTER JOIN nrank_record_info info ON info.nrank_record_id = record.id
+            LEFT OUTER JOIN nrank_record_detail detail ON detail.nrank_record_info_id = info.id
             SET record.deleted_flag = True, info.deleted_flag = True, detail.deleted_flag = True
-            WHERE record.id = :id AND info.nrank_record_id = :id AND detail.nrank_record_info_id = info.id
+            WHERE record.id = :id
         """
         )
         params = {"id" : id}
         db_session.execute(query, params)
-        
