@@ -199,11 +199,11 @@ class NRankRecordDetailService():
 
     @transactional
     def create_list(self):
-        nRankRecordDetailRepository = NRankRecordDetailRepository()
-        nRankRecordRepository = NRankRecordRepository()
+        nrank_record_detail_repository = NRankRecordDetailRepository()
+        nrank_record_repository = NRankRecordRepository()
         
         # 조회된 nrank_record의 keyword & mallname으로 랭킹 검색 값 설정
-        record_model = nRankRecordRepository.search_one(self.record_id)
+        record_model = nrank_record_repository.search_one(self.record_id)
         self.set_request_info(record_model)
 
         # nrank_record_info 초기화
@@ -219,7 +219,7 @@ class NRankRecordDetailService():
         # 1. nrank_record_detail 생성
         # 2. nrank_record_info 생성
         # 3. nrank_record의 current_nrank_record_id 업데이트
-        nRankRecordDetailRepository.bulk_save(updated_results)
+        nrank_record_detail_repository.bulk_save(updated_results)
         self.create_nrank_record_info(record_info_model, updated_results)
         record_model.current_nrank_record_info_id = self.record_info_id
 
@@ -257,7 +257,7 @@ class NRankRecordDetailService():
         return ranking_results
 
     def create_nrank_record_info(self, record_info, results):
-        nRankRecordInfoRepository = NRankRecordInfoRepository()
+        nrank_record_info_repository = NRankRecordInfoRepository()
         ad_thumbnail_url = None
         thumbnail_url = None
         
@@ -271,11 +271,11 @@ class NRankRecordDetailService():
         
         record_info.thumbnail_url = ad_thumbnail_url if (thumbnail_url is None) else thumbnail_url
         record_info.created_at = DateTimeUtils.get_current_datetime()
-        nRankRecordInfoRepository.save(record_info)
+        nrank_record_info_repository.save(record_info)
 
     def search_list_by_record_info_id(self, record_info_id):
-        nRankRecordDetailRepository = NRankRecordDetailRepository()
+        nrank_record_detail_repository = NRankRecordDetailRepository()
         
-        detail_entities = nRankRecordDetailRepository.search_list_by_record_info_id(record_info_id)
+        detail_entities = nrank_record_detail_repository.search_list_by_record_info_id(record_info_id)
         detail_dtos = list(map(lambda entity: NRankRecordDetailDto.to_dto(entity), detail_entities))
         return detail_dtos

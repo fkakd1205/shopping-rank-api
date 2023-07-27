@@ -9,7 +9,7 @@ class NRankRecordDto():
         self.created_at = None
         self.created_by_member_id = None
         self.current_nrank_record_info_id = None
-        self.deleted_flag = False
+        self.deleted_flag = None
 
     @staticmethod
     def to_dto(model):

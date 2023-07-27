@@ -1,12 +1,14 @@
 from flask_restx import Api
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 
 from utils.db.v2.DBUtils import init_app
+from exception.CustomExceptionHandler import CustomExceptionHandler
 from domain.nrank_record.controller.NRankRecordApi import NRankRecordApi
 from domain.nrank_record_detail.controller.NRankRecordDetailApi import NRankRecordDetailApi
 from domain.test.TestApi import TestApi
-from exception.CustomExceptionHandler import CustomExceptionHandler
+
+from config.filter.JwtAuthorizationFilter import JwtAuthorizationFitler
 
 app = Flask(__name__)
 
@@ -17,7 +19,14 @@ CORS(
 )
 
 init_app(app)
-# register_interceptor(app)   # TODO :: register_interceptor에서 @app.request_before
+
+@app.before_request
+def before_request():
+    # request context 초기화
+    request.context = {}
+
+    # access token 검사
+    JwtAuthorizationFitler.filter()
 
 api.add_namespace(NRankRecordApi, "/api/v1/nrank-records")
 api.add_namespace(NRankRecordDetailApi, "/api/v1/nrank-record-details")

@@ -10,6 +10,7 @@ from domain.nrank_record_info.dto.NRankRecordInfoDto import NRankRecordInfoDto
 from utils.date.DateTimeUtils import DateTimeUtils
 from exception.types.CustomException import CustomDuplicationException
 from utils.db.v2.QueryUtils import transactional
+from utils.user.UserUtils import UserUtils
 
 class NRankRecordService():
 
@@ -34,7 +35,7 @@ class NRankRecordService():
         Use Repository Method:
             NRankRecordRepository -- save
         """
-        repository = NRankRecordRepository()
+        nrank_record_repository = NRankRecordRepository()
         dto = NRankRecordDto()
         
         headers = request.headers
@@ -45,15 +46,14 @@ class NRankRecordService():
         dto.mall_name = body['mall_name']
         dto.workspace_id = headers['wsId']
         dto.created_at = DateTimeUtils.get_current_datetime()
-        dto.created_by_member_id = uuid.UUID("212935ba-a222-40a6-8827-dcafedd3cd6c")
+        dto.created_by_member_id = UserUtils().get_user_id_else_throw()
         dto.deleted_flag = False
 
         # keyword & mall_name 중복검사
         self.check_duplication(dto)
         
         new_model = NRankRecordModel.to_model(dto)
-        repository.save(new_model)
-        """"""
+        nrank_record_repository.save(new_model)
 
     def search_list_by_workspace_id(self):
         """search list by workspace id

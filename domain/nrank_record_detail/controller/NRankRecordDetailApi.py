@@ -4,10 +4,14 @@ from http import HTTPStatus
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record_detail.service.NRankRecordDetailService import NRankRecordDetailService
 
+from config.interceptor.RequiredLoginInterceptor import required_login
+
 NRankRecordDetailApi = Namespace('NRankRecordDetailApi')
 
 @NRankRecordDetailApi.route('/<record_id>', methods=['POST'])
 class NRankRecordDetail(Resource):
+    
+    @required_login
     def post(self, record_id):
         message = MessageDto()
 
@@ -22,6 +26,8 @@ class NRankRecordDetail(Resource):
     
 @NRankRecordDetailApi.route('/nrank-record-info/<record_info_id>', methods=['GET'])
 class NRankRecordDetailIncludeNRankRecordInfoId(Resource):
+
+    @required_login
     def get(self, record_info_id):
         message = MessageDto()
 
