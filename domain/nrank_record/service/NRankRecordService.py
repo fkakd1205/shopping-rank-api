@@ -93,10 +93,11 @@ class NRankRecordService():
                     infos.append(record_info_dto.__dict__)
                 
             dtos.append(NRankRecordDto.RelatedNRankRecordInfos(record_dto, infos).__dict__)
+
         return dtos
 
     @transactional
     def delete_one(self, id):
         nRankRecordRepository = NRankRecordRepository()
-        nRankRecordRepository.deleted_one_related_nrank_record_info_and_nrank_recrod_detail(id)
+        nRankRecordRepository.soft_delete_one_and_related_all(id)
     

@@ -16,7 +16,7 @@ class NRankRecordInfoModel(Base):
         self.thumbnail_url = None
         self.created_at = None
         self.nrank_record_id = None
-        self.deleted_flag = None
+        self.deleted_flag = False
 
     @staticmethod
     def to_model(dto):

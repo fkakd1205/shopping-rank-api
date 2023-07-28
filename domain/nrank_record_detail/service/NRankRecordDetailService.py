@@ -29,24 +29,12 @@ UNIT_REQUEST_TIMEOUT_SIZE = 30
 
 class NRankRecordDetailService():
 
-    def __init__(self, page_size = 0, record_id = None):
-        self.keyword = None
-        self.mall_name = None
-        self.page_size = page_size
-        self.record_id = record_id
-        self.record_info_id = None
-        self.ad_products = {}
-
-    def set_request_info(self, record_model):
-        self.keyword = record_model.keyword
-        self.mall_name = record_model.mall_name
-
-    async def get_current_page_response(self, page_index):
+    async def get_current_page_response(self, page_index, create_req_dto):
         params = {
             'frm': 'NVSHTTL',
             'pagingIndex': page_index,
             'pagingSize': DEFAULT_PAGINGSIZE,
-            'query': self.keyword,
+            'query': create_req_dto.keyword,
             'sort': 'rel',
             'productSet': 'total',
         }
@@ -90,9 +78,9 @@ class NRankRecordDetailService():
             
             return productList
 
-    async def search_page_and_get_rank_models(self, page_index):
+    async def search_page_and_get_rank_models(self, page_index, create_req_dto):
         # get response by naver ranking page
-        searchResponse = await asyncio.create_task(self.get_current_page_response(page_index))
+        searchResponse = await asyncio.create_task(self.get_current_page_response(page_index, create_req_dto))
 
         try:
             # 한 페이지에 스토어의 여러 상품이 노출될 수 있으므로 list로 반환
@@ -105,12 +93,12 @@ class NRankRecordDetailService():
                 detail_id =  uuid.uuid4()
                 
                 if ('adId' in item):
-                    self.ad_products[included_ad_rank] = detail_id
+                    create_req_dto.ad_products[included_ad_rank] = detail_id
 
-                if (item['mallName'] == self.mall_name):
+                if (item['mallName'] == create_req_dto.mall_name):
                     model = NRankRecordDetailModel()
                     model.id = detail_id
-                    model.mall_name = self.mall_name
+                    model.mall_name = create_req_dto.mall_name
                     model.rank = int(item['rank'])
                     model.product_title = item['productTitle']
                     model.price = item['price']
@@ -129,7 +117,7 @@ class NRankRecordDetailService():
                     model.category2_name = item['category2Name']
                     model.category3_name = item['category3Name']
                     model.category4_name = item['category4Name']
-                    model.nrank_record_info_id = self.record_info_id
+                    model.nrank_record_info_id = create_req_dto.record_info_id
 
                     if('adId' in item):
                         model.advertising_yn = 'y'
@@ -163,10 +151,10 @@ class NRankRecordDetailService():
 
                     for low_item in item['lowMallList']:
                         comparition_rank += 1
-                        if (low_item['name'] == self.mall_name):
+                        if (low_item['name'] == create_req_dto.mall_name):
                             model = NRankRecordDetailModel()
                             model.id = uuid.uuid4()
-                            model.mall_name = self.mall_name
+                            model.mall_name = create_req_dto.mall_name
                             model.rank = rank
                             model.included_ad_rank = included_ad_rank
                             model.price_comparision_yn = 'y'
@@ -187,7 +175,7 @@ class NRankRecordDetailService():
                             model.category3_name = category3_name
                             model.category4_name = category4_name
                             model.low_mall_count = low_mall_count
-                            model.nrank_record_info_id = self.record_info_id
+                            model.nrank_record_info_id = create_req_dto.record_info_id
                             models.append(model)
 
                 result.extend(models)
@@ -198,39 +186,37 @@ class NRankRecordDetailService():
             raise CustomInvalidValueException(e)
 
     @transactional
-    def create_list(self):
+    def create_list(self, create_req_dto):
         nrank_record_detail_repository = NRankRecordDetailRepository()
         nrank_record_repository = NRankRecordRepository()
-        
-        # 조회된 nrank_record의 keyword & mallname으로 랭킹 검색 값 설정
-        record_model = nrank_record_repository.search_one(self.record_id)
-        self.set_request_info(record_model)
-
         # nrank_record_info 초기화
         record_info_model = NRankRecordInfoModel()
         record_info_model.id = uuid.uuid4()
-        record_info_model.nrank_record_id = self.record_id
-        record_info_model.deleted_flag = False
+        record_info_model.nrank_record_id = create_req_dto.record_id
 
-        self.record_info_id = record_info_model.id
-        results = asyncio.run(self.request_shopping_ranking())
-        updated_results = self.updateRankForAdProduct(results)
+        # 조회된 nrank_record의 keyword & mallname으로 랭킹 검색 값 설정
+        record_model = nrank_record_repository.search_one(create_req_dto.record_id)
+        create_req_dto.keyword = record_model.keyword
+        create_req_dto.mall_name = record_model.mall_name
+
+        create_req_dto.record_info_id = record_info_model.id
+        results = asyncio.run(self.request_shopping_ranking(create_req_dto))
+        updated_results = self.updateRankForAdProduct(create_req_dto, results)
         
         # 1. nrank_record_detail 생성
         # 2. nrank_record_info 생성
         # 3. nrank_record의 current_nrank_record_id 업데이트
         nrank_record_detail_repository.bulk_save(updated_results)
         self.create_nrank_record_info(record_info_model, updated_results)
-        record_model.current_nrank_record_info_id = self.record_info_id
+        record_model.current_nrank_record_info_id = create_req_dto.record_info_id
 
-    def updateRankForAdProduct(self, results):
-        sorted_ad_products = dict(sorted(self.ad_products.items()))
-        self.ad_products = sorted_ad_products
+    def updateRankForAdProduct(self, create_req_dto, results):
+        sorted_ad_products = dict(sorted(create_req_dto.ad_products.items()))
         
         # 광고상품 순위 설정된 results
         updated_results = copy.deepcopy(results)
 
-        ad_detail_ids = self.ad_products.values()
+        ad_detail_ids = sorted_ad_products.values()
         for idx, ad_detail_id in enumerate(ad_detail_ids):
             for result in updated_results:
                 if(result.id == ad_detail_id):
@@ -238,10 +224,10 @@ class NRankRecordDetailService():
 
         return updated_results
 
-    async def request_shopping_ranking(self):
+    async def request_shopping_ranking(self, create_req_dto):
         ranking_results = []
         # pageSize 만큼 비동기 요청
-        rank_entities = [self.search_page_and_get_rank_models(i+1) for i in range(self.page_size)]
+        rank_entities = [self.search_page_and_get_rank_models(i+1, create_req_dto) for i in range(create_req_dto.page_size)]
         tasks = asyncio.gather(*rank_entities)
 
         # 전체 요청시간이 TOTAL_REQUEST_TIMEOUT_SIZE를 초과한다면 기다리지 않고 예외처리

@@ -1,5 +1,5 @@
 from flask_restx import Api
-from flask import Flask, request
+from flask import Flask
 from flask_cors import CORS
 
 from utils.db.v2.DBUtils import init_app
@@ -22,9 +22,6 @@ init_app(app)
 
 @app.before_request
 def before_request():
-    # request context 초기화
-    request.context = {}
-
     # access token 검사
     JwtAuthorizationFitler.filter()
 

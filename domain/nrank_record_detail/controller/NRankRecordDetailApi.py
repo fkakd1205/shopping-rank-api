@@ -3,6 +3,7 @@ from http import HTTPStatus
 
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record_detail.service.NRankRecordDetailService import NRankRecordDetailService
+from domain.nrank_record_detail.dto.NRankRecordDetailCreateReqDto import NRankRecordDetailCreateReqDto
 
 from config.interceptor.RequiredLoginInterceptor import required_login
 
@@ -17,8 +18,11 @@ class NRankRecordDetail(Resource):
 
         # TODO :: page_size 설정하는 로직 추가
         page_size = 2
-        nRankRecordDetailService = NRankRecordDetailService(page_size, record_id)
-        nRankRecordDetailService.create_list()
+        create_req_dto = NRankRecordDetailCreateReqDto()
+        create_req_dto.page_size = page_size
+        create_req_dto.record_id = record_id
+        nRankRecordDetailService = NRankRecordDetailService()
+        nRankRecordDetailService.create_list(create_req_dto)
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 
