@@ -93,7 +93,7 @@ class NRankRecordDetailService():
                 detail_id =  uuid.uuid4()
                 
                 if ('adId' in item):
-                    create_req_dto.ad_products[included_ad_rank] = detail_id
+                    create_req_dto.total_ad_products[included_ad_rank] = detail_id
 
                 if (item['mallName'] == create_req_dto.mall_name):
                     model = NRankRecordDetailModel()
@@ -189,6 +189,7 @@ class NRankRecordDetailService():
     def create_list(self, create_req_dto):
         nrank_record_detail_repository = NRankRecordDetailRepository()
         nrank_record_repository = NRankRecordRepository()
+
         # nrank_record_info 초기화
         record_info_model = NRankRecordInfoModel()
         record_info_model.id = uuid.uuid4()
@@ -204,14 +205,19 @@ class NRankRecordDetailService():
         updated_results = self.updateRankForAdProduct(create_req_dto, results)
         
         # 1. nrank_record_detail 생성
-        # 2. nrank_record_info 생성
-        # 3. nrank_record의 current_nrank_record_id 업데이트
         nrank_record_detail_repository.bulk_save(updated_results)
+
+        # 2. nrank_record_info 생성
+        record_info_model.rank_detail_unit = len(results) - create_req_dto.ad_product_unit
+        record_info_model.ad_rank_detail_unit = create_req_dto.ad_product_unit
         self.create_nrank_record_info(record_info_model, updated_results)
+
+        # 3. nrank_record의 current_nrank_record_id 업데이트
         record_model.current_nrank_record_info_id = create_req_dto.record_info_id
+        nrank_record_repository.save(record_model)
 
     def updateRankForAdProduct(self, create_req_dto, results):
-        sorted_ad_products = dict(sorted(create_req_dto.ad_products.items()))
+        sorted_ad_products = dict(sorted(create_req_dto.total_ad_products.items()))
         
         # 광고상품 순위 설정된 results
         updated_results = copy.deepcopy(results)
@@ -221,6 +227,7 @@ class NRankRecordDetailService():
             for result in updated_results:
                 if(result.id == ad_detail_id):
                     result.rank = idx + 1
+                    create_req_dto.ad_product_unit += 1
 
         return updated_results
 

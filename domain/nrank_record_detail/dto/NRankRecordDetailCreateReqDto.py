@@ -5,4 +5,5 @@ class NRankRecordDetailCreateReqDto():
         self.page_size = None
         self.record_id = None
         self.record_info_id = None
-        self.ad_products = {}
+        self.ad_product_unit = 0
+        self.total_ad_products = {}
