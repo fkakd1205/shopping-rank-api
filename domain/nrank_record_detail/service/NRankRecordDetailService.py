@@ -50,7 +50,7 @@ class NRankRecordDetailService():
                 async with aiohttp.ClientSession() as session:
                     res = await session.get(
                         url=NAVER_SHOPPINT_RANK_URL,
-                        proxy = PROXY_REQUEST_URL,
+                        proxy=PROXY_REQUEST_URL,
                         timeout=UNIT_REQUEST_TIMEOUT_SIZE,
                         headers=headers,
                         params=params

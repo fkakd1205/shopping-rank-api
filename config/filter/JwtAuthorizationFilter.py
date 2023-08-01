@@ -1,31 +1,25 @@
-import jwt
 from flask import request, g
-import base64
+import requests
 
 from domain.user.model.UserModel import UserModel
-from config.key.jwt.JwtKeyConfig import jwt_secret
+from config.key.prod.ProductionConfig import origin
+from utils.cookie.CustomCookieUtils import CustomCookieUtils
 
 class JwtAuthorizationFitler():
+
     def filter():
-        # TODO :: excludeUrls 추가
+        jwt_token_cookie = request.cookies.get(CustomCookieUtils.COOKIE_NAME_ACCESS_TOKEN)
+        if(jwt_token_cookie is None): return
 
-        jwt_token_cookie = request.cookies.get('cp_ac_token')
-        # jwt_token_cookie가 None일 때, csrf검사
-        # if(jwt_token_cookie is None): return
+        url = origin['auth-api'] + '/auth/v1/users/accessToken/getAccessKey'
+        headers = {'Authorization': f"Bearer {jwt_token_cookie}"}
+        response = requests.post(url=url, headers=headers)
         
-        # secret_key = jwt_secret['access_token'].encode('utf-8')
-        # key_bytes = base64.b64encode(secret_key)
-
-        # TODO :: decode 설정
-        # claims = jwt.decode(jwt_token_cookie, key_bytes, algorithms=['HS256'])
-
-        # id = claims.id
-        # username = claims.username
-        id = "212935ba-a222-40a6-8827-dcafedd3cd6c"
-        username = "user111"
+        # 예외 세분화
+        if(response.status_code != 200): return
         
+        object = response.json()
         user_model = UserModel()
-        user_model.id = id
-        user_model.username = username
-
+        user_model.id = object['data']
+        
         g.user = user_model
