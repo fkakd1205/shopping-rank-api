@@ -3,8 +3,10 @@ from http import HTTPStatus
 
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record.service.NRankRecordService import NRankRecordService
+from enums.WorkspaceAccessTypeEnum import WorkspaceAccessTypeEnum
 
 from config.interceptor.RequiredLoginInterceptor import required_login
+from config.interceptor.RequiredWorkspaceAuthInterceptor import required_workspace_auth
 
 NRankRecordApi = Namespace('NRankRecordApi')
 
@@ -23,6 +25,10 @@ class NRankRecord(Resource):
         return message.__dict__, message.status_code
     
     @required_login
+    @required_workspace_auth(check_access_type_flag = True, required_access_types = {
+        # TODO :: 워크스페이스 타입 변경
+        WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
+    })
     def get(self):
         message = MessageDto()
 

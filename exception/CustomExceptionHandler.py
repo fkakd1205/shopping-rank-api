@@ -46,5 +46,13 @@ def CustomExceptionHandler(app):
         message.set_memo(str(e))
         return message.__dict__, message.status_code
     
+    @app.errorhandler(CustomAccessDeniedPermissionException)
+    def CustomAccessDeniedPermissionExceptionHandler(e):
+        message.set_data(None)
+        message.set_status(HTTPStatus.UNAUTHORIZED)
+        message.set_message("invalid_user")
+        message.set_memo(str(e))
+        return message.__dict__, message.status_code
+    
     
     

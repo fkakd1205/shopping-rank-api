@@ -11,6 +11,7 @@ from utils.date.DateTimeUtils import DateTimeUtils
 from exception.types.CustomException import CustomDuplicationException
 from utils.db.v2.QueryUtils import transactional
 from utils.user.UserUtils import UserUtils
+from utils.workspace.MemberPermissionUtils import MemberPermissionUtils
 
 class NRankRecordService():
 
@@ -38,13 +39,13 @@ class NRankRecordService():
         nrank_record_repository = NRankRecordRepository()
         dto = NRankRecordDto()
         
-        headers = request.headers
         body = request.get_json()
+        workspace_id = MemberPermissionUtils().get_workspace_id()
         
         dto.id = uuid.uuid4()
         dto.keyword = body['keyword']
         dto.mall_name = body['mall_name']
-        dto.workspace_id = headers['wsId']
+        dto.workspace_id = workspace_id
         dto.created_at = DateTimeUtils.get_current_datetime()
         dto.created_by_member_id = UserUtils().get_user_id_else_throw()
         dto.deleted_flag = False
@@ -72,9 +73,9 @@ class NRankRecordService():
         """
         nRankRecordRepository = NRankRecordRepository()
         nRankRecordInfoRepository = NRankRecordInfoRepository()
-        headers = request.headers
+        workspace_id = MemberPermissionUtils().get_workspace_id()
 
-        record_models = nRankRecordRepository.search_list_by_workspace_id(headers['wsId'])
+        record_models = nRankRecordRepository.search_list_by_workspace_id(workspace_id)
         record_ids = list(map(lambda model: model.id, record_models))
         record_info_models = nRankRecordInfoRepository.search_list_by_record_ids(record_ids)
     

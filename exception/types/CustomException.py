@@ -12,3 +12,6 @@ class CustomMethodNotAllowedException(Exception):
 
 class CustomInvalidUserException(Exception):
     pass
+
+class CustomAccessDeniedPermissionException(Exception):
+    pass
