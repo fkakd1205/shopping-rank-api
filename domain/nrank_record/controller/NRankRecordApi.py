@@ -14,6 +14,9 @@ NRankRecordApi = Namespace('NRankRecordApi')
 class NRankRecord(Resource):
 
     @required_login
+    @required_workspace_auth(check_access_type_flag = True, required_access_types = {
+        WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
+    })
     def post(self):
         message = MessageDto()
         

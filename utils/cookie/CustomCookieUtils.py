@@ -11,8 +11,6 @@ class CustomCookieUtils():
     ACCESS_TOKEN_COOKIE_EXPIRATION = 5 * 24 * 60 * 60
 
     COOKIE_NAME_ACCESS_TOKEN = "cp_ac_token"
-    COOKIE_NAME_PHONE_VALIDATION_TOKEN = "cp_phone_validation_token"
-    COOKIE_NAME_EMAIL_VALIDATION_TOKEN = "cp_email_validation_token"
     COOKIE_NAME_API_CSRF_TOKEN = "api_csrf_token"
     COOKIE_NAME_X_API_CSRF_TOKEN = "x_api_csrf_token"
     COOKIE_NAME_API_CSRF_EXPIRED_AT = "api_csrf_expired_at"

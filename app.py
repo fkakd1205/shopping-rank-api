@@ -15,7 +15,10 @@ app = Flask(__name__)
 api = Api(app)
 CORS(
     app,
-    supports_credentials=True
+    supports_credentials=True,
+    resources={
+        r'*': {'origins': 'http://localhost:3000'}
+    }
 )
 
 init_app(app)

@@ -16,14 +16,14 @@ from utils.workspace.MemberPermissionUtils import MemberPermissionUtils
 class NRankRecordService():
 
     def check_duplication(self, dto):
-        """check duplication for keyword & mall_name
+        """check duplication for keyword & mall_name & workspace_id
         
         Keyword arguments:
         dto -- NRankRecordDto
         """
         repository = NRankRecordRepository()
 
-        model = repository.search_one_by_keyword_and_mall_name(dto.keyword, dto.mall_name)
+        model = repository.search_one_by_keyword_and_mall_name(dto.keyword, dto.mall_name, dto.workspace_id)
         if (model is not None):
             raise CustomDuplicationException("이미 등록된 데이터입니다.")
     

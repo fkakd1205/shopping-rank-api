@@ -11,8 +11,8 @@ class NRankRecordRepository():
         query = select(NRankRecordModel).where(NRankRecordModel.workspace_id == workspace_id, NRankRecordModel.deleted_flag == False)
         return db_session.execute(query).scalars().all()
     
-    def search_one_by_keyword_and_mall_name(self, keyword, mall_name):
-        query = select(NRankRecordModel).where(NRankRecordModel.keyword == keyword).where(NRankRecordModel.mall_name == mall_name, NRankRecordModel.deleted_flag == False)
+    def search_one_by_keyword_and_mall_name(self, keyword, mall_name, workspace_id):
+        query = select(NRankRecordModel).where(NRankRecordModel.keyword == keyword).where(NRankRecordModel.mall_name == mall_name, NRankRecordModel.deleted_flag == False, NRankRecordModel.workspace_id == workspace_id)
         return db_session.execute(query).scalar()
     
     def search_one(self, id):
