@@ -21,7 +21,11 @@ class WorkspaceAuthService():
         jwt_token_cookie = cookies.get(CustomCookieUtils.COOKIE_NAME_ACCESS_TOKEN)
         
         request_url = origin['auth-api'] + '/auth/v1/workspaces/checkPermissions'
-        request_headers = {'wsId': ws_id, 'referer': origin['store-rank-api'], 'Content-Type': 'application/json'}
+        request_headers = {
+            'wsId': ws_id,
+            'referer': origin['store-rank-api'],
+            'Content-Type': 'application/json'
+        }
         request_cookies = {CustomCookieUtils.COOKIE_NAME_ACCESS_TOKEN: jwt_token_cookie}
 
         auth_type_dto = WorkspaceAuthTypeDto.CamelCase()

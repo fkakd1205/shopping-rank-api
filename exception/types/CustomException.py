@@ -15,3 +15,6 @@ class CustomInvalidUserException(Exception):
 
 class CustomAccessDeniedPermissionException(Exception):
     pass
+
+class CustomTimeoutException(Exception):
+    pass

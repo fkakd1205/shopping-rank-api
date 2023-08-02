@@ -54,5 +54,13 @@ def CustomExceptionHandler(app):
         message.set_memo(str(e))
         return message.__dict__, message.status_code
     
+    @app.errorhandler(CustomTimeoutException)
+    def CustomTimeoutExceptionHandler(e):
+        message.set_data(None)
+        message.set_status(HTTPStatus.BAD_REQUEST)
+        message.set_message("timeout")
+        message.set_memo(str(e))
+        return message.__dict__, message.status_code
+    
     
     

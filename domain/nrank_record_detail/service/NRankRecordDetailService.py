@@ -12,10 +12,10 @@ from domain.nrank_record_detail.dto.NRankRecordDetailDto import NRankRecordDetai
 from domain.nrank_record_detail.model.NRankRecordDetailModel import NRankRecordDetailModel
 from domain.nrank_record_detail.repository.NRankRecordDetailRepository import NRankRecordDetailRepository
 from domain.nrank_record.repository.NRankRecordRepository import NRankRecordRepository
-from domain.nrank_record_info.dto.NRankRecordInfoDto import NRankRecordInfoDto
 from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankRecordInfoRepository
 from domain.nrank_record_info.model.NRankRecordInfoModel import NRankRecordInfoModel
 
+from exception.types.CustomException import *
 from utils.date.DateTimeUtils import DateTimeUtils
 from exception.types.CustomException import CustomInvalidValueException
 from utils.db.v2.QueryUtils import transactional
@@ -26,6 +26,9 @@ DEFAULT_PAGINGSIZE = 80
 
 TOTAL_REQUEST_TIMEOUT_SIZE = 60
 UNIT_REQUEST_TIMEOUT_SIZE = 30
+
+# 랭킹 조회 가능 시간 = 1시간
+SEARCHABLE_DIFF_SECONDS = 60 * 60
 
 class NRankRecordDetailService():
 
@@ -187,34 +190,60 @@ class NRankRecordDetailService():
 
     @transactional
     def create_list(self, create_req_dto):
+        """search naver shopping ranking and create rank details
+        
+        + nrank_record_info의 created_at으로 랭킹 조회 가능 시간 제한
+        1. nrank_record_info 초기화
+        2. nrank_record 조회
+        3. 랭킹 조회 가능 시간 검사
+        4. (2)에서 조회된 keyword & mallname으로 랭킹 검사
+        5. 광고 상품 순위 설정
+        6. nrank_record_detail 저장
+        7. 조회된 결과로 nrank_record_info 설정 및 저장
+        8. nrank_record의 current_nrank_record_info_id 업데이트
+        """
         nrank_record_detail_repository = NRankRecordDetailRepository()
+        nrank_record_info_repository = NRankRecordInfoRepository()
         nrank_record_repository = NRankRecordRepository()
 
-        # nrank_record_info 초기화
+        # 1.
         record_info_model = NRankRecordInfoModel()
         record_info_model.id = uuid.uuid4()
         record_info_model.nrank_record_id = create_req_dto.record_id
 
-        # 조회된 nrank_record의 keyword & mallname으로 랭킹 검색 값 설정
+        # 2.
         record_model = nrank_record_repository.search_one(create_req_dto.record_id)
+        # 3.
+        last_info_model = nrank_record_info_repository.search_one(record_model.current_nrank_record_info_id)
+        self.checkSearchableTime(last_info_model)
+
         create_req_dto.keyword = record_model.keyword
         create_req_dto.mall_name = record_model.mall_name
 
+        # 4.
         create_req_dto.record_info_id = record_info_model.id
         results = asyncio.run(self.request_shopping_ranking(create_req_dto))
+        # 5.
         updated_results = self.updateRankForAdProduct(create_req_dto, results)
         
-        # 1. nrank_record_detail 생성
+        # 6.
         nrank_record_detail_repository.bulk_save(updated_results)
 
-        # 2. nrank_record_info 생성
+        # 7.
         record_info_model.rank_detail_unit = len(results) - create_req_dto.ad_product_unit
         record_info_model.ad_rank_detail_unit = create_req_dto.ad_product_unit
         self.create_nrank_record_info(record_info_model, updated_results)
 
-        # 3. nrank_record의 current_nrank_record_id 업데이트
+        # 8.
         record_model.current_nrank_record_info_id = create_req_dto.record_info_id
         nrank_record_repository.save(record_model)
+    
+    def checkSearchableTime(self, last_info_model):
+        last_searched_at = last_info_model.created_at
+        diff = DateTimeUtils.get_current_datetime() - last_searched_at
+
+        if(SEARCHABLE_DIFF_SECONDS > diff.seconds):
+            raise CustomMethodNotAllowedException("요청 가능 시간이 아닙니다. 잠시 후 시도해주세요.")
 
     def updateRankForAdProduct(self, create_req_dto, results):
         sorted_ad_products = dict(sorted(create_req_dto.total_ad_products.items()))
@@ -242,7 +271,7 @@ class NRankRecordDetailService():
             await asyncio.wait_for(tasks, timeout=TOTAL_REQUEST_TIMEOUT_SIZE)
         except asyncio.TimeoutError:
             tasks.cancel()
-            raise TimeoutError("request time out")
+            raise CustomTimeoutException("요청 소요시간이 초과되었습니다. 재시도 해주세요.")
         
         for result in tasks.result():
             ranking_results.extend(result)

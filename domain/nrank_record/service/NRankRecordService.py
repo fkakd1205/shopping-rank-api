@@ -16,11 +16,6 @@ from utils.workspace.MemberPermissionUtils import MemberPermissionUtils
 class NRankRecordService():
 
     def check_duplication(self, dto):
-        """check duplication for keyword & mall_name & workspace_id
-        
-        Keyword arguments:
-        dto -- NRankRecordDto
-        """
         repository = NRankRecordRepository()
 
         model = repository.search_one_by_keyword_and_mall_name(dto.keyword, dto.mall_name, dto.workspace_id)
@@ -29,13 +24,6 @@ class NRankRecordService():
     
     @transactional
     def create_one(self):
-        """create one
-        
-        Use Service Method:
-            self.check_duplication
-        Use Repository Method:
-            NRankRecordRepository -- save
-        """
         nrank_record_repository = NRankRecordRepository()
         dto = NRankRecordDto()
         
@@ -58,18 +46,11 @@ class NRankRecordService():
 
     def search_list_by_workspace_id(self):
         """search list by workspace id
+
         1. nrank_record 조회
         2. nrank_record id 추출
         3. nrank_record_info 조회
         4. nrank_record infos에 nrank_record_info 매핑
-
-        Return: 
-            NRankRecordDto.RelatedNRankRecordInfos
-        Use Repository Method:
-            NRankRecordRepository -- search_list_by_workspace_id
-            NRankRecordInfoRepository -- search_list_by_record_ids
-        Use Service Method:
-            self.set_record_and_related_record_infos
         """
         nRankRecordRepository = NRankRecordRepository()
         nRankRecordInfoRepository = NRankRecordInfoRepository()
