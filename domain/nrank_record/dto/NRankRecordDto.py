@@ -1,10 +1,12 @@
 from utils.type.CustomUTCDateTime import CustomUTCDateTime
+from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
 
 class NRankRecordDto():
     def __init__(self):
         self.id = None
         self.keyword = None
         self.mall_name = None
+        self.status = NRankRecordStatusEnum.NONE.value
         self.workspace_id = None
         self.created_at = None
         self.created_by_member_id = None
@@ -17,6 +19,7 @@ class NRankRecordDto():
         dto.id = model.id
         dto.keyword = model.keyword
         dto.mall_name = model.mall_name
+        dto.status = model.status
         dto.workspace_id = model.workspace_id
         dto.created_at = CustomUTCDateTime.convert_timezone_format(model.created_at)
         dto.created_by_member_id = model.created_by_member_id
@@ -29,6 +32,7 @@ class NRankRecordDto():
             self.id = record_dto.id
             self.keyword = record_dto.keyword
             self.mall_name = record_dto.mall_name
+            self.status = record_dto.status
             self.workspace_id = record_dto.workspace_id
             self.created_at = record_dto.created_at
             self.created_by_member_id = record_dto.created_by_member_id

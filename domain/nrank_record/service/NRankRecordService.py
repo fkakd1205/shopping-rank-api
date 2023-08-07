@@ -8,10 +8,11 @@ from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankR
 from domain.nrank_record_info.dto.NRankRecordInfoDto import NRankRecordInfoDto
 
 from utils.date.DateTimeUtils import DateTimeUtils
-from exception.types.CustomException import CustomDuplicationException
+from exception.types.CustomException import *
 from utils.db.v2.QueryUtils import transactional
 from utils.user.UserUtils import UserUtils
 from utils.workspace.MemberPermissionUtils import MemberPermissionUtils
+from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
 
 class NRankRecordService():
 
@@ -33,6 +34,7 @@ class NRankRecordService():
         dto.id = uuid.uuid4()
         dto.keyword = body['keyword']
         dto.mall_name = body['mall_name']
+        dto.status = NRankRecordStatusEnum.NONE.value
         dto.workspace_id = workspace_id
         dto.created_at = DateTimeUtils.get_current_datetime()
         dto.created_by_member_id = UserUtils().get_user_id_else_throw()
@@ -44,7 +46,7 @@ class NRankRecordService():
         new_model = NRankRecordModel.to_model(dto)
         nrank_record_repository.save(new_model)
 
-    def search_list_by_workspace_id(self):
+    def search_list(self):
         """search list by workspace id
 
         1. nrank_record 조회
@@ -77,9 +79,27 @@ class NRankRecordService():
             dtos.append(NRankRecordDto.RelatedNRankRecordInfos(record_dto, infos).__dict__)
 
         return dtos
+    
+    def search_list_by_ids(self):
+        """search list by ids and workspace id
+        """
+        nRankRecordRepository = NRankRecordRepository()
+        workspace_id = MemberPermissionUtils().get_workspace_id()
+        body = request.get_json()
+        ids = body['ids']
+
+        record_models = nRankRecordRepository.search_list_by_ids_and_workspace_id(ids, workspace_id)
+        record_dtos = list(map(lambda model: NRankRecordDto.to_dto(model).__dict__, record_models))
+        return record_dtos
 
     @transactional
     def delete_one(self, id):
         nRankRecordRepository = NRankRecordRepository()
         nRankRecordRepository.soft_delete_one_and_related_all(id)
     
+    @transactional
+    def change_status(self, id, status):
+        nRankRecordRepository = NRankRecordRepository()
+        record_model = nRankRecordRepository.search_one(id)
+        if(record_model is None): raise CustomNotFoundException("데이터가 존재하지 않습니다.")
+        record_model.status = status.value

@@ -1,12 +1,15 @@
 from utils.db.v2.DBUtils import Base
 from sqlalchemy import Column, BigInteger, String, DateTime, Boolean
 
+from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
+
 class NRankRecordModel(Base):
     __tablename__ = 'nrank_record'
 
     cid = Column("cid", BigInteger, primary_key=True, autoincrement=True)
     id = Column("id", String(36), unique=True, nullable=False)
     keyword = Column("keyword", String(50), nullable=False)
+    status = Column("status", String(10), nullable=False)
     mall_name = Column("mall_name", String(50), nullable=False)
     workspace_id = Column("workspace_id", String(36), nullable=False)
     created_at = Column("created_at", DateTime(timezone = True), nullable=True)
@@ -18,6 +21,7 @@ class NRankRecordModel(Base):
         self.id = None
         self.keyword = None
         self.mall_name = None
+        self.status = NRankRecordStatusEnum.NONE.value
         self.workspace_id = None
         self.created_at = None
         self.created_by_member_id = None
@@ -30,6 +34,7 @@ class NRankRecordModel(Base):
         model.id = dto.id
         model.keyword = dto.keyword
         model.mall_name = dto.mall_name
+        model.status = dto.status
         model.workspace_id = dto.workspace_id
         model.created_at = dto.created_at
         model.created_by_member_id = dto.created_by_member_id

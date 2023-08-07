@@ -14,6 +14,7 @@ from domain.nrank_record_detail.repository.NRankRecordDetailRepository import NR
 from domain.nrank_record.repository.NRankRecordRepository import NRankRecordRepository
 from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankRecordInfoRepository
 from domain.nrank_record_info.model.NRankRecordInfoModel import NRankRecordInfoModel
+from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
 
 from exception.types.CustomException import *
 from utils.date.DateTimeUtils import DateTimeUtils
@@ -28,7 +29,8 @@ TOTAL_REQUEST_TIMEOUT_SIZE = 60
 UNIT_REQUEST_TIMEOUT_SIZE = 30
 
 # 랭킹 조회 가능 시간 = 1시간
-SEARCHABLE_DIFF_SECONDS = 60 * 60
+# SEARCHABLE_DIFF_SECONDS = 60 * 60
+SEARCHABLE_DIFF_SECONDS = 60
 
 class NRankRecordDetailService():
 
@@ -108,7 +110,6 @@ class NRankRecordDetailService():
                     # rank % 80 결과가 40보다 작으면 (page_index * 2) - 1, 40보다 크면 (page_index * 2)
                     model.page = ((page_index * 2) - 1) if ((model.rank % DEFAULT_PAGINGSIZE) <= (DEFAULT_PAGINGSIZE / 2)) else (page_index * 2)
                     model.mall_product_id = item['mallProductId']
-                    model.included_ad_rank = included_ad_rank
                     model.review_count = item['reviewCount']
                     model.score_info = item['scoreInfo']
                     model.registration_date = item['openDate']
@@ -214,8 +215,9 @@ class NRankRecordDetailService():
         # 2.
         record_model = nrank_record_repository.search_one(create_req_dto.record_id)
         # 3.
-        last_info_model = nrank_record_info_repository.search_one(record_model.current_nrank_record_info_id)
-        self.checkSearchableTime(last_info_model)
+        if(record_model.current_nrank_record_info_id is not None):
+            last_info_model = nrank_record_info_repository.search_one(record_model.current_nrank_record_info_id)
+            self.checkSearchableTime(last_info_model)
 
         create_req_dto.keyword = record_model.keyword
         create_req_dto.mall_name = record_model.mall_name
@@ -223,6 +225,7 @@ class NRankRecordDetailService():
         # 4.
         create_req_dto.record_info_id = record_info_model.id
         results = asyncio.run(self.request_shopping_ranking(create_req_dto))
+
         # 5.
         updated_results = self.updateRankForAdProduct(create_req_dto, results)
         
@@ -236,6 +239,7 @@ class NRankRecordDetailService():
 
         # 8.
         record_model.current_nrank_record_info_id = create_req_dto.record_info_id
+        record_model.status = NRankRecordStatusEnum.COMPLETE.value
         nrank_record_repository.save(record_model)
     
     def checkSearchableTime(self, last_info_model):
