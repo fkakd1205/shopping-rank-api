@@ -80,17 +80,17 @@ class NRankRecordService():
 
         return dtos
     
-    def search_list_by_ids(self):
-        """search list by ids and workspace id
-        """
-        nRankRecordRepository = NRankRecordRepository()
-        workspace_id = MemberPermissionUtils().get_workspace_id()
-        body = request.get_json()
-        ids = body['ids']
+    # def search_list_by_ids(self):
+    #     """search list by ids and workspace id
+    #     """
+    #     nRankRecordRepository = NRankRecordRepository()
+    #     workspace_id = MemberPermissionUtils().get_workspace_id()
+    #     body = request.get_json()
+    #     ids = body['ids']
 
-        record_models = nRankRecordRepository.search_list_by_ids_and_workspace_id(ids, workspace_id)
-        record_dtos = list(map(lambda model: NRankRecordDto.to_dto(model).__dict__, record_models))
-        return record_dtos
+    #     record_models = nRankRecordRepository.search_list_by_ids_and_workspace_id(ids, workspace_id)
+    #     record_dtos = list(map(lambda model: NRankRecordDto.to_dto(model).__dict__, record_models))
+    #     return record_dtos
 
     @transactional
     def delete_one(self, id):

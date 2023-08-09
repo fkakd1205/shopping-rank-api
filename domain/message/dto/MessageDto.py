@@ -5,7 +5,7 @@ class MessageDto():
     def __init__(self):
         self.status = HTTPStatus.BAD_REQUEST.phrase
         self.status_code = HTTPStatus.BAD_REQUEST.value
-        self.status_essage = HTTPStatus.BAD_REQUEST.phrase
+        self.status_message = HTTPStatus.BAD_REQUEST.phrase
         self.message = None
         self.memo = None
         self.data = None
