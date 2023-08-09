@@ -15,5 +15,5 @@ Base = declarative_base()
 def close_db(e=None):
     db_session.close()
 
-def init_app(app):
+def init_db(app):
     app.teardown_appcontext(close_db)
