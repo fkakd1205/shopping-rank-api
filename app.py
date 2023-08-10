@@ -1,7 +1,8 @@
 from flask_restx import Api
 from flask import Flask
 from flask_cors import CORS
-from utils.celery.v1.CeleryUtils import celery
+# from utils.celery.v1.CeleryUtils import celery
+from utils.celery.v1.CeleryUtils import init_celery
 
 from utils.db.v2.DBUtils import init_db
 from exception.CustomExceptionHandler import CustomExceptionHandler
@@ -23,6 +24,7 @@ CORS(
 )
 
 init_db(app)
+celery = init_celery(app)
 
 # === filter check ===
 @app.before_request

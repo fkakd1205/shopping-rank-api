@@ -14,8 +14,9 @@ from domain.nrank_record_detail.repository.NRankRecordDetailRepository import NR
 from domain.nrank_record.repository.NRankRecordRepository import NRankRecordRepository
 from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankRecordInfoRepository
 from domain.nrank_record_info.model.NRankRecordInfoModel import NRankRecordInfoModel
-from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
+from domain.nrank_record_detail.dto.NRankRecordDetailCreateReqDto import NRankRecordDetailCreateReqDto
 
+from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
 from exception.types.CustomException import *
 from utils.date.DateTimeUtils import DateTimeUtils
 from exception.types.CustomException import CustomInvalidValueException
@@ -188,9 +189,12 @@ class NRankRecordDetailService():
             raise CustomInvalidValueException(f"not found value for {e}")
         except AttributeError as e:
             raise CustomInvalidValueException(e)
-
+    
     @transactional
-    def create_list(self, create_req_dto):
+    def create_list(self, req_dto):
+        create_req_dto = NRankRecordDetailCreateReqDto()
+        create_req_dto.page_size = req_dto['page_size']
+        create_req_dto.record_id = req_dto['record_id']
         """search naver shopping ranking and create rank details
         
         + nrank_record_info의 created_at으로 랭킹 조회 가능 시간 제한
@@ -305,3 +309,4 @@ class NRankRecordDetailService():
         detail_entities = nrank_record_detail_repository.search_list_by_record_info_id(record_info_id)
         detail_dtos = list(map(lambda entity: NRankRecordDetailDto.to_dto(entity), detail_entities))
         return detail_dtos
+    

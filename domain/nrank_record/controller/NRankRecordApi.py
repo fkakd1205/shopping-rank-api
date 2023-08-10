@@ -89,16 +89,16 @@ class NRankRecordChangeStatus(Resource):
 
         return message.__dict__, message.status_code
     
-@NRankRecordApi.route('/<id>/target:status/action:fail', methods=['PATCH'])
-class NRankRecordChangeStatus(Resource):
+# @NRankRecordApi.route('/<id>/target:status/action:fail', methods=['PATCH'])
+# class NRankRecordChangeStatus(Resource):
     
-    @required_login
-    def patch(self, id):
-        message = MessageDto()
+#     @required_login
+#     def patch(self, id):
+#         message = MessageDto()
 
-        nRankRecordService = NRankRecordService()
-        nRankRecordService.change_status(id, NRankRecordStatusEnum.FAIL)
-        message.set_status(HTTPStatus.OK)
-        message.set_message("success")
+#         nRankRecordService = NRankRecordService()
+#         nRankRecordService.change_status(id, NRankRecordStatusEnum.FAIL)
+#         message.set_status(HTTPStatus.OK)
+#         message.set_message("success")
 
-        return message.__dict__, message.status_code
+#         return message.__dict__, message.status_code
