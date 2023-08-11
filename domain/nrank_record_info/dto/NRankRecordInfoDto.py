@@ -1,14 +1,15 @@
 from utils.type.CustomUTCDateTime import CustomUTCDateTime
+from dataclasses import dataclass
 
+@dataclass
 class NRankRecordInfoDto():
-    def __init__(self):
-        self.id = None
-        self.thumbnail_url = None
-        self.rank_detail_unit = None
-        self.ad_rank_detail_unit = None
-        self.created_at = None
-        self.nrank_record_id = None
-        self.deleted_flag = None
+    id = None
+    thumbnail_url = None
+    rank_detail_unit = None
+    ad_rank_detail_unit = None
+    created_at = None
+    nrank_record_id = None
+    deleted_flag = None
 
     @staticmethod
     def to_dto(model):

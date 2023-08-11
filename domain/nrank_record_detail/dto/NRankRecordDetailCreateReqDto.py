@@ -1,9 +1,11 @@
+from dataclasses import dataclass
+
+@dataclass
 class NRankRecordDetailCreateReqDto():
-    def __init__(self):
-        self.keyword = None
-        self.mall_name = None
-        self.page_size = None
-        self.record_id = None
-        self.record_info_id = None
-        self.ad_product_unit = 0
-        self.total_ad_products = {}
+    keyword = None
+    mall_name = None
+    page_size = None
+    record_id = None
+    record_info_id = None
+    ad_product_unit = 0
+    total_ad_products = {}

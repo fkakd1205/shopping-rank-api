@@ -1,17 +1,18 @@
 from utils.type.CustomUTCDateTime import CustomUTCDateTime
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
+from dataclasses import dataclass
 
+@dataclass
 class NRankRecordDto():
-    def __init__(self):
-        self.id = None
-        self.keyword = None
-        self.mall_name = None
-        self.status = NRankRecordStatusEnum.NONE.value
-        self.workspace_id = None
-        self.created_at = None
-        self.created_by_member_id = None
-        self.current_nrank_record_info_id = None
-        self.deleted_flag = None
+    id = None
+    keyword = None
+    mall_name = None
+    status = NRankRecordStatusEnum.NONE.value
+    workspace_id = None
+    created_at = None
+    created_by_member_id = None
+    current_nrank_record_info_id = None
+    deleted_flag = None
 
     @staticmethod
     def to_dto(model):

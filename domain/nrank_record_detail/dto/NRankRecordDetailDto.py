@@ -1,34 +1,36 @@
-class NRankRecordDetailDto():
-    def __init__(self):
-        self.id = None
-        self.mall_name = None      # 스토어명
-        self.rank = 0               # 노출 순위
-        self.product_title = None      # 상품명
-        self.price = 0      # 가격
-        self.page = 0       # 노출 페이지
-        self.mall_product_id = None     # 상품 id
-        
-        self.advertising_yn = 'n'      # 광고 여부
-        self.included_ad_rank = 0     # 광고 포함 노출 순위
-        self.price_comparision_yn = 'n'     # 가격 비교 여부
-        self.comparision_rank = 0        # 가격 비교 순위
-        self.low_mall_count = 0       # 가격비교 쇼핑몰 개수
-        
-        self.review_count = 0    # 리뷰 개수
-        self.score_info = 0      # 리뷰 평점
-        self.registration_date = None        # 등록일
-        self.thumbnail_url = None      # 썸네일 이미지
-        self.purchase_count = 0      # 구매 건수
-        self.keep_count = 0      # 찜 개수
-        self.delivery_fee = 0        # 배송비
+from dataclasses import dataclass
 
-        self.category1_name = None       # 카테고리1
-        self.category2_name = None       # 카테고리2
-        self.category3_name = None       # 카테고리3
-        self.category4_name = None       # 카테고리4
+@dataclass
+class NRankRecordDetailDto():
+    id = None
+    mall_name = None      # 스토어명
+    rank = 0               # 노출 순위
+    product_title = None      # 상품명
+    price = 0      # 가격
+    page = 0       # 노출 페이지
+    mall_product_id = None     # 상품 id
         
-        self.nrank_record_info_id = None
-        self.deleted_flag = False
+    advertising_yn = 'n'      # 광고 여부
+    included_ad_rank = 0     # 광고 포함 노출 순위
+    price_comparision_yn = 'n'     # 가격 비교 여부
+    comparision_rank = 0        # 가격 비교 순위
+    low_mall_count = 0       # 가격비교 쇼핑몰 개수
+        
+    review_count = 0    # 리뷰 개수
+    score_info = 0      # 리뷰 평점
+    registration_date = None        # 등록일
+    thumbnail_url = None      # 썸네일 이미지
+    purchase_count = 0      # 구매 건수
+    keep_count = 0      # 찜 개수
+    delivery_fee = 0        # 배송비
+
+    category1_name = None       # 카테고리1
+    category2_name = None       # 카테고리2
+    category3_name = None       # 카테고리3
+    category4_name = None       # 카테고리4
+        
+    nrank_record_info_id = None
+    deleted_flag = False
 
     @staticmethod
     def to_dto(model):
