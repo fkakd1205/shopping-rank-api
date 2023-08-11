@@ -199,7 +199,7 @@ async def search_page_and_get_rank_models(page_index, create_req_dto):
     except AttributeError as e:
         raise CustomInvalidValueException(e)
 
-@shared_task(name="create_list_by_nrank_record_detail", ignore_return=True, max_retries=0)
+@shared_task(name="create_list_by_nrank_record_detail")
 # @transactional
 def create_list(req_dto):
     create_req_dto = NRankRecordDetailCreateReqDto()
