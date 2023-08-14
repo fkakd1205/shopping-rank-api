@@ -1,9 +1,10 @@
 from flask import g
 
 class MemberPermissionUtils():
-    def get_workspace_id(self):
-        workspace_id = g.get('workspace_id')
+    def get_workspace_info(self):
+        workspace_info = g.get('workspace_auth_info')
+        
         # TODO :: 예외처리
-        if(workspace_id is None): raise
+        if(workspace_info is None): raise
 
-        return workspace_id
+        return workspace_info

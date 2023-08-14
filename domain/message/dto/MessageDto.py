@@ -1,15 +1,16 @@
 from datetime import datetime
 from http import HTTPStatus
+from dataclasses import dataclass
 
+@dataclass
 class MessageDto():
-    def __init__(self):
-        self.status = HTTPStatus.BAD_REQUEST.phrase
-        self.status_code = HTTPStatus.BAD_REQUEST.value
-        self.status_message = HTTPStatus.BAD_REQUEST.phrase
-        self.message = None
-        self.memo = None
-        self.data = None
-        self.datetime = str(datetime.now())
+    status = HTTPStatus.BAD_REQUEST.phrase
+    status_code = HTTPStatus.BAD_REQUEST.value
+    status_message = HTTPStatus.BAD_REQUEST.phrase
+    message = None
+    memo = None
+    data = None
+    datetime = str(datetime.now())
         
     def set_status(self, status):
         self.status = status.phrase

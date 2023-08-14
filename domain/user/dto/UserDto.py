@@ -1,22 +1,24 @@
+from dataclasses import dataclass
+
+@dataclass
 class UserDto():
-    def __init__(self):
-        self.id = None
-        self.login_type = None
-        self.social_platform = None
-        self.social_platform_id = None
-        self.username = None
-        self.password = None
-        self.salt = None
-        self.email = None
-        self.name = None
-        self.nickname = None
-        self.phone_number = None
-        self.roles = None
-        self.profile_image_uri = None
-        self.allowed_access_count = None
-        self.updated_at = None
-        self.created_at = None
-        self.deleted_flag = None
+    id = None
+    login_type = None
+    social_platform = None
+    social_platform_id = None
+    username = None
+    password = None
+    salt = None
+    email = None
+    name = None
+    nickname = None
+    phone_number = None
+    roles = None
+    profile_image_uri = None
+    allowed_access_count = None
+    updated_at = None
+    created_at = None
+    deleted_flag = None
         
     @staticmethod
     def to_dto(model):

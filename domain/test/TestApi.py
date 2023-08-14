@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource
 from http import HTTPStatus
 import time
+import threading
 from domain.message.dto.MessageDto import MessageDto
 from utils.db.v2.DBUtils import db_session
 from domain.test.TestService import TestService
@@ -23,11 +24,19 @@ class Test(Resource):
         message = MessageDto()
         testService = TestService()
 
-        testService.test()
+        
 
-        print("hihihi")
+        t1 = threading.Thread(target=testService.test, daemon=True)
+        t2 = threading.Thread(target=testService.test, daemon=True)
+    
+        t1.start()
+        t2.start()
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 
         return message.__dict__, message.status_code
+    
+def test():
+    print("hii22")
+    time.sleep(5)
     

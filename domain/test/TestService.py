@@ -12,4 +12,5 @@ class TestService():
 
     def test(self):
         # self.celery_test.delay()
+        time.sleep(5)
         return

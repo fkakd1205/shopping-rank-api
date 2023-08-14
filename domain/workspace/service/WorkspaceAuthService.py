@@ -3,7 +3,7 @@ import requests
 import json
 from http import HTTPStatus
 
-from domain.workspace.dto.WorkspaceAuthTypeDto import WorkspaceAuthTypeDto
+from domain.workspace.dto.CheckPermissionBodyDto import CheckPermissionBodyDto
 from domain.workspace.dto.WorkspaceAuthInfoDto import WorkspaceAuthInfoDto
 
 from exception.types.CustomException import *
@@ -13,7 +13,7 @@ from config.key.prod.ProductionConfig import origin
 
 class WorkspaceAuthService():
     
-    def get_workspace_auth_info_dto(self, workspace_auth_type):
+    def get_workspace_auth_info_dto(self, check_permission_body):
         headers = request.headers
         cookies = request.cookies
 
@@ -28,17 +28,10 @@ class WorkspaceAuthService():
         }
         request_cookies = {CustomCookieUtils.COOKIE_NAME_ACCESS_TOKEN: jwt_token_cookie}
 
-        auth_type_dto = WorkspaceAuthTypeDto.CamelCase()
-        auth_type_dto.checkMasterPermissionFlag = workspace_auth_type.check_master_permission_flag
-        auth_type_dto.checkAccessTypeFlag = workspace_auth_type.check_access_type_flag
-        auth_type_dto.checkSubscriptionPlanFlag = workspace_auth_type.check_subscription_plan_flag
-        auth_type_dto.requiredAccessTypes = list(map(lambda type: type.value, workspace_auth_type.required_access_types))
-        auth_type_dto.requiredSubscriptionPlans = list(map(lambda plan: plan.value, workspace_auth_type.required_subscription_plans))
-
         response = requests.post(url=request_url, 
             headers=request_headers,
             cookies=request_cookies,
-            data=json.dumps(auth_type_dto.__dict__)
+            data=json.dumps(check_permission_body.__dict__)
         )
 
         if(response.status_code != 200):
@@ -47,18 +40,10 @@ class WorkspaceAuthService():
 
         object = response.json()
         data = object['data']
-
-        info_dto = WorkspaceAuthInfoDto()
-        info_dto.workspace_member_id = data['workspaceMemberId']
-        info_dto.template_use_yn = data['templateUseYn']
-        info_dto.is_master = data['master']
-        info_dto.workspace_auth_items = list(map(lambda item: WorkspaceAuthInfoDto.WorkspaceAuthItem(item), data['workspaceAuthItems']))
-        info_dto.workspace_id = data['workspaceId']
-        info_dto.subscription_plan = data['subscriptionPlan']
-        info_dto.subscription_expiry_date = data['subscriptionExpiryDate']
+        info_dto = WorkspaceAuthInfoDto(data)
 
         g.workspace_auth_info = info_dto
-        g.workspace_id = info_dto.workspace_id
+        # g.workspace_id = info_dto.workspaceId
 
     def request_error_handler(self, response):
         status_code = response.status_code

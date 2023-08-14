@@ -29,15 +29,16 @@ class NRankRecordService():
         dto = NRankRecordDto()
         
         body = request.get_json()
-        workspace_id = MemberPermissionUtils().get_workspace_id()
+        workspace_info = MemberPermissionUtils().get_workspace_info()
+        user_id = UserUtils().get_user_id_else_throw()
         
         dto.id = uuid.uuid4()
         dto.keyword = body['keyword']
         dto.mall_name = body['mall_name']
         dto.status = NRankRecordStatusEnum.NONE.value
-        dto.workspace_id = workspace_id
+        dto.workspace_id = workspace_info.workspaceId
         dto.created_at = DateTimeUtils.get_current_datetime()
-        dto.created_by_member_id = UserUtils().get_user_id_else_throw()
+        dto.created_by_member_id = user_id
         dto.deleted_flag = False
 
         # keyword & mall_name 중복검사
@@ -56,9 +57,9 @@ class NRankRecordService():
         """
         nRankRecordRepository = NRankRecordRepository()
         nRankRecordInfoRepository = NRankRecordInfoRepository()
-        workspace_id = MemberPermissionUtils().get_workspace_id()
+        workspace_info = MemberPermissionUtils().get_workspace_info()
 
-        record_models = nRankRecordRepository.search_list_by_workspace_id(workspace_id)
+        record_models = nRankRecordRepository.search_list_by_workspace_id(workspace_info.workspaceId)
         record_ids = list(map(lambda model: model.id, record_models))
         record_info_models = nRankRecordInfoRepository.search_list_by_record_ids(record_ids)
     
@@ -79,18 +80,6 @@ class NRankRecordService():
             dtos.append(NRankRecordDto.RelatedNRankRecordInfos(record_dto, infos).__dict__)
 
         return dtos
-    
-    # def search_list_by_ids(self):
-    #     """search list by ids and workspace id
-    #     """
-    #     nRankRecordRepository = NRankRecordRepository()
-    #     workspace_id = MemberPermissionUtils().get_workspace_id()
-    #     body = request.get_json()
-    #     ids = body['ids']
-
-    #     record_models = nRankRecordRepository.search_list_by_ids_and_workspace_id(ids, workspace_id)
-    #     record_dtos = list(map(lambda model: NRankRecordDto.to_dto(model).__dict__, record_models))
-    #     return record_dtos
 
     @transactional
     def delete_one(self, id):

@@ -1,12 +1,23 @@
+from dataclasses import dataclass
+
+@dataclass
 class WorkspaceAuthInfoDto():
-    def __init__(self):
-        self.workspace_member_id = None
-        self.template_use_yn = None
-        self.is_master = None
-        self.workspace_auth_items = None
-        self.workspace_id = None
-        self.subscription_plan = None
-        self.subscription_expiry_date = None
+    workspaceMemberId = None
+    templateUseYn = None
+    isMaster = None
+    workspaceAuthItems = None
+    workspaceId = None
+    subscriptionPlan = None
+    subscriptionExpiryDate = None
+
+    def __init__(self, res):
+        self.workspaceMemberId = res['workspaceMemberId']
+        self.templateUseYn = res['templateUseYn']
+        self.isMaster = res['master']
+        self.workspaceAuthItems = list(map(lambda item: WorkspaceAuthInfoDto.WorkspaceAuthItem(item), res['workspaceAuthItems']))
+        self.workspaceId = res['workspaceId']
+        self.subscriptionPlan = res['subscriptionPlan']
+        self.subscriptionExpiryDate = res['subscriptionExpiryDate']
 
     class WorkspaceAuthItem():
         def __init__(self, item):
