@@ -1,9 +1,7 @@
 from flask_restx import Api
 from flask import Flask
 from flask_cors import CORS
-from utils.celery.v1.CeleryUtils import init_celery
 
-from utils.db.v2.DBUtils import init_db
 from exception.CustomExceptionHandler import CustomExceptionHandler
 from domain.nrank_record.controller.NRankRecordApi import NRankRecordApi
 from domain.nrank_record_detail.controller.NRankRecordDetailApi import NRankRecordDetailApi
@@ -21,9 +19,6 @@ CORS(
         r'*': {'origins': 'http://localhost:3000'}
     }
 )
-
-init_db(app)
-celery = init_celery(app)
 
 # === filter check ===
 @app.before_request

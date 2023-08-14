@@ -12,8 +12,10 @@ db_session = Session()
 
 Base = declarative_base()
 
-def close_db(e=None):
-    db_session.close()
+# def close_db(e=None):
+    # print("----- app teardown close db ------")
+    # db_session.close()
 
-def init_db(app):
-    app.teardown_appcontext(close_db)
+# def init_db(app):
+#     return
+    # app.teardown_appcontext(close_db)

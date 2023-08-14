@@ -1,10 +1,10 @@
 from flask_restx import Namespace, Resource
 from http import HTTPStatus
+import threading
 
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record_detail.dto.NRankRecordDetailCreateReqDto import NRankRecordDetailCreateReqDto
-from domain.nrank_record_detail.service.NRankRecordDetailServiceV2 import create_list
-from domain.nrank_record_detail.service.NRankRecordDetailService import NRankRecordDetailService
+from domain.nrank_record_detail.service.NRankRecordDetailServiceV3 import NRankRecordDetailService, create_list
 
 from config.interceptor.RequiredLoginInterceptor import required_login
 
@@ -22,31 +22,8 @@ class NRankRecordDetail(Resource):
         create_req_dto = NRankRecordDetailCreateReqDto()
         create_req_dto.page_size = page_size
         create_req_dto.record_id = record_id
-        # nRankRecordDetailService = NRankRecordDetailService()
-        # nRankRecordDetailService.create_list(create_req_dto)
-        # nRankRecordDetailService.create_list.apply_async(args=[create_req_dto.__dict__])
-        # result = test.apply_async()
+        threading.Thread(target=create_list, args=(create_req_dto.__dict__, ), daemon=True).start()
 
-        # 실패 예외 핸들링
-        # 실패 시 nrank record status - FAIL로 변경
-        # 이 경우, create_list가 종료할 때 까지 response하지 않고 대기.
-        # try:
-        #     result = create_list.apply_async(args=[create_req_dto.__dict__])
-        #     result.get()
-        # except Exception as e:
-        #     print("status change to Fail !!!!")
-        #     nRankRecordService = NRankRecordService()
-        #     nRankRecordService.change_status(record_id, NRankRecordStatusEnum.FAIL)
-        #     return
-
-        # result = create_list.apply_async(args=[create_req_dto.__dict__])
-        
-        # print(result.status)
-        # if (result.status == 'FAILURE'):
-        #     nRankRecordService = NRankRecordService()
-        #     nRankRecordService.change_status(record_id, NRankRecordStatusEnum.FAIL)
-
-        create_list.apply_async(args=[create_req_dto.__dict__])
         message.set_status(HTTPStatus.ACCEPTED)
         message.set_message("accepted")
 

@@ -22,7 +22,6 @@ from exception.types.CustomException import *
 from utils.date.DateTimeUtils import DateTimeUtils
 from exception.types.CustomException import CustomInvalidValueException
 from utils.db.v2.DBUtils import db_session
-from celery import shared_task
 
 PROXY_REQUEST_URL = "http://kr.smartproxy.com:10000"
 NAVER_SHOPPINT_RANK_URL = "https://search.shopping.naver.com/search/all"
@@ -199,8 +198,6 @@ async def search_page_and_get_rank_models(page_index, create_req_dto):
     except AttributeError as e:
         raise CustomInvalidValueException(e)
 
-@shared_task(name="create_list_by_nrank_record_detail")
-# @transactional
 def create_list(req_dto):
     create_req_dto = NRankRecordDetailCreateReqDto()
     create_req_dto.page_size = req_dto['page_size']
@@ -237,6 +234,7 @@ def create_list(req_dto):
         # 4.
         create_req_dto.record_info_id = record_info_model.id
         results = asyncio.run(request_shopping_ranking(create_req_dto))
+
         # 5.
         updated_results = updateRankForAdProduct(create_req_dto, results)
     
@@ -254,7 +252,6 @@ def create_list(req_dto):
         db_session.commit()
     except:
         db_session.rollback()
-        print("=== rollback ===")
 
         # fail callback
         nRankRecordService = NRankRecordService()
@@ -262,57 +259,6 @@ def create_list(req_dto):
     finally:
         db_session.close()
 
-# @shared_task(name="create_list_by_nrank_record_detail")
-# @transactional
-# def create_list(req_dto):
-#     create_req_dto = NRankRecordDetailCreateReqDto()
-#     create_req_dto.page_size = req_dto['page_size']
-#     create_req_dto.record_id = req_dto['record_id']
-#     """search naver shopping ranking and create rank details
-     
-#     + nrank_record_info의 created_at으로 랭킹 조회 가능 시간 제한
-#     1. nrank_record_info 초기화
-#     2. nrank_record 조회
-#     3. 랭킹 조회 가능 시간 검사
-#     4. (2)에서 조회된 keyword & mallname으로 랭킹 검사
-#     5. 광고 상품 순위 설정
-#     6. nrank_record_detail 저장
-#     7. 조회된 결과로 nrank_record_info 설정 및 저장
-#     8. nrank_record의 current_nrank_record_info_id 업데이트
-#     """
-#     nrank_record_detail_repository = NRankRecordDetailRepository()
-#     nrank_record_info_repository = NRankRecordInfoRepository()
-#     nrank_record_repository = NRankRecordRepository()
-
-#     # 1.
-#     record_info_model = NRankRecordInfoModel()
-#     record_info_model.id = uuid.uuid4()
-#     record_info_model.nrank_record_id = create_req_dto.record_id
-#     # 2.
-#     record_model = nrank_record_repository.search_one(create_req_dto.record_id)
-#     # 3.
-#     if(record_model.current_nrank_record_info_id is not None):
-#         last_info_model = nrank_record_info_repository.search_one(record_model.current_nrank_record_info_id)
-#         checkSearchableTime(last_info_model)
-#     create_req_dto.keyword = record_model.keyword
-#     create_req_dto.mall_name = record_model.mall_name
-#     # 4.
-#     create_req_dto.record_info_id = record_info_model.id
-#     results = asyncio.run(request_shopping_ranking(create_req_dto))
-#     # 5.
-#     updated_results = updateRankForAdProduct(create_req_dto, results)
-
-#     # 6.
-#     nrank_record_detail_repository.bulk_save(updated_results)
-#     # 7.
-#     record_info_model.rank_detail_unit = len(results) - create_req_dto.ad_product_unit
-#     record_info_model.ad_rank_detail_unit = create_req_dto.ad_product_unit
-#     create_nrank_record_info(record_info_model, updated_results)
-#     # 8.
-#     record_model.current_nrank_record_info_id = create_req_dto.record_info_id
-#     record_model.status = NRankRecordStatusEnum.COMPLETE.value
-#     nrank_record_repository.save(record_model)
-    
 def checkSearchableTime( last_info_model):
     last_searched_at = last_info_model.created_at
     diff = DateTimeUtils.get_current_datetime() - last_searched_at
