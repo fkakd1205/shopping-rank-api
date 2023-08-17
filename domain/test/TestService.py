@@ -1,6 +1,7 @@
 import time
 # from utils.celery.v1.CeleryUtils import celery
 # from utils.celery.v1.CeleryUtils import celery
+from exception.types.CustomException import *
 
 class TestService():
     
@@ -11,6 +12,12 @@ class TestService():
         print("celery_test finish!!")
 
     def test(self):
-        # self.celery_test.delay()
-        time.sleep(5)
-        return
+        # try:
+        # self.inner_test()
+
+        # except Exception as e:
+        #     raise e.__class__
+        raise CustomDuplicationException('test - service exception!')
+    
+    # def inner_test(self):
+        # raise CustomMethodNotAllowedException('inner test - service exception!')

@@ -15,13 +15,13 @@ from domain.nrank_record.repository.NRankRecordRepository import NRankRecordRepo
 from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankRecordInfoRepository
 from domain.nrank_record_info.model.NRankRecordInfoModel import NRankRecordInfoModel
 from domain.nrank_record_detail.dto.NRankRecordDetailCreateReqDto import NRankRecordDetailCreateReqDto
-from domain.nrank_record.service.NRankRecordService import NRankRecordService
 
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
 from exception.types.CustomException import *
 from utils.date.DateTimeUtils import DateTimeUtils
 from exception.types.CustomException import CustomInvalidValueException
-from utils.db.v2.DBUtils import db_session
+
+from decorators import transactional
 
 PROXY_REQUEST_URL = "http://kr.smartproxy.com:10000"
 NAVER_SHOPPINT_RANK_URL = "https://search.shopping.naver.com/search/all"
@@ -36,9 +36,9 @@ SEARCHABLE_DIFF_SECONDS = 60
 
 class NRankRecordDetailService():
 
+    @transactional
     def search_list_by_record_info_id(self, record_info_id):
         nrank_record_detail_repository = NRankRecordDetailRepository()
-        
         detail_entities = nrank_record_detail_repository.search_list_by_record_info_id(record_info_id)
         detail_dtos = list(map(lambda entity: NRankRecordDetailDto.to_dto(entity), detail_entities))
         return detail_dtos
@@ -198,10 +198,8 @@ async def search_page_and_get_rank_models(page_index, create_req_dto):
     except AttributeError as e:
         raise CustomInvalidValueException(e)
 
+@transactional
 def create_list(req_dto):
-    create_req_dto = NRankRecordDetailCreateReqDto()
-    create_req_dto.page_size = req_dto['page_size']
-    create_req_dto.record_id = req_dto['record_id']
     """search naver shopping ranking and create rank details
      
     + nrank_record_info의 created_at으로 랭킹 조회 가능 시간 제한
@@ -214,52 +212,51 @@ def create_list(req_dto):
     7. 조회된 결과로 nrank_record_info 설정 및 저장
     8. nrank_record의 current_nrank_record_info_id 업데이트
     """
+    create_req_dto = NRankRecordDetailCreateReqDto()
+    create_req_dto.page_size = req_dto['page_size']
+    create_req_dto.record_id = req_dto['record_id']
+
     nrank_record_detail_repository = NRankRecordDetailRepository()
     nrank_record_info_repository = NRankRecordInfoRepository()
     nrank_record_repository = NRankRecordRepository()
 
-    try:
-        # 1.
-        record_info_model = NRankRecordInfoModel()
-        record_info_model.id = uuid.uuid4()
-        record_info_model.nrank_record_id = create_req_dto.record_id
-        # 2.
-        record_model = nrank_record_repository.search_one(create_req_dto.record_id)
-        # 3.
-        if(record_model.current_nrank_record_info_id is not None):
-            last_info_model = nrank_record_info_repository.search_one(record_model.current_nrank_record_info_id)
-            checkSearchableTime(last_info_model)
-        create_req_dto.keyword = record_model.keyword
-        create_req_dto.mall_name = record_model.mall_name
-        # 4.
-        create_req_dto.record_info_id = record_info_model.id
-        results = asyncio.run(request_shopping_ranking(create_req_dto))
+    # 1.
+    record_info_model = NRankRecordInfoModel()
+    record_info_model.id = uuid.uuid4()
+    record_info_model.nrank_record_id = create_req_dto.record_id
 
-        # 5.
-        updated_results = updateRankForAdProduct(create_req_dto, results)
+    # 2.
+    record_model = nrank_record_repository.search_one(create_req_dto.record_id)
+    create_req_dto.keyword = record_model.keyword
+    create_req_dto.mall_name = record_model.mall_name
+
+    # 3.
+    if(record_model.current_nrank_record_info_id is not None):
+        last_info_model = nrank_record_info_repository.search_one(record_model.current_nrank_record_info_id)
+        checkSearchableTime(last_info_model)
+
+    # 4.
+    create_req_dto.record_info_id = record_info_model.id
+    results = asyncio.run(request_shopping_ranking(create_req_dto))
+
+    # 5.
+    updated_results = updateRankForAdProduct(create_req_dto, results)
     
-        # 6.
-        nrank_record_detail_repository.bulk_save(updated_results)
-        # 7.
-        record_info_model.rank_detail_unit = len(results) - create_req_dto.ad_product_unit
-        record_info_model.ad_rank_detail_unit = create_req_dto.ad_product_unit
-        create_nrank_record_info(record_info_model, updated_results)
-        # 8.
-        record_model.current_nrank_record_info_id = create_req_dto.record_info_id
-        record_model.status = NRankRecordStatusEnum.COMPLETE.value
-        nrank_record_repository.save(record_model)
-        
-        db_session.commit()
-    except:
-        db_session.rollback()
+    # 6.
+    nrank_record_detail_repository.bulk_save(updated_results)
 
-        # fail callback
-        nRankRecordService = NRankRecordService()
-        nRankRecordService.change_status(create_req_dto.record_id, NRankRecordStatusEnum.FAIL)
-    finally:
-        db_session.close()
+    # 7.
+    record_info_model.rank_detail_unit = len(results) - create_req_dto.ad_product_unit
+    record_info_model.ad_rank_detail_unit = create_req_dto.ad_product_unit
+    create_nrank_record_info(record_info_model, updated_results)
+    
+    # 8.
+    record_model.current_nrank_record_info_id = create_req_dto.record_info_id
+    record_model.status = NRankRecordStatusEnum.COMPLETE.value
+    record_model.status_updated_at = DateTimeUtils.get_current_datetime()
+    nrank_record_repository.save(record_model)
 
-def checkSearchableTime( last_info_model):
+def checkSearchableTime(last_info_model):
     last_searched_at = last_info_model.created_at
     diff = DateTimeUtils.get_current_datetime() - last_searched_at
     if(SEARCHABLE_DIFF_SECONDS > diff.seconds):

@@ -6,14 +6,14 @@ from domain.nrank_record.service.NRankRecordService import NRankRecordService
 from enums.WorkspaceAccessTypeEnum import WorkspaceAccessTypeEnum
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
 
-from config.interceptor.RequiredLoginInterceptor import required_login
-from config.interceptor.RequiredWorkspaceAuthInterceptor import required_workspace_auth
+from decorators import *
 
 NRankRecordApi = Namespace('NRankRecordApi')
 
 @NRankRecordApi.route('', methods=['GET', 'POST'])
 class NRankRecord(Resource):
 
+    @using_db()
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
         WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
@@ -28,6 +28,7 @@ class NRankRecord(Resource):
 
         return message.__dict__, message.status_code
     
+    @using_db()
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
         # TODO :: 워크스페이스 타입 변경
@@ -46,6 +47,7 @@ class NRankRecord(Resource):
 @NRankRecordApi.route('/<id>', methods=['DELETE'])
 class NRankRecordIncludeId(Resource):
     
+    @using_db()
     @required_login
     def delete(self, id):
         message = MessageDto()
@@ -60,12 +62,28 @@ class NRankRecordIncludeId(Resource):
 @NRankRecordApi.route('/<id>/target:status/action:pending', methods=['PATCH'])
 class NRankRecordChangeStatus(Resource):
     
+    @using_db()
     @required_login
     def patch(self, id):
         message = MessageDto()
 
         nRankRecordService = NRankRecordService()
         nRankRecordService.change_status(id, NRankRecordStatusEnum.PENDING)
+        message.set_status(HTTPStatus.OK)
+        message.set_message("success")
+
+        return message.__dict__, message.status_code
+
+@NRankRecordApi.route('/target:status/action:fail', methods=['PATCH'])
+class NRankRecordChangeStatus(Resource):
+    
+    @using_db()
+    @required_login
+    def patch(self):
+        message = MessageDto()
+
+        nRankRecordService = NRankRecordService()
+        nRankRecordService.change_list_status(NRankRecordStatusEnum.FAIL)
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 

@@ -7,8 +7,6 @@ from domain.nrank_record.controller.NRankRecordApi import NRankRecordApi
 from domain.nrank_record_detail.controller.NRankRecordDetailApi import NRankRecordDetailApi
 from domain.test.TestApi import TestApi
 
-from config.filter.JwtAuthorizationFilter import JwtAuthorizationFitler
-
 app = Flask(__name__)
 
 api = Api(app)
@@ -19,12 +17,6 @@ CORS(
         r'*': {'origins': 'http://localhost:3000'}
     }
 )
-
-# === filter check ===
-@app.before_request
-def before_request():
-    # access token 검사
-    JwtAuthorizationFitler.filter()
 
 # === register controller ===
 api.add_namespace(NRankRecordApi, "/api/v1/nrank-records")

@@ -2,15 +2,20 @@ from utils.db.v2.DBUtils import db_session
 
 def transactional(func):
     def wrapper(self, *args, **kwargs):
+        results = None
         try:
-            func(self, *args, **kwargs)
+            results = func(self, *args, **kwargs) or None
             db_session.commit()
+            # close 되기 전에 results 반환되어 버림.
+            # return results
         except:
-            print("=== rollback ===")
+            print("==== rollback ====")
             db_session.rollback()
-            # TODO :: 예외 작성
             raise
         finally:
+            print("==== close db ====")
             db_session.close()
+            return results
+        
 
     return wrapper

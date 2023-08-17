@@ -4,6 +4,7 @@ from sqlalchemy import select, text
 from domain.nrank_record.model.NRankRecordModel import NRankRecordModel
 
 class NRankRecordRepository():
+    
     def save(self, entity):
         db_session.add(entity)
 
@@ -22,7 +23,7 @@ class NRankRecordRepository():
     def search_one(self, id):
         query = select(NRankRecordModel).where(NRankRecordModel.id == id)
         return db_session.execute(query).scalar()
-    
+
     def soft_delete_one_and_related_all(self, id):
         """soft delete one and related nrank record infos and nrank record details
         
@@ -39,3 +40,7 @@ class NRankRecordRepository():
         )
         params = {"id" : id}
         db_session.execute(query, params)
+
+    def search_list(self, ids):
+        query = select(NRankRecordModel).where(NRankRecordModel.id.in_(ids))
+        return db_session.execute(query).scalars().all()

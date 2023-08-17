@@ -20,7 +20,8 @@ from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
 from exception.types.CustomException import *
 from utils.date.DateTimeUtils import DateTimeUtils
 from exception.types.CustomException import CustomInvalidValueException
-from utils.db.v2.QueryUtils import transactional
+
+from decorators.transactional import transactional
 
 PROXY_REQUEST_URL = "http://kr.smartproxy.com:10000"
 NAVER_SHOPPINT_RANK_URL = "https://search.shopping.naver.com/search/all"

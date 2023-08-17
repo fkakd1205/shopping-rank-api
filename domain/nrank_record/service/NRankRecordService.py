@@ -9,10 +9,11 @@ from domain.nrank_record_info.dto.NRankRecordInfoDto import NRankRecordInfoDto
 
 from utils.date.DateTimeUtils import DateTimeUtils
 from exception.types.CustomException import *
-from utils.db.v2.QueryUtils import transactional
 from utils.user.UserUtils import UserUtils
 from utils.workspace.MemberPermissionUtils import MemberPermissionUtils
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
+
+from decorators import transactional
 
 class NRankRecordService():
 
@@ -36,9 +37,11 @@ class NRankRecordService():
         dto.keyword = body['keyword']
         dto.mall_name = body['mall_name']
         dto.status = NRankRecordStatusEnum.NONE.value
+        dto.status_updated_at = None
         dto.workspace_id = workspace_info.workspaceId
         dto.created_at = DateTimeUtils.get_current_datetime()
         dto.created_by_member_id = user_id
+        dto.current_nrank_record_info_id = None
         dto.deleted_flag = False
 
         # keyword & mall_name 중복검사
@@ -47,6 +50,7 @@ class NRankRecordService():
         new_model = NRankRecordModel.to_model(dto)
         nrank_record_repository.save(new_model)
 
+    @transactional
     def search_list(self):
         """search list by workspace id
 
@@ -92,3 +96,19 @@ class NRankRecordService():
         record_model = nRankRecordRepository.search_one(id)
         if(record_model is None): raise CustomNotFoundException("데이터가 존재하지 않습니다.")
         record_model.status = status.value
+        record_model.status_updated_at = DateTimeUtils.get_current_datetime()
+
+    @transactional
+    def change_list_status(self, status):
+        body = request.get_json()
+        ids = body['ids']
+        current_datetime = DateTimeUtils.get_current_datetime()
+
+        nRankRecordRepository = NRankRecordRepository()
+        record_models = nRankRecordRepository.search_list(ids)
+        if(record_models is None): raise CustomNotFoundException("데이터가 존재하지 않습니다.")
+        for record_model in record_models:
+            record_model.status = status.value
+            record_model.status_updated_at = current_datetime
+        
+        

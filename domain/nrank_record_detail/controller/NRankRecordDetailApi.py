@@ -4,15 +4,16 @@ import threading
 
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record_detail.dto.NRankRecordDetailCreateReqDto import NRankRecordDetailCreateReqDto
-from domain.nrank_record_detail.service.NRankRecordDetailServiceV3 import NRankRecordDetailService, create_list
+from domain.nrank_record_detail.service.NRankRecordDetailServiceV2 import NRankRecordDetailService, create_list
 
-from config.interceptor.RequiredLoginInterceptor import required_login
+from decorators import *
 
 NRankRecordDetailApi = Namespace('NRankRecordDetailApi')
 
 @NRankRecordDetailApi.route('/<record_id>', methods=['POST'])
 class NRankRecordDetail(Resource):
     
+    @using_db(auto_close = False)
     @required_login
     def post(self, record_id):
         message = MessageDto()
@@ -22,8 +23,9 @@ class NRankRecordDetail(Resource):
         create_req_dto = NRankRecordDetailCreateReqDto()
         create_req_dto.page_size = page_size
         create_req_dto.record_id = record_id
-        threading.Thread(target=create_list, args=(create_req_dto.__dict__, ), daemon=True).start()
 
+        threading.Thread(target=create_list, args=(create_req_dto.__dict__, ), daemon=True).start()
+        
         message.set_status(HTTPStatus.ACCEPTED)
         message.set_message("accepted")
 
@@ -32,6 +34,7 @@ class NRankRecordDetail(Resource):
 @NRankRecordDetailApi.route('/nrank-record-info/<record_info_id>', methods=['GET'])
 class NRankRecordDetailIncludeNRankRecordInfoId(Resource):
 
+    @using_db()
     @required_login
     def get(self, record_info_id):
         message = MessageDto()
