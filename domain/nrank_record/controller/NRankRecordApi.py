@@ -3,6 +3,8 @@ from http import HTTPStatus
 
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record.service.NRankRecordService import NRankRecordService
+from domain.workspace.service.WorkspaceAuthService import WorkspaceAuthService
+
 from enums.WorkspaceAccessTypeEnum import WorkspaceAccessTypeEnum
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
 
@@ -13,7 +15,6 @@ NRankRecordApi = Namespace('NRankRecordApi')
 @NRankRecordApi.route('', methods=['GET', 'POST'])
 class NRankRecord(Resource):
 
-    @using_db()
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
         WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
@@ -28,7 +29,6 @@ class NRankRecord(Resource):
 
         return message.__dict__, message.status_code
     
-    @using_db()
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
         # TODO :: 워크스페이스 타입 변경
@@ -47,7 +47,6 @@ class NRankRecord(Resource):
 @NRankRecordApi.route('/<id>', methods=['DELETE'])
 class NRankRecordIncludeId(Resource):
     
-    @using_db()
     @required_login
     def delete(self, id):
         message = MessageDto()
@@ -62,12 +61,17 @@ class NRankRecordIncludeId(Resource):
 @NRankRecordApi.route('/<id>/target:status/action:pending', methods=['PATCH'])
 class NRankRecordChangeStatus(Resource):
     
-    @using_db()
     @required_login
+    @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
+        WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
+    })
     def patch(self, id):
         message = MessageDto()
 
         nRankRecordService = NRankRecordService()
+        workspaceAuthService = WorkspaceAuthService()
+        workspaceAuthService.check_nrank_search_allowed_count()
+
         nRankRecordService.change_status(id, NRankRecordStatusEnum.PENDING)
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
@@ -77,7 +81,6 @@ class NRankRecordChangeStatus(Resource):
 @NRankRecordApi.route('/target:status/action:fail', methods=['PATCH'])
 class NRankRecordChangeStatus(Resource):
     
-    @using_db()
     @required_login
     def patch(self):
         message = MessageDto()

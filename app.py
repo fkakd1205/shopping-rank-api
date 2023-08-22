@@ -7,6 +7,8 @@ from domain.nrank_record.controller.NRankRecordApi import NRankRecordApi
 from domain.nrank_record_detail.controller.NRankRecordDetailApi import NRankRecordDetailApi
 from domain.test.TestApi import TestApi
 
+from utils.db.v2.DBUtils import init_db
+
 app = Flask(__name__)
 
 api = Api(app)
@@ -22,6 +24,8 @@ CORS(
 api.add_namespace(NRankRecordApi, "/api/v1/nrank-records")
 api.add_namespace(NRankRecordDetailApi, "/api/v1/nrank-record-details")
 api.add_namespace(TestApi, "/api/v1/test")
+
+init_db(app)
 
 CustomExceptionHandler(api)
 

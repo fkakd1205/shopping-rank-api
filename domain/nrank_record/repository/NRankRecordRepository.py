@@ -4,7 +4,7 @@ from sqlalchemy import select, text
 from domain.nrank_record.model.NRankRecordModel import NRankRecordModel
 
 class NRankRecordRepository():
-    
+
     def save(self, entity):
         db_session.add(entity)
 

@@ -110,5 +110,3 @@ class NRankRecordService():
         for record_model in record_models:
             record_model.status = status.value
             record_model.status_updated_at = current_datetime
-        
-        

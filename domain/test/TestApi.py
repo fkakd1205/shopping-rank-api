@@ -6,11 +6,14 @@ import threading
 from domain.message.dto.MessageDto import MessageDto
 from utils.db.v2.DBUtils import db_session
 from domain.test.TestService import TestService
+# from domain.test.TestService import test
+from domain.workspace.service.WorkspaceAuthService import WorkspaceAuthService
+
 # from decorators.required_login import required_login
-# from decorators.using_db import using_db
 
 from decorators import *
 from exception.types.CustomException import *
+from enums.WorkspaceAccessTypeEnum import WorkspaceAccessTypeEnum
 
 TestApi = Namespace('TestApi')
 
@@ -26,19 +29,19 @@ class Test(Resource):
 
     #     return message.__dict__, message.status_code
 
-    @using_db()
+    # @required_login
+    # @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
+    #     WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
+    # })
+
     def get(self):
         message = MessageDto()
         testService = TestService()
-
-        # raise CustomInvalidUserException('invalid')
-        message.set_data(testService.test())
         
-        # t1 = threading.Thread(target=testService.test, daemon=True)
-        # t2 = threading.Thread(target=testService.test, daemon=True)
-    
-        # t1.start()
-        # t2.start()
+        # TODO :: args에 아무것도 없을 경우
+        threading.Thread(target=testService.test, args=(), daemon=True).start()
+        # testService.test2()
+
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 
