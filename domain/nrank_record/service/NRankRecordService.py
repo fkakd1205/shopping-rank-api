@@ -127,7 +127,7 @@ class NRankRecordService():
         nRankRecordRepository = NRankRecordRepository()
         current_datetime = DateTimeUtils.get_current_datetime()
 
-        record_models = nRankRecordRepository.search_list(ids)
+        record_models = nRankRecordRepository.search_list_by_ids(ids)
         if(record_models is None): raise CustomNotFoundException("데이터가 존재하지 않습니다.")
         
         for record_model in record_models:

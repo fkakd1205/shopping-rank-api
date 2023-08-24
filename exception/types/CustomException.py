@@ -29,3 +29,7 @@ class CustomAccessDeniedPermissionException(Exception):
 # 8. Timeout Exception
 class CustomTimeoutException(Exception):
     pass
+
+# 9. Not Matched Format Exception
+class CustomNotMatchedFormatException(Exception):
+    pass

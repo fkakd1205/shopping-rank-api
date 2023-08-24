@@ -37,6 +37,6 @@ class NRankRecordRepository():
         params = {"id" : id}
         db_session.execute(query, params)
 
-    def search_list(self, ids):
+    def search_list_by_ids(self, ids):
         query = select(NRankRecordModel).where(NRankRecordModel.id.in_(ids))
         return db_session.execute(query).scalars().all()

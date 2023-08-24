@@ -1,11 +1,14 @@
 from utils import Base
 from sqlalchemy import Column, BigInteger, String, DateTime, Boolean, Integer
 
+from enums.NRankRecordInfoStatusEnum import NRankRecordInfoStatusEnum
+
 class NRankRecordInfoModel(Base):
     __tablename__ = 'nrank_record_info'
 
     cid = Column("cid", BigInteger, primary_key=True, autoincrement=True)
     id = Column("id", String(36), unique=True, nullable=False)
+    status = Column("status", String(10), nullable=False)
     thumbnail_url = Column("thumbnail_url", String(600), nullable=True)
     rank_detail_unit = Column("rank_detail_unit", Integer, nullable=True)
     ad_rank_detail_unit = Column("ad_rank_detail_unit", Integer, nullable=True)
@@ -15,6 +18,7 @@ class NRankRecordInfoModel(Base):
 
     def __init__(self):
         self.id = None
+        self.status = NRankRecordInfoStatusEnum.NONE.value
         self.thumbnail_url = None
         self.rank_detail_unit = None
         self.ad_rank_detail_unit = None
@@ -26,6 +30,7 @@ class NRankRecordInfoModel(Base):
     def to_model(dto):
         model = NRankRecordInfoModel()
         model.id = dto.id
+        model.status = dto.status
         model.thumbnail_url = dto.thumbnail_url
         model.rank_detail_unit = dto.rank_detail_unit
         model.ad_rank_detail_unit = dto.ad_rank_detail_unit

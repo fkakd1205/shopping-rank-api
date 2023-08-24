@@ -1,9 +1,11 @@
 from utils import CustomUTCDateTime
 from dataclasses import dataclass
+from enums.NRankRecordInfoStatusEnum import NRankRecordInfoStatusEnum
 
 @dataclass
 class NRankRecordInfoDto():
     id = None
+    status = NRankRecordInfoStatusEnum.NONE.value
     thumbnail_url = None
     rank_detail_unit = None
     ad_rank_detail_unit = None
@@ -15,6 +17,7 @@ class NRankRecordInfoDto():
     def to_dto(model):
         dto = NRankRecordInfoDto()
         dto.id = model.id
+        dto.status = model.status
         dto.thumbnail_url = model.thumbnail_url
         dto.rank_detail_unit = model.rank_detail_unit
         dto.ad_rank_detail_unit = model.ad_rank_detail_unit

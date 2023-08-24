@@ -12,12 +12,11 @@ from domain.nrank_record_detail.model.NRankRecordDetailModel import NRankRecordD
 from domain.nrank_record_detail.repository.NRankRecordDetailRepository import NRankRecordDetailRepository
 from domain.nrank_record.repository.NRankRecordRepository import NRankRecordRepository
 from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankRecordInfoRepository
-from domain.nrank_record_info.model.NRankRecordInfoModel import NRankRecordInfoModel
 from domain.nrank_record_detail.dto.NRankRecordDetailCreateReqDto import NRankRecordDetailCreateReqDto
-from domain.workspace.service.WorkspaceService import WorkspaceService
 
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
 from enums.YnEnum import YnEnum
+from enums.NRankRecordInfoStatusEnum import NRankRecordInfoStatusEnum
 from exception.types.CustomException import *
 from utils import DateTimeUtils, ProxyUtils
 from exception.types.CustomException import CustomInvalidValueException
@@ -59,6 +58,7 @@ class NRankRecordDetailService():
         create_req_dto = NRankRecordDetailCreateReqDto()
         create_req_dto.page_size = req_dto['page_size']
         create_req_dto.record_id = req_dto['record_id']
+        create_req_dto.record_info_id = req_dto['record_info_id']
 
         nrankRecordDetailRepository = NRankRecordDetailRepository()
         nrankRecordInfoRepository = NRankRecordInfoRepository()
@@ -66,9 +66,7 @@ class NRankRecordDetailService():
         current_datetime = DateTimeUtils.get_current_datetime()
 
         # 1.
-        record_info_model = NRankRecordInfoModel()
-        record_info_model.id = uuid.uuid4()
-        record_info_model.nrank_record_id = create_req_dto.record_id
+        record_info_model = nrankRecordInfoRepository.search_one(create_req_dto.record_info_id)
 
         # 2.
         record_model = nrankRecordRepository.search_one(create_req_dto.record_id)
@@ -95,7 +93,9 @@ class NRankRecordDetailService():
         record_info_model.rank_detail_unit = len(results) - create_req_dto.ad_product_unit
         record_info_model.ad_rank_detail_unit = create_req_dto.ad_product_unit
         record_info_model.thumbnail_url = self.get_nrank_record_thumbnail(updated_results)
-        record_info_model.created_at = current_datetime
+        # TODO :: 언제 created_at을 설정할지
+        # record_info_model.created_at = current_datetime
+        record_info_model.status = NRankRecordInfoStatusEnum.COMPLETE.value
         nrankRecordInfoRepository.save(record_info_model)
 
         # 8.

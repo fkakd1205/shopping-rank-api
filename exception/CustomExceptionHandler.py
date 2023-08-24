@@ -76,5 +76,13 @@ def CustomExceptionHandler(app):
         message.set_status(HTTPStatus.BAD_REQUEST)
         message.set_message("timeout")
         message.set_memo(str(e))
-        return message.__dict__, message.status_code    
+        return message.__dict__, message.status_code
+    
+    @app.errorhandler(CustomNotMatchedFormatException)
+    def CustomNotMatchedFormatExceptionHandler(e):
+        message.set_data(None)
+        message.set_status(HTTPStatus.BAD_REQUEST)
+        message.set_message("not matched format")
+        message.set_memo(str(e))
+        return message.__dict__, message.status_code
     
