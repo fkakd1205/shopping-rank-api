@@ -8,7 +8,6 @@ from domain.nrank_record_info.service.NRankRecordInfoService import NRankRecordI
 
 from enums.WorkspaceAccessTypeEnum import WorkspaceAccessTypeEnum
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
-from enums.NRankRecordInfoStatusEnum import NRankRecordInfoStatusEnum
 
 from decorators import *
 
@@ -50,6 +49,9 @@ class NRankRecord(Resource):
 class NRankRecordIncludeId(Resource):
     
     @required_login
+    @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
+        WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
+    })
     def delete(self, id):
         message = MessageDto()
 
@@ -75,7 +77,6 @@ class NRankRecordChangeStatus(Resource):
         3. create info and return id
         id -- record_id
         """
-        
         message = MessageDto()
 
         nRankRecordService = NRankRecordService()
@@ -94,6 +95,9 @@ class NRankRecordChangeStatus(Resource):
 class NRankRecordChangeStatus(Resource):
     
     @required_login
+    @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
+        WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
+    })
     def patch(self):
         message = MessageDto()
 

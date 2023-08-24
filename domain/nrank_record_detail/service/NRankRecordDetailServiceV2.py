@@ -67,6 +67,9 @@ class NRankRecordDetailService():
 
         # 1.
         record_info_model = nrankRecordInfoRepository.search_one(create_req_dto.record_info_id)
+        
+        if((record_info_model is None) or (record_info_model.status != NRankRecordInfoStatusEnum.NONE.value)) :
+            raise CustomMethodNotAllowedException("올바르지 않은 요청입니다.")
 
         # 2.
         record_model = nrankRecordRepository.search_one(create_req_dto.record_id)
@@ -93,8 +96,6 @@ class NRankRecordDetailService():
         record_info_model.rank_detail_unit = len(results) - create_req_dto.ad_product_unit
         record_info_model.ad_rank_detail_unit = create_req_dto.ad_product_unit
         record_info_model.thumbnail_url = self.get_nrank_record_thumbnail(updated_results)
-        # TODO :: 언제 created_at을 설정할지
-        # record_info_model.created_at = current_datetime
         record_info_model.status = NRankRecordInfoStatusEnum.COMPLETE.value
         nrankRecordInfoRepository.save(record_info_model)
 
