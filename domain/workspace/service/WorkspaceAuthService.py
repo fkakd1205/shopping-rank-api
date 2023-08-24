@@ -4,17 +4,14 @@ import json
 from http import HTTPStatus
 
 from domain.workspace.dto.WorkspaceAuthInfoDto import WorkspaceAuthInfoDto
-from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankRecordInfoRepository
 
 from exception.types.CustomException import *
 
 from utils.cookie.CustomCookieUtils import CustomCookieUtils
 from config.key.prod.ProductionConfig import origin
-from utils.date.DateTimeUtils import DateTimeUtils
-from utils.workspace.MemberPermissionUtils import MemberPermissionUtils
 
 class WorkspaceAuthService():
-    
+
     def get_workspace_auth_info_dto(self, check_permission_body):
         headers = request.headers
         cookies = request.cookies
@@ -65,29 +62,4 @@ class WorkspaceAuthService():
             raise CustomMethodNotAllowedException("요청 양식이 올바른지 확인해 주세요.")
         else:
             raise CustomMethodNotAllowedException("알 수 없는 에러가 발생했습니다.")
-
-    def check_nrank_search_allowed_count(self):
-        memberUtils = MemberPermissionUtils()
-        workspace_info = memberUtils.get_workspace_info()
-        ws_id = workspace_info.workspaceId
-
-        nrank_record_info_repository = NRankRecordInfoRepository()
-        date = DateTimeUtils.get_current_datetime()
-        start_date = DateTimeUtils.get_start_date(date)
-        end_date = DateTimeUtils.get_end_date(date)
-        searched_cnt = nrank_record_info_repository.search_count_by_period_and_workspace_id(start_date, end_date, ws_id)
-
-        allowed_search_cnt = memberUtils.get_nrank_search_allowed_count()
-        if(searched_cnt >= allowed_search_cnt):
-            raise CustomMethodNotAllowedException("금일 요청 가능한 횟수를 초과했습니다.")
-    
-    def get_nrank_search_page_size(self):
-        memberUtils = MemberPermissionUtils()
-        allowed_page_size = memberUtils.get_nrank_search_page_size()
-        return allowed_page_size
-        
-        
-        
-        
-        
         

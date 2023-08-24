@@ -4,9 +4,9 @@ from domain.workspace.service.WorkspaceAuthService import WorkspaceAuthService
 def required_workspace_auth(**types):
     def outer_wrapper(func):
         def inner_wrapper(self, *args, **kwargs):
-            workspace_service = WorkspaceAuthService()
+            workspaceService = WorkspaceAuthService()
             workspace_auth_type_dto = CheckPermissionBodyDto(types)
-            workspace_service.get_workspace_auth_info_dto(workspace_auth_type_dto)
+            workspaceService.get_workspace_auth_info_dto(workspace_auth_type_dto)
             
             return func(self, *args, **kwargs)
         return inner_wrapper

@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from utils import CustomUTCDateTime
+
 @dataclass
 class UserDto():
     id = None
@@ -37,7 +39,7 @@ class UserDto():
         dto.roles = model.roles
         dto.profile_image_uri = model.profile_image_uri
         dto.allowed_access_count = model.allowed_access_count
-        dto.updated_at = model.updated_at
-        dto.created_at = model.created_at
+        dto.updated_at = CustomUTCDateTime.convert_timezone_format(model.updated_at)
+        dto.created_at = CustomUTCDateTime.convert_timezone_format(model.created_at)
         dto.deleted_flag = model.deleted_flag
         return dto

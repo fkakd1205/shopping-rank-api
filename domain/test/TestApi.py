@@ -4,7 +4,7 @@ import time
 import threading
 
 from domain.message.dto.MessageDto import MessageDto
-from utils.db.v2.DBUtils import db_session
+from utils import db_session
 from domain.test.TestService import TestService
 # from domain.test.TestService import test
 from domain.workspace.service.WorkspaceAuthService import WorkspaceAuthService

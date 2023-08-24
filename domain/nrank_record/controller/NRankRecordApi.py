@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record.service.NRankRecordService import NRankRecordService
-from domain.workspace.service.WorkspaceAuthService import WorkspaceAuthService
+from domain.workspace.service.WorkspaceService import WorkspaceService
 
 from enums.WorkspaceAccessTypeEnum import WorkspaceAccessTypeEnum
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
@@ -69,8 +69,8 @@ class NRankRecordChangeStatus(Resource):
         message = MessageDto()
 
         nRankRecordService = NRankRecordService()
-        workspaceAuthService = WorkspaceAuthService()
-        workspaceAuthService.check_nrank_search_allowed_count()
+        workspaceService = WorkspaceService()
+        workspaceService.check_nrank_search_allowed_count()
 
         nRankRecordService.change_status(id, NRankRecordStatusEnum.PENDING)
         message.set_status(HTTPStatus.OK)

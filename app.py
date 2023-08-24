@@ -6,6 +6,7 @@ from exception.CustomExceptionHandler import CustomExceptionHandler
 from domain.nrank_record.controller.NRankRecordApi import NRankRecordApi
 from domain.nrank_record_detail.controller.NRankRecordDetailApi import NRankRecordDetailApi
 from domain.test.TestApi import TestApi
+from domain.workspace.controller.WorkspaceApi import WorkspaceApi
 
 from utils.db.v2.DBUtils import init_db
 
@@ -23,7 +24,8 @@ CORS(
 # === register controller ===
 api.add_namespace(NRankRecordApi, "/api/v1/nrank-records")
 api.add_namespace(NRankRecordDetailApi, "/api/v1/nrank-record-details")
-api.add_namespace(TestApi, "/api/v1/test")
+api.add_namespace(WorkspaceApi, "/api/v1/workspaces")
+# api.add_namespace(TestApi, "/api/v1/test")
 
 init_db(app)
 

@@ -1,5 +1,7 @@
-from utils.db.v2.DBUtils import Base
-from sqlalchemy import Column, BigInteger, String, Integer, DateTime, Boolean
+from utils import Base
+from sqlalchemy import Column, BigInteger, String, Integer, Boolean
+
+from enums.YnEnum import YnEnum
 
 class NRankRecordDetailModel(Base):
     __tablename__ = 'nrank_record_detail'
@@ -21,7 +23,7 @@ class NRankRecordDetailModel(Base):
 
     review_count = Column("review_count", Integer, nullable=True)
     score_info = Column("score_info", String(5), nullable=True)
-    registration_date = Column("registration_date", DateTime(timezone=True), nullable=True)
+    registration_date = Column("registration_date", String(14), nullable=True)
     thumbnail_url = Column("thumbnail_url", String(600), nullable=True)
     purchase_count = Column("purchase_count", Integer, nullable=True)
     keep_count = Column("keep_count", Integer, nullable=True)
@@ -44,9 +46,9 @@ class NRankRecordDetailModel(Base):
         self.page = 0       # 노출 페이지
         self.mall_product_id = None     # 상품 id
         
-        self.advertising_yn = 'n'      # 광고 여부
+        self.advertising_yn = YnEnum.N.value      # 광고 여부
         self.included_ad_rank = 0     # 실제 순위
-        self.price_comparision_yn = 'n'     # 가격 비교 여부
+        self.price_comparision_yn = YnEnum.N.value     # 가격 비교 여부
         self.comparision_rank = 0        # 가격 비교 순위
         self.low_mall_count = 0       # 가격비교 쇼핑몰 개수
         

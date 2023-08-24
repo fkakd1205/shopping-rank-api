@@ -1,4 +1,4 @@
-from utils.db.v2.DBUtils import db_session
+from utils import db_session
 from sqlalchemy import select, text
 
 from domain.nrank_record.model.NRankRecordModel import NRankRecordModel
@@ -12,10 +12,6 @@ class NRankRecordRepository():
         query = select(NRankRecordModel).where(NRankRecordModel.workspace_id == workspace_id, NRankRecordModel.deleted_flag == False)
         return db_session.execute(query).scalars().all()
     
-    # def search_list_by_ids_and_workspace_id(self, ids, workspace_id):
-    #     query = select(NRankRecordModel).where(NRankRecordModel.workspace_id == workspace_id, NRankRecordModel.id.in_(ids))
-    #     return db_session.execute(query).scalars().all()
-
     def search_one_by_keyword_and_mall_name(self, keyword, mall_name, workspace_id):
         query = select(NRankRecordModel).where(NRankRecordModel.keyword == keyword).where(NRankRecordModel.mall_name == mall_name, NRankRecordModel.deleted_flag == False, NRankRecordModel.workspace_id == workspace_id)
         return db_session.execute(query).scalar()
@@ -26,8 +22,8 @@ class NRankRecordRepository():
 
     def soft_delete_one_and_related_all(self, id):
         """soft delete one and related nrank record infos and nrank record details
-        
-        Keyword arguments:
+
+        nrank_record, nrank_record_info, nrank_record_details의 deleted_flag를 True로 변경한다.
         id -- nrank record id
         """
         query = text("""

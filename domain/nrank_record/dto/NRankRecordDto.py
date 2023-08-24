@@ -1,4 +1,4 @@
-from utils.type.CustomUTCDateTime import CustomUTCDateTime
+from utils import CustomUTCDateTime
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
 from dataclasses import dataclass
 

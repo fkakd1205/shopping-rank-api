@@ -17,9 +17,8 @@ class MemberPermissionUtils():
         results = {
             WorkspaceSubscriptionPlanEnum.NONE: 0,
             WorkspaceSubscriptionPlanEnum.PRIVATE: 2,
-            WorkspaceSubscriptionPlanEnum.PUBLIC: 6
+            WorkspaceSubscriptionPlanEnum.PUBLIC: 10
         }
-
         return results[plan]
         
     def get_nrank_search_page_size(self):
@@ -29,7 +28,6 @@ class MemberPermissionUtils():
         results = {
             WorkspaceSubscriptionPlanEnum.NONE: 0,
             WorkspaceSubscriptionPlanEnum.PRIVATE: 1,   # 80위
-            WorkspaceSubscriptionPlanEnum.PUBLIC: 3     # 240위
+            WorkspaceSubscriptionPlanEnum.PUBLIC: 2     # 160위
         }
-
         return results[plan]

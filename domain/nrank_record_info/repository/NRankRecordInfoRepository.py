@@ -1,4 +1,4 @@
-from utils.db.v2.DBUtils import db_session
+from utils import db_session
 from sqlalchemy import select, text
 
 from domain.nrank_record_info.model.NRankRecordInfoModel import NRankRecordInfoModel

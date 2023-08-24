@@ -1,4 +1,4 @@
-from utils.type.CustomUTCDateTime import CustomUTCDateTime
+from utils import CustomUTCDateTime
 from dataclasses import dataclass
 
 @dataclass

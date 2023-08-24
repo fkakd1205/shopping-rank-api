@@ -14,15 +14,15 @@ from domain.nrank_record.repository.NRankRecordRepository import NRankRecordRepo
 from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankRecordInfoRepository
 from domain.nrank_record_info.model.NRankRecordInfoModel import NRankRecordInfoModel
 from domain.nrank_record_detail.dto.NRankRecordDetailCreateReqDto import NRankRecordDetailCreateReqDto
+from domain.workspace.service.WorkspaceService import WorkspaceService
 
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
+from enums.YnEnum import YnEnum
 from exception.types.CustomException import *
-from utils.date.DateTimeUtils import DateTimeUtils
+from utils import DateTimeUtils, ProxyUtils
 from exception.types.CustomException import CustomInvalidValueException
 from decorators import transactional
 
-
-PROXY_REQUEST_URL = "http://kr.smartproxy.com:10000"
 NAVER_SHOPPINT_RANK_URL = "https://search.shopping.naver.com/search/all"
 DEFAULT_PAGINGSIZE = 80
 
@@ -37,10 +37,9 @@ class NRankRecordDetailService():
 
     @transactional
     def search_list_by_record_info_id(self, record_info_id):
-        nrank_record_detail_repository = NRankRecordDetailRepository()
-        detail_entities = nrank_record_detail_repository.search_list_by_record_info_id(record_info_id)
-        # detail_dtos = list(map(lambda entity: NRankRecordDetailDto.to_dto(entity), detail_entities))
-        detail_dtos = list(map(lambda entity: NRankRecordDetailDto.to_dto(entity), detail_entities)) if detail_entities is not None else []
+        nrankRecordDetailRepository = NRankRecordDetailRepository()
+        detail_entities = nrankRecordDetailRepository.search_list_by_record_info_id(record_info_id)
+        detail_dtos = list(map(lambda entity: NRankRecordDetailDto.to_dto(entity), detail_entities))
         return detail_dtos
     
     @transactional
@@ -51,7 +50,7 @@ class NRankRecordDetailService():
         1. nrank_record_info 초기화
         2. nrank_record 조회
         3. 랭킹 조회 가능 시간 검사
-        4. (2)에서 조회된 keyword & mallname으로 랭킹 검사
+        4. (2)에서 조회된 keyword & mallname으로 랭킹 조회
         5. 광고 상품 순위 설정
         6. nrank_record_detail 저장
         7. 조회된 결과로 nrank_record_info 설정 및 저장
@@ -61,9 +60,10 @@ class NRankRecordDetailService():
         create_req_dto.page_size = req_dto['page_size']
         create_req_dto.record_id = req_dto['record_id']
 
-        nrank_record_detail_repository = NRankRecordDetailRepository()
-        nrank_record_info_repository = NRankRecordInfoRepository()
-        nrank_record_repository = NRankRecordRepository()
+        nrankRecordDetailRepository = NRankRecordDetailRepository()
+        nrankRecordInfoRepository = NRankRecordInfoRepository()
+        nrankRecordRepository = NRankRecordRepository()
+        current_datetime = DateTimeUtils.get_current_datetime()
 
         # 1.
         record_info_model = NRankRecordInfoModel()
@@ -71,15 +71,15 @@ class NRankRecordDetailService():
         record_info_model.nrank_record_id = create_req_dto.record_id
 
         # 2.
-        record_model = nrank_record_repository.search_one(create_req_dto.record_id)
+        record_model = nrankRecordRepository.search_one(create_req_dto.record_id)
         create_req_dto.keyword = record_model.keyword
         create_req_dto.mall_name = record_model.mall_name
 
         # 3.
-        if(record_model.current_nrank_record_info_id is not None):
-            last_info_model = nrank_record_info_repository.search_one(record_model.current_nrank_record_info_id)
-            if(last_info_model is not None):
-                self.checkSearchableTime(last_info_model)
+        if(record_model.current_nrank_record_info_id):
+            last_info_model = nrankRecordInfoRepository.search_one(record_model.current_nrank_record_info_id)
+            if(last_info_model):
+                self.checkSearchableTime(last_info_model.created_at)
 
         # 4.
         create_req_dto.record_info_id = record_info_model.id
@@ -87,20 +87,22 @@ class NRankRecordDetailService():
 
         # 5.
         updated_results = self.updateRankForAdProduct(create_req_dto, results)
-
+        
         # 6.
-        nrank_record_detail_repository.bulk_save(updated_results)
+        nrankRecordDetailRepository.bulk_save(updated_results)
 
         # 7.
         record_info_model.rank_detail_unit = len(results) - create_req_dto.ad_product_unit
         record_info_model.ad_rank_detail_unit = create_req_dto.ad_product_unit
-        self.create_nrank_record_info(record_info_model, updated_results)
+        record_info_model.thumbnail_url = self.get_nrank_record_thumbnail(updated_results)
+        record_info_model.created_at = current_datetime
+        nrankRecordInfoRepository.save(record_info_model)
 
         # 8.
         record_model.current_nrank_record_info_id = create_req_dto.record_info_id
         record_model.status = NRankRecordStatusEnum.COMPLETE.value
-        record_model.status_updated_at = DateTimeUtils.get_current_datetime()
-        nrank_record_repository.save(record_model)
+        record_model.status_updated_at = current_datetime
+        nrankRecordRepository.save(record_model)
     
 
     async def get_current_page_response(self, page_index, create_req_dto):
@@ -123,7 +125,7 @@ class NRankRecordDetailService():
                 async with aiohttp.ClientSession() as session:
                     res = await session.get(
                         url=NAVER_SHOPPINT_RANK_URL,
-                        proxy=PROXY_REQUEST_URL,
+                        proxy=ProxyUtils.PROXY_REQUEST_URL,
                         timeout=UNIT_REQUEST_TIMEOUT_SIZE,
                         headers=headers,
                         params=params
@@ -192,7 +194,8 @@ class NRankRecordDetailService():
                     model.nrank_record_info_id = create_req_dto.record_info_id
 
                     if('adId' in item):
-                        model.advertising_yn = 'y'
+                        model.advertising_yn = YnEnum.Y.value
+                        # 광고상품의 썸네일은 'adImageUrl', 없다면 'imageUrl'로 결정
                         model.thumbnail_url = item.get('adImageUrl', model.thumbnail_url)
                         model.page = None
                         model.rank = 0
@@ -202,13 +205,13 @@ class NRankRecordDetailService():
 
                 # 가격비교 쇼핑몰 검색
                 # item['lowMallList'] = null or []
-                if (item['lowMallList'] is not None):
+                if (('lowMallList' in item) and (item['lowMallList'] is not None)):
                     # 가격비교 상품들의 공통 필드
                     comparition_rank = 0
                     rank = int(item['rank'])
                     product_title = item['productTitle']
                     review_count = item['reviewCount']
-                    score_info = item['scoreInfo']
+                    score_info = item.get('scoreInfo', 0)
                     registration_date = item['openDate']
                     thumbnail_url = item['imageUrl']
                     purchase_count = item['purchaseCnt']
@@ -229,7 +232,7 @@ class NRankRecordDetailService():
                             model.mall_name = create_req_dto.mall_name
                             model.rank = rank
                             model.included_ad_rank = included_ad_rank
-                            model.price_comparision_yn = 'y'
+                            model.price_comparision_yn = YnEnum.Y.value
                             model.comparision_rank = comparition_rank
                             model.product_title = product_title
                             model.price = low_item['price']
@@ -257,13 +260,22 @@ class NRankRecordDetailService():
         except AttributeError as e:
             raise CustomInvalidValueException(e)
 
-    def checkSearchableTime(self, last_info_model):
-        last_searched_at = last_info_model.created_at
+    def checkSearchableTime(self, last_searched_at):
+        """check store rank searchable time
+        
+        last_searched_at -- created_at of nrank record info 
+        """
         diff = DateTimeUtils.get_current_datetime() - last_searched_at
         if(SEARCHABLE_DIFF_SECONDS > diff.seconds):
             raise CustomMethodNotAllowedException("요청 가능 시간이 아닙니다. 잠시 후 시도해주세요.")
         
     def updateRankForAdProduct(self, create_req_dto, results):
+        """update rank for advertisement product
+
+        광고 상품들끼리의 순위를 계산
+        광고 상품 개수를 구한다
+        """
+        # 순위별로 광고상품 정렬
         sorted_ad_products = dict(sorted(create_req_dto.total_ad_products.items()))
         
         # 광고상품 순위 설정된 results
@@ -277,10 +289,16 @@ class NRankRecordDetailService():
         return updated_results
 
     async def request_shopping_ranking(self, create_req_dto):
+        """request naver store ranking page
+        
+        요청 페이지 만큼 비동기 요청 실행
+        해당 요청이 TOTAL_REQUEST_TIMEOUT_SIZE보다 오래 걸린다면 예외처리
+        """
         ranking_results = []
         # pageSize 만큼 비동기 요청
         rank_entities = [self.search_page_and_get_rank_models(i+1, create_req_dto) for i in range(create_req_dto.page_size)]
-        tasks = asyncio.gather(*rank_entities, return_exceptions=True)
+        tasks = asyncio.gather(*rank_entities)
+
         # 전체 요청시간이 TOTAL_REQUEST_TIMEOUT_SIZE를 초과한다면 기다리지 않고 예외처리
         try:
             await asyncio.wait_for(tasks, timeout=TOTAL_REQUEST_TIMEOUT_SIZE)
@@ -292,19 +310,20 @@ class NRankRecordDetailService():
             ranking_results.extend(result)
         return ranking_results
 
-    def create_nrank_record_info(self, record_info, results):
-        nrank_record_info_repository = NRankRecordInfoRepository()
+    def get_nrank_record_thumbnail(self, results):
+        """get thumbnail of nrank record
+        
+        우선순위 1.일반상품 썸네일, 2. 광고상품 썸네일 순으로 대표 썸네일을 반환한다.
+        """
         ad_thumbnail_url = None
         thumbnail_url = None
         
         # 1. 일반상품 썸네일 / 2. 광고상품 썸네일
         for result in results:
-            if (result.advertising_yn == 'y' and ad_thumbnail_url is None):
+            if ((result.advertising_yn == YnEnum.Y.value) and (ad_thumbnail_url is None)):
                 ad_thumbnail_url = result.thumbnail_url
-            elif(result.advertising_yn == 'n'):
+            elif(result.advertising_yn == YnEnum.N.value):
                 thumbnail_url = result.thumbnail_url
                 break
         
-        record_info.thumbnail_url = ad_thumbnail_url if (thumbnail_url is None) else thumbnail_url
-        record_info.created_at = DateTimeUtils.get_current_datetime()
-        nrank_record_info_repository.save(record_info)
+        return thumbnail_url or ad_thumbnail_url

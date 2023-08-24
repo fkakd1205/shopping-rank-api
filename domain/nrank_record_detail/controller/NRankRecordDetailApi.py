@@ -5,7 +5,7 @@ import threading
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record_detail.dto.NRankRecordDetailCreateReqDto import NRankRecordDetailCreateReqDto
 from domain.nrank_record_detail.service.NRankRecordDetailServiceV2 import NRankRecordDetailService
-from domain.workspace.service.WorkspaceAuthService import WorkspaceAuthService
+from utils import MemberPermissionUtils
 
 from enums.WorkspaceAccessTypeEnum import WorkspaceAccessTypeEnum
 
@@ -24,13 +24,14 @@ class NRankRecordDetail(Resource):
         message = MessageDto()
 
         nrankRecordDetailService = NRankRecordDetailService()
-        workspaceAuthService = WorkspaceAuthService()
-        page_size = workspaceAuthService.get_nrank_search_page_size()
+        memberPermissionUtils = MemberPermissionUtils()
+        page_size = memberPermissionUtils.get_nrank_search_page_size()
 
         create_req_dto = NRankRecordDetailCreateReqDto()
         create_req_dto.page_size = page_size
         create_req_dto.record_id = record_id
 
+        # TODO :: searched_count 검사
         threading.Thread(target=nrankRecordDetailService.create_list, args=(create_req_dto.__dict__, ), daemon=True).start()
         
         message.set_status(HTTPStatus.ACCEPTED)

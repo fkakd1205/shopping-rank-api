@@ -3,7 +3,7 @@ import requests
 
 from domain.user.model.UserModel import UserModel
 from config.key.prod.ProductionConfig import origin
-from utils.cookie.CustomCookieUtils import CustomCookieUtils
+from utils import CustomCookieUtils
 from exception.types.CustomException import CustomInvalidUserException
 
 def required_login(func):

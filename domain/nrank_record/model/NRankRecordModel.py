@@ -1,4 +1,4 @@
-from utils.db.v2.DBUtils import Base
+from utils import Base
 from sqlalchemy import Column, BigInteger, String, DateTime, Boolean
 
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum

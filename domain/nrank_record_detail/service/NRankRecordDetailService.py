@@ -18,7 +18,7 @@ from domain.nrank_record_detail.dto.NRankRecordDetailCreateReqDto import NRankRe
 
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
 from exception.types.CustomException import *
-from utils.date.DateTimeUtils import DateTimeUtils
+from utils import DateTimeUtils
 from exception.types.CustomException import CustomInvalidValueException
 
 from decorators.transactional import transactional
@@ -208,9 +208,9 @@ class NRankRecordDetailService():
         7. 조회된 결과로 nrank_record_info 설정 및 저장
         8. nrank_record의 current_nrank_record_info_id 업데이트
         """
-        nrank_record_detail_repository = NRankRecordDetailRepository()
-        nrank_record_info_repository = NRankRecordInfoRepository()
-        nrank_record_repository = NRankRecordRepository()
+        nrankRecordDetailRepository = NRankRecordDetailRepository()
+        nrankRecordInfoRepository = NRankRecordInfoRepository()
+        nrankRecordRepository = NRankRecordRepository()
 
         # 1.
         record_info_model = NRankRecordInfoModel()
@@ -218,10 +218,10 @@ class NRankRecordDetailService():
         record_info_model.nrank_record_id = create_req_dto.record_id
 
         # 2.
-        record_model = nrank_record_repository.search_one(create_req_dto.record_id)
+        record_model = nrankRecordRepository.search_one(create_req_dto.record_id)
         # 3.
         if(record_model.current_nrank_record_info_id is not None):
-            last_info_model = nrank_record_info_repository.search_one(record_model.current_nrank_record_info_id)
+            last_info_model = nrankRecordInfoRepository.search_one(record_model.current_nrank_record_info_id)
             self.checkSearchableTime(last_info_model)
 
         create_req_dto.keyword = record_model.keyword
@@ -235,7 +235,7 @@ class NRankRecordDetailService():
         updated_results = self.updateRankForAdProduct(create_req_dto, results)
         
         # 6.
-        nrank_record_detail_repository.bulk_save(updated_results)
+        nrankRecordDetailRepository.bulk_save(updated_results)
 
         # 7.
         record_info_model.rank_detail_unit = len(results) - create_req_dto.ad_product_unit
@@ -245,7 +245,7 @@ class NRankRecordDetailService():
         # 8.
         record_model.current_nrank_record_info_id = create_req_dto.record_info_id
         record_model.status = NRankRecordStatusEnum.COMPLETE.value
-        nrank_record_repository.save(record_model)
+        nrankRecordRepository.save(record_model)
     
     def checkSearchableTime(self, last_info_model):
         last_searched_at = last_info_model.created_at
@@ -288,7 +288,7 @@ class NRankRecordDetailService():
         return ranking_results
 
     def create_nrank_record_info(self, record_info, results):
-        nrank_record_info_repository = NRankRecordInfoRepository()
+        nrankRecordInfoRepository = NRankRecordInfoRepository()
         ad_thumbnail_url = None
         thumbnail_url = None
         
@@ -302,12 +302,12 @@ class NRankRecordDetailService():
         
         record_info.thumbnail_url = ad_thumbnail_url if (thumbnail_url is None) else thumbnail_url
         record_info.created_at = DateTimeUtils.get_current_datetime()
-        nrank_record_info_repository.save(record_info)
+        nrankRecordInfoRepository.save(record_info)
 
     def search_list_by_record_info_id(self, record_info_id):
-        nrank_record_detail_repository = NRankRecordDetailRepository()
+        nrankRecordDetailRepository = NRankRecordDetailRepository()
         
-        detail_entities = nrank_record_detail_repository.search_list_by_record_info_id(record_info_id)
+        detail_entities = nrankRecordDetailRepository.search_list_by_record_info_id(record_info_id)
         detail_dtos = list(map(lambda entity: NRankRecordDetailDto.to_dto(entity), detail_entities))
         return detail_dtos
     

@@ -1,4 +1,4 @@
-from utils.db.v2.DBUtils import db_session
+from utils import db_session
 
 def transactional(func):
     def wrapper(self, *args, **kwargs):

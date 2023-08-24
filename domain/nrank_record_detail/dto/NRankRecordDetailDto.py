@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from enums.YnEnum import YnEnum
+
 @dataclass
 class NRankRecordDetailDto():
     id = None
@@ -10,9 +12,9 @@ class NRankRecordDetailDto():
     page = 0       # 노출 페이지
     mall_product_id = None     # 상품 id
         
-    advertising_yn = 'n'      # 광고 여부
+    advertising_yn = YnEnum.N.value      # 광고 여부
     included_ad_rank = 0     # 광고 포함 노출 순위
-    price_comparision_yn = 'n'     # 가격 비교 여부
+    price_comparision_yn = YnEnum.N.value     # 가격 비교 여부
     comparision_rank = 0        # 가격 비교 순위
     low_mall_count = 0       # 가격비교 쇼핑몰 개수
         
@@ -49,7 +51,7 @@ class NRankRecordDetailDto():
         dto.low_mall_count = model.low_mall_count
         dto.review_count = model.review_count
         dto.score_info = model.score_info
-        dto.registration_date = str(model.registration_date)
+        dto.registration_date = model.registration_date
         dto.thumbnail_url = model.thumbnail_url
         dto.purchase_count = model.purchase_count
         dto.keep_count = model.keep_count

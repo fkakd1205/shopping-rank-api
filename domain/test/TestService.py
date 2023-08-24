@@ -6,10 +6,9 @@ from domain.nrank_record.dto.NRankRecordDto import NRankRecordDto
 from domain.nrank_record.model.NRankRecordModel import NRankRecordModel
 from domain.nrank_record.repository.NRankRecordRepository import NRankRecordRepository
 
-from utils.date.DateTimeUtils import DateTimeUtils
+from utils import DateTimeUtils, CustomCookieUtils, db_session
 from exception.types.CustomException import *
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
-from utils.db.v2.DBUtils import db_session
 
 from decorators import *
 from exception.types.CustomException import *
@@ -24,6 +23,8 @@ class TestService():
 
     @transactional
     def test(self):
+        print(DateTimeUtils.get_current_datetime())
+        print(CustomCookieUtils.ACCESS_TOKEN_COOKIE_EXPIRATION)
         nrank_record_repository = NRankRecordRepository()
         dto = NRankRecordDto()
 
