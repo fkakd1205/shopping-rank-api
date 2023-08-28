@@ -25,7 +25,7 @@ CORS(
 api.add_namespace(NRankRecordApi, "/api/v1/nrank-records")
 api.add_namespace(NRankRecordDetailApi, "/api/v1/nrank-record-details")
 api.add_namespace(WorkspaceApi, "/api/v1/workspaces")
-# api.add_namespace(TestApi, "/api/v1/test")
+api.add_namespace(TestApi, "/api/v1/test")
 
 init_db(app)
 

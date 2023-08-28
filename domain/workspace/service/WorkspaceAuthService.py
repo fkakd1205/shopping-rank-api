@@ -1,4 +1,5 @@
 from flask import request, g
+import os
 import requests
 import json
 from http import HTTPStatus
@@ -8,7 +9,7 @@ from domain.workspace.dto.WorkspaceAuthInfoDto import WorkspaceAuthInfoDto
 from exception.types.CustomException import *
 
 from utils.cookie.CustomCookieUtils import CustomCookieUtils
-from config.key.prod.ProductionConfig import origin
+from config.server.ServerConfig import config
 
 class WorkspaceAuthService():
 
@@ -19,10 +20,10 @@ class WorkspaceAuthService():
         ws_id = headers['wsId']
         jwt_token_cookie = cookies.get(CustomCookieUtils.COOKIE_NAME_ACCESS_TOKEN)
         
-        request_url = origin['auth-api'] + '/auth/v1/workspaces/checkPermissions'
+        request_url = config['origin']['auth-api'] + '/auth/v1/workspaces/checkPermissions'
         request_headers = {
             'wsId': ws_id,
-            'referer': origin['store-rank-api'],
+            'referer': config['origin']['store-rank-api'],
             'Content-Type': 'application/json'
         }
         request_cookies = {CustomCookieUtils.COOKIE_NAME_ACCESS_TOKEN: jwt_token_cookie}
@@ -30,7 +31,8 @@ class WorkspaceAuthService():
         response = requests.post(url=request_url, 
             headers=request_headers,
             cookies=request_cookies,
-            data=json.dumps(check_permission_body.__dict__)
+            data=json.dumps(check_permission_body.__dict__),
+            verify=False
         )
 
         if(response.status_code != 200):

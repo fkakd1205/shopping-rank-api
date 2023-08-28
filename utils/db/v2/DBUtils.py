@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-from config.key.db.DatabaseConfig import db_url
+from config.db.DatabaseConfig import db_url
 
 engine = create_engine(url=db_url, pool_size=1, max_overflow=3, pool_recycle=3600, pool_timeout=30)
 # engine = create_engine(url=db_url, echo=True, pool_size=1, max_overflow=2, pool_recycle=3600, pool_timeout=30)

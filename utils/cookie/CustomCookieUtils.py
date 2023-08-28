@@ -1,8 +1,9 @@
-from config.key.prod.ProductionConfig import cookie_config
+from config.server.ServerConfig import config
 
 class CustomCookieUtils():
-    COOKIE_DOMAIN = cookie_config['domain']
-    SECURE = cookie_config['secure']
+    COOKIE_DOMAIN = config['cookie']['domain']
+    SECURE = config['cookie']['secure']
+
     CSRF_TOKEN_COOKIE_EXPIRATION = 15 * 60
     API_CSRF_TOKEN_EXPIRED_AT_COOKIE_EXPIRATION = 5 * 60
 
