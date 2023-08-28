@@ -1,3 +1,4 @@
+from flask import request
 import uuid
 
 from domain.nrank_record_info.model.NRankRecordInfoModel import NRankRecordInfoModel
@@ -5,6 +6,7 @@ from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankR
 
 from decorators import *
 from utils import *
+from exception.types.CustomException import * 
 from enums.NRankRecordInfoStatusEnum import NRankRecordInfoStatusEnum
 
 class NRankRecordInfoService():
@@ -26,10 +28,17 @@ class NRankRecordInfoService():
     
     @transactional
     def change_list_status_to_fail(self):
-        nRankRecordInfoRepository = NRankRecordInfoRepository()
-        record_infos = nRankRecordInfoRepository.search_list_by_status(NRankRecordInfoStatusEnum.NONE)
+        body = request.get_json()
+        record_ids = body['ids']
         fail_status = NRankRecordInfoStatusEnum.FAIL.value
+        nRankRecordInfoRepository = NRankRecordInfoRepository()
 
-        for record_info in record_infos:
+        record_info_models = nRankRecordInfoRepository.search_list_by_record_ids(record_ids)
+        # if(record_info_models is None): raise CustomNotFoundException("데이터가 존재하지 않습니다.")
+        if(record_info_models is None): return
+        
+        fail_info_model = list(filter(lambda info: info.status == NRankRecordInfoStatusEnum.NONE.value, record_info_models))
+
+        for record_info in fail_info_model:
             record_info.status = fail_status
             record_info.deleted_flag = True
