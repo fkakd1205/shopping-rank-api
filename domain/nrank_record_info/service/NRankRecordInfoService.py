@@ -42,3 +42,26 @@ class NRankRecordInfoService():
         for record_info in fail_info_model:
             record_info.status = fail_status
             record_info.deleted_flag = True
+
+    @transactional
+    def check_allowed_search_count(self):
+        memberUtils = MemberPermissionUtils()
+        searched_cnt = self.get_searched_count()
+
+        allowed_search_cnt = memberUtils.get_nrank_allowed_search_count()
+        if(searched_cnt >= allowed_search_cnt):
+            raise CustomMethodNotAllowedException("금일 요청 가능한 횟수를 초과했습니다.")
+        
+    @transactional
+    def get_searched_count(self):
+        memberUtils = MemberPermissionUtils()
+        nrankRecordInfoRepository = NRankRecordInfoRepository()
+        workspace_info = memberUtils.get_workspace_info()
+        ws_id = workspace_info.workspaceId
+
+        date = DateTimeUtils.get_current_datetime()
+        start_date = DateTimeUtils.get_start_date(date)
+        end_date = DateTimeUtils.get_end_date(date)
+        searched_cnt = nrankRecordInfoRepository.search_count_by_period_and_workspace_id(start_date, end_date, ws_id)
+        return searched_cnt
+

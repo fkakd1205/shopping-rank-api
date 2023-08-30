@@ -10,13 +10,13 @@ class MemberPermissionUtils():
 
         return workspace_info
     
-    def get_nrank_search_allowed_count(self):
+    def get_nrank_allowed_search_count(self):
         workspace_info = self.get_workspace_info()
         plan = WorkspaceSubscriptionPlanEnum(workspace_info.subscriptionPlan)
 
         results = {
             WorkspaceSubscriptionPlanEnum.NONE: 0,
-            WorkspaceSubscriptionPlanEnum.PRIVATE: 2,
+            WorkspaceSubscriptionPlanEnum.PRIVATE: 5,
             WorkspaceSubscriptionPlanEnum.PUBLIC: 10
         }
         return results[plan]
@@ -27,7 +27,7 @@ class MemberPermissionUtils():
 
         results = {
             WorkspaceSubscriptionPlanEnum.NONE: 0,
-            WorkspaceSubscriptionPlanEnum.PRIVATE: 1,   # 80위
-            WorkspaceSubscriptionPlanEnum.PUBLIC: 2     # 160위
+            WorkspaceSubscriptionPlanEnum.PRIVATE: 5,   # 80 * 5위
+            WorkspaceSubscriptionPlanEnum.PUBLIC: 10     # 80 * 10위
         }
         return results[plan]

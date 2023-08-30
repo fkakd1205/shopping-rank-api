@@ -78,6 +78,7 @@ def CustomExceptionHandler(app):
         message.set_memo(str(e))
         return message.__dict__, message.status_code
     
+    # 9. Not Matched Format Exception
     @app.errorhandler(CustomNotMatchedFormatException)
     def CustomNotMatchedFormatExceptionHandler(e):
         message.set_data(None)

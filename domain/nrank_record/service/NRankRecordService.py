@@ -6,6 +6,8 @@ from domain.nrank_record.model.NRankRecordModel import NRankRecordModel
 from domain.nrank_record.repository.NRankRecordRepository import NRankRecordRepository
 from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankRecordInfoRepository
 from domain.nrank_record_info.dto.NRankRecordInfoDto import NRankRecordInfoDto
+from domain.nrank_record.dto.NRankWorkspaceUsageInfoDto import NRankWorkspaceUsageInfoDto
+from domain.nrank_record_info.service.NRankRecordInfoService import NRankRecordInfoService
 
 from utils import DateTimeUtils, UserUtils, MemberPermissionUtils
 from exception.types.CustomException import *
@@ -15,6 +17,7 @@ from decorators import transactional
 
 class NRankRecordService():
 
+    @transactional
     def check_duplication(self, dto):
         """check nrank record duplication in worksapce
         
@@ -133,3 +136,14 @@ class NRankRecordService():
         for record_model in record_models:
             record_model.status = status.value
             record_model.status_updated_at = current_datetime
+
+    @transactional
+    def get_workspace_usage_info(self):
+        nRankRecordInfoService = NRankRecordInfoService()
+        memberPermissionUtils = MemberPermissionUtils()
+
+        usage_info_dto = NRankWorkspaceUsageInfoDto()
+        usage_info_dto.search_page_size = memberPermissionUtils.get_nrank_search_page_size()
+        usage_info_dto.searched_count = nRankRecordInfoService.get_searched_count()
+        usage_info_dto.allowed_search_count = memberPermissionUtils.get_nrank_allowed_search_count()
+        return usage_info_dto.__dict__

@@ -25,12 +25,12 @@ from decorators import transactional
 NAVER_SHOPPINT_RANK_URL = "https://search.shopping.naver.com/search/all"
 DEFAULT_PAGINGSIZE = 80
 
+# 랭킹 조회 요청 타임아웃 = 60초
 TOTAL_REQUEST_TIMEOUT_SIZE = 60
 UNIT_REQUEST_TIMEOUT_SIZE = 30
 
-# 랭킹 조회 가능 시간 = 1시간
-# SEARCHABLE_DIFF_SECONDS = 60 * 60
-SEARCHABLE_DIFF_SECONDS = 60
+# 랭킹 조회 가능 시간 = 10분
+SEARCHABLE_DIFF_SECONDS = 60 * 10
 
 class NRankRecordDetailService():
 
@@ -46,7 +46,7 @@ class NRankRecordDetailService():
         """search naver shopping ranking and create rank details
         
         + nrank_record_info의 created_at으로 랭킹 조회 가능 시간 제한
-        1. nrank_record_info 초기화
+        1. nrank_record_info 조회 및 상태 검사
         2. nrank_record 조회
         3. 랭킹 조회 가능 시간 검사
         4. (2)에서 조회된 keyword & mallname으로 랭킹 조회
@@ -67,7 +67,6 @@ class NRankRecordDetailService():
 
         # 1.
         record_info_model = nrankRecordInfoRepository.search_one(create_req_dto.record_info_id)
-        
         if((record_info_model is None) or (record_info_model.status != NRankRecordInfoStatusEnum.NONE.value)) :
             raise CustomMethodNotAllowedException("올바르지 않은 요청입니다.")
 
@@ -95,7 +94,7 @@ class NRankRecordDetailService():
         # 7.
         record_info_model.rank_detail_unit = len(results) - create_req_dto.ad_product_unit
         record_info_model.ad_rank_detail_unit = create_req_dto.ad_product_unit
-        record_info_model.thumbnail_url = self.get_nrank_record_thumbnail(updated_results)
+        record_info_model.thumbnail_url = self.get_thumbnail_by_rank_results(updated_results)
         record_info_model.status = NRankRecordInfoStatusEnum.COMPLETE.value
         nrankRecordInfoRepository.save(record_info_model)
 
@@ -105,7 +104,6 @@ class NRankRecordDetailService():
         record_model.status_updated_at = current_datetime
         nrankRecordRepository.save(record_model)
     
-
     async def get_current_page_response(self, page_index, create_req_dto):
         params = {
             'frm': 'NVSHTTL',
@@ -311,7 +309,7 @@ class NRankRecordDetailService():
             ranking_results.extend(result)
         return ranking_results
 
-    def get_nrank_record_thumbnail(self, results):
+    def get_thumbnail_by_rank_results(self, results):
         """get thumbnail of nrank record
         
         우선순위 1.일반상품 썸네일, 2. 광고상품 썸네일 순으로 대표 썸네일을 반환한다.

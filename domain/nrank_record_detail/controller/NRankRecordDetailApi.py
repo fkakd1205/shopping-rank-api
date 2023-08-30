@@ -46,6 +46,9 @@ class NRankRecordDetail(Resource):
 class NRankRecordDetailIncludeNRankRecordInfoId(Resource):
 
     @required_login
+    @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
+        WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
+    })
     def get(self, record_info_id):
         message = MessageDto()
 

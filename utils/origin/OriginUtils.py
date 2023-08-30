@@ -13,8 +13,8 @@ allow_origins = {
         "http://localhost:3001",
         "http://localhost:8080",
         "http://localhost:8081",
-        "http://localhost:8181"
-        "http://localhost:5000",    # TODO :: 제거
+        "http://localhost:8181",
+        "http://localhost:5000",
         "http://localhost:23081"
     ],
     "development": [
@@ -23,7 +23,7 @@ allow_origins = {
         "http://localhost:8080",
         "http://localhost:8081",
         "http://localhost:8181",
-        "http://localhost:5000",    # TODO :: 제거
+        "http://localhost:5000",
         "http://localhost:23081"
     ]
 }
