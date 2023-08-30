@@ -18,7 +18,9 @@ class NRankRecordDetail(Resource):
     
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
-        WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
+        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH,
+        WorkspaceAccessTypeEnum.STORE_RANK_CREATE,
+        WorkspaceAccessTypeEnum.STORE_RANK_UPDATE
     })
     def post(self):
         message = MessageDto()
@@ -47,7 +49,7 @@ class NRankRecordDetailIncludeNRankRecordInfoId(Resource):
 
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
-        WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
+        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH
     })
     def get(self, record_info_id):
         message = MessageDto()

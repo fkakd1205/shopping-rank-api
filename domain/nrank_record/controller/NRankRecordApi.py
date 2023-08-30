@@ -17,7 +17,8 @@ class NRankRecord(Resource):
 
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
-        WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
+        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH,
+        WorkspaceAccessTypeEnum.STORE_RANK_CREATE
     })
     def post(self):
         message = MessageDto()
@@ -31,8 +32,7 @@ class NRankRecord(Resource):
     
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
-        # TODO :: 워크스페이스 타입 변경
-        WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
+        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH
     })
     def get(self):
         message = MessageDto()
@@ -49,7 +49,7 @@ class NRankRecordIncludeId(Resource):
     
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
-        WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
+        WorkspaceAccessTypeEnum.STORE_RANK_DELETE
     })
     def delete(self, id):
         message = MessageDto()
@@ -66,7 +66,9 @@ class NRankRecordChangeStatus(Resource):
     
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
-        WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
+        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH,
+        WorkspaceAccessTypeEnum.STORE_RANK_UPDATE,
+        WorkspaceAccessTypeEnum.STORE_RANK_CREATE
     })
     def patch(self, id):
         """change nrank record status to pending
@@ -94,7 +96,9 @@ class NRankRecordChangeStatus(Resource):
     
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
-        WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
+        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH,
+        WorkspaceAccessTypeEnum.STORE_RANK_UPDATE,
+        WorkspaceAccessTypeEnum.STORE_RANK_DELETE
     })
     def patch(self):
         message = MessageDto()
@@ -114,7 +118,7 @@ class NRankRecordWorkspaceUsageInfo(Resource):
     
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
-        WorkspaceAccessTypeEnum.SALES_ANALYSIS_SEARCH
+        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH
     })
     def get(self):
         message = MessageDto()
