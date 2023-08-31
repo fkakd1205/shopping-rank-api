@@ -1,12 +1,12 @@
 import os
 from dotenv import load_dotenv
 
-from config.pycryptodome.PyCryptodomeConfigSetting import PyCryptodomeConfigSetting
+from config.pycryptodome.AES128Crypto import AES128Crypto
 
 load_dotenv()
 
 pwd = os.environ.get('ENC_PASSWORD')
-configSetting = PyCryptodomeConfigSetting(pwd)
+configSetting = AES128Crypto(pwd)
 
 db_adapter = "pymysql"
 
