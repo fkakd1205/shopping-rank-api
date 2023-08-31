@@ -1,35 +1,54 @@
-import os
-from dotenv import load_dotenv
 import base64
-import hashlib
+from Crypto import Random
 from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad, unpad
 
-load_dotenv()
+from enums.AESAlgorithmModeEnum import AESAlgorithmModeEnum
 
-KEY_SALT = os.environ.get('KEY_SALT')
-BYTE_SIZE = int(os.environ.get('KEY_SALT_BYTE_SIZE'))
+class PyCryptodomeConfigSetting:
 
-class PyCryptoDomeConfigSetting():
-    def __init__(self, key):
-        self.key = hashlib.sha256(key.encode()).digest()
+    def __init__(self, encrypt_key, algorithm_mode):
+        self.BS = AES.block_size
+        # 암호화 키중 BS사이즈 자리만큼만 잘라서 쓴다.
+        self.encrypt_key = encrypt_key[:self.BS].encode(encoding='utf-8', errors='strict')
+        self.pad = lambda s: bytes(s + (self.BS - len(s) % self.BS) * chr(self.BS - len(s) % self.BS), 'utf-8')
+        self.unpad = lambda s: s[0:-ord(s[-1:])]
+        self.algorithm_mode = algorithm_mode
 
-    def encrypt(self, data):
-        data = data.encode()
-        cipher = AES.new(self.key, AES.MODE_CBC, self.iv())
-        raw = pad(data, BYTE_SIZE)
-        enc = cipher.encrypt(raw)
-        return base64.b64encode(enc).decode('utf-8')
-    
-    def decrypt(self, enc):
+    def encrypt(self, raw):
+        # enc password, aes algorithm mode 체크
         try:
-            enc = base64.b64decode(enc)
-            cipher = AES.new(self.key, AES.MODE_CBC, self.iv())
-            dec = cipher.decrypt(enc)
-            return unpad(dec, BYTE_SIZE).decode('utf-8')
-        except:
-            print("configuration error")
+            self.check_enc_password_format(self.encrypt_key)
+            self.check_aes_mode_format(self.algorithm_mode)
+        except Exception as e:
+            print(e)
+            return
+
+        raw = self.pad(raw)
+        # initialization vector를 매번 랜덤으로 생성 한다.
+        iv = Random.new().read(self.BS)
+        cipher = AES.new(self.encrypt_key, self.algorithm_mode, iv)
+
+        # 암호화시 앞에 iv와 암호화 값을 붙여 인코딩 한다.
+        # 디코딩시 앞에서 BS(block_size) 만금 잘라서 iv를 구하고, 이를 통해 복호화한다.
+        return base64.b64encode(iv + cipher.encrypt(raw)).decode("utf-8")
+
+    def decrypt(self, enc):
+        enc = base64.b64decode(enc)
+
+        # encrypt 에서 작업한 것처럼 첫 (block_size=BS)만큼을 잘라 iv를 만들고, 그 뒤를 복호화 하고자 하는 메세지로 잘라 만든다.
+        iv = enc[:self.BS]
+        encrypted_msg = enc[self.BS:]
+        cipher = AES.new(self.encrypt_key, self.algorithm_mode, iv)
+        return self.unpad(cipher.decrypt(encrypted_msg)).decode('utf-8')
+
+    def check_enc_password_format(data):
+        if(len(data) < AES.block_size):
+            print("\n [Error] : Please enter a longer ENC_PASSWORD...\n")
+            raise
     
-    def iv(self):
-        salt = KEY_SALT.zfill(BYTE_SIZE)[:BYTE_SIZE]
-        return salt.encode('utf8')
+    def check_aes_mode_format(data):
+        try:
+            AESAlgorithmModeEnum[data]
+        except KeyError:
+            print("\n [Error] : Please enter a valid AES_MODE...\n")
+            raise
