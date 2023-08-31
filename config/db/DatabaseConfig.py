@@ -1,19 +1,19 @@
 import os
 from dotenv import load_dotenv
 
-from utils.pycryptodome.PyCryptoDomeUtils import PyCryptoDomeUtils
+from config.pycryptodome.PyCryptoDomeConfigSetting import PyCryptoDomeConfigSetting
 
 load_dotenv()
 
 pwd = os.environ.get('ENC_PASSWORD')
-cryptoDomeUtils = PyCryptoDomeUtils(pwd)
+configSetting = PyCryptoDomeConfigSetting(pwd)
 
 db_adapter = "pymysql"
 
-user = cryptoDomeUtils.decrypt(os.environ.get('DB_USER'))
-password = cryptoDomeUtils.decrypt(os.environ.get('DB_PASSWORD'))
-host = cryptoDomeUtils.decrypt(os.environ.get('DB_HOST'))
+user = configSetting.decrypt(os.environ.get('DB_USER'))
+password = configSetting.decrypt(os.environ.get('DB_PASSWORD'))
+host = configSetting.decrypt(os.environ.get('DB_HOST'))
 port = os.environ.get('DB_PORT')
-database = cryptoDomeUtils.decrypt(os.environ.get('DB_DATABASE'))
+database = configSetting.decrypt(os.environ.get('DB_DATABASE'))
 
 db_url = f"mysql+{db_adapter}://{user}:{password}@{host}:{port}/{database}"
