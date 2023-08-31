@@ -10,8 +10,7 @@ load_dotenv()
 KEY_SALT = os.environ.get('KEY_SALT')
 BYTE_SIZE = int(os.environ.get('KEY_SALT_BYTE_SIZE'))
 
-class PyCryptoDomeUtils():
-
+class PyCryptoDomeConfigSetting():
     def __init__(self, key):
         self.key = hashlib.sha256(key.encode()).digest()
 
@@ -30,7 +29,6 @@ class PyCryptoDomeUtils():
             return unpad(dec, BYTE_SIZE).decode('utf-8')
         except:
             print("configuration error")
-        
     
     def iv(self):
         salt = KEY_SALT.zfill(BYTE_SIZE)[:BYTE_SIZE]
