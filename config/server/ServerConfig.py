@@ -1,7 +1,7 @@
 import os
-from dotenv import load_dotenv
+from config.environment.CustomLoadDotEnv import custom_load_dotenv
 
-load_dotenv()
+custom_load_dotenv()
 
 development_config = {
     "origin": {

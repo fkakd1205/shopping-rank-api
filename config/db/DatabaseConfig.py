@@ -1,9 +1,9 @@
 import os
-from dotenv import load_dotenv
+from config.environment.CustomLoadDotEnv import custom_load_dotenv
 
 from config.pycryptodome.AES128Crypto import AES128Crypto
 
-load_dotenv()
+custom_load_dotenv()
 
 pwd = os.environ.get('ENC_PASSWORD')
 configSetting = AES128Crypto(pwd)

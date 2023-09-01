@@ -60,8 +60,8 @@ class NRankRecordInfoService():
         ws_id = workspace_info.workspaceId
 
         date = DateTimeUtils.get_current_datetime()
-        start_date = DateTimeUtils.get_start_date(date)
-        end_date = DateTimeUtils.get_end_date(date)
+        start_date = DateTimeUtils.get_utc_start_date(date)
+        end_date = DateTimeUtils.get_utc_end_date(date)
         searched_cnt = nrankRecordInfoRepository.search_count_by_period_and_workspace_id(start_date, end_date, ws_id)
         return searched_cnt
 
