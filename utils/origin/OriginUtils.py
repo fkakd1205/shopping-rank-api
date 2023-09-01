@@ -1,4 +1,7 @@
 import os
+from config.environment.CustomLoadDotEnv import custom_load_dotenv
+
+custom_load_dotenv()
 
 allow_origins = {
     "production": [

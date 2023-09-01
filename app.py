@@ -30,6 +30,6 @@ api.add_namespace(NRankRecordDetailApi, "/api/v1/nrank-record-details")
 CustomExceptionHandler(api)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=23081)
+    app.run(host='0.0.0.0', debug=True, port=23081, load_dotenv=True)
 
 
