@@ -22,7 +22,7 @@ from utils import DateTimeUtils, ProxyUtils
 from exception.types.CustomException import CustomInvalidValueException
 from decorators import transactional
 
-NAVER_SHOPPINT_RANK_URL = "https://search.shopping.naver.com/search/all"
+NAVER_SHOPPING_RANK_URL = "https://search.shopping.naver.com/search/all"
 DEFAULT_PAGINGSIZE = 80
 
 # 랭킹 조회 요청 타임아웃 = 60초
@@ -123,7 +123,7 @@ class NRankRecordDetailService():
             try:
                 async with aiohttp.ClientSession() as session:
                     res = await session.get(
-                        url=NAVER_SHOPPINT_RANK_URL,
+                        url=NAVER_SHOPPING_RANK_URL,
                         proxy=ProxyUtils.PROXY_REQUEST_URL,
                         timeout=UNIT_REQUEST_TIMEOUT_SIZE,
                         headers=headers,
