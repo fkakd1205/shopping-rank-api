@@ -11,4 +11,5 @@ EXPOSE 23081
 ENV ENC_PASSWORD=$ENC_PASSWORD
 ENV FLASK_APP=app
 
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:23081"]
+# CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:23081"]
+CMD ["gunicorn", "-c", "gunicorn_config.py"]

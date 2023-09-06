@@ -33,3 +33,15 @@ class CustomTimeoutException(Exception):
 # 9. Not Matched Format Exception
 class CustomNotMatchedFormatException(Exception):
     pass
+
+# 10. Csrf Jwt Expired Exception
+class CustomCsrfJwtExpiredException(Exception):
+    pass
+
+# 11. Csrf Jwt Access Denied Exception
+class CustomCsrfJwtAccessDeniedException(Exception):
+    pass
+
+# 12. Csrf Jwt Decode Exception
+class CustomCsrfJwtDecodeException(Exception):
+    pass

@@ -6,9 +6,12 @@ from exception.CustomExceptionHandler import CustomExceptionHandler
 from domain.nrank_record.controller.NRankRecordApi import NRankRecordApi
 from domain.nrank_record_detail.controller.NRankRecordDetailApi import NRankRecordDetailApi
 from domain.health_check.controller.HealthCheckApi import HealthCheckApi
+from domain.csrf_token.controller.CsrfTokenApi import CsrfTokenApi
 
 from utils.db.v2.DBUtils import init_db
 from utils.origin.OriginUtils import OriginUtils
+from config.filter.CustomAuthenticationFilter import CustomAuthenticationFilter
+from exception.CustomExceptionHandler import CustomExceptionHandler
 
 app = Flask(__name__)
 
@@ -21,12 +24,17 @@ CORS(
     }
 )
 
+# === init database setting ===
 init_db(app)
+
+# === authentication filter ===
+CustomAuthenticationFilter(app)
 
 # === register controller ===
 api.add_namespace(NRankRecordApi, "/api/v1/nrank-records")
 api.add_namespace(NRankRecordDetailApi, "/api/v1/nrank-record-details")
 api.add_namespace(HealthCheckApi, "/healthCheck")
+api.add_namespace(CsrfTokenApi, "/api/v1/csrf")
 
 # === global exception handler ===
 CustomExceptionHandler(api)
