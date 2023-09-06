@@ -1,12 +1,14 @@
 import os
 import jwt
 import base64
+import hashlib
 from datetime import datetime
 from config.environment.CustomLoadDotEnv import custom_load_dotenv
 
 custom_load_dotenv()
 
 JWT_API_ISSUER = os.environ.get('JWT_API_ISSUER')
+JWT_DEFAULT_ALGORITHM = 'HS256'
 
 class CustomJwtUtils():
     CSRF_TOKEN_JWT_EXPIRATION = 15 * 60 * 1000
@@ -15,7 +17,7 @@ class CustomJwtUtils():
         encoded = jwt.encode(
             payload=self.create_token_payload(subject, expiration_time),
             key=self.generate_signinig_key(secret),
-            algorithm='HS256',
+            algorithm=JWT_DEFAULT_ALGORITHM,
             headers=self.create_token_header()
         )
         
@@ -25,14 +27,14 @@ class CustomJwtUtils():
         claims = jwt.decode(
             jwt=token,
             key=self.generate_signinig_key(secret),
-            algorithms='HS256'
+            algorithms=JWT_DEFAULT_ALGORITHM
         )
         return claims
     
     def generate_signinig_key(self, secret):
         key_bytes = secret.encode('utf8')
         key_bytes64 = base64.b64encode(key_bytes)
-        return key_bytes64
+        return hashlib.new('sha256', key_bytes64).digest()
 
     def create_token_issued_at(self):
         return int(round(datetime.utcnow().timestamp()))
@@ -48,7 +50,7 @@ class CustomJwtUtils():
     def create_token_header(self):
         return {
             "typ": "JWT",
-            "alg": "HS256",
+            "alg": JWT_DEFAULT_ALGORITHM,
             "regDate": self.create_token_issued_at()
         }
     

@@ -8,7 +8,7 @@ class CsrfTokenService():
 
     def get_csrf_token(self, response):
         csrf_token_id = str(uuid.uuid4())
-        csrf_jwt_token = CsrfTokenUtils.generate_csrf_jwt_token(csrf_token_id)
+        csrf_jwt_token = CsrfTokenUtils().generate_csrf_jwt_token(csrf_token_id)
 
         csrf_jwt = dump_cookie(
                 key=CustomCookieUtils.COOKIE_NAME_API_CSRF_TOKEN,

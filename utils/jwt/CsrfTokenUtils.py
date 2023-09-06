@@ -8,8 +8,7 @@ CSRF_TOKEN_SECRET = os.environ.get('CSRF_JWT_SECRET')
 
 class CsrfTokenUtils():
     
-    @staticmethod
-    def generate_csrf_jwt_token(x_csrf_token):
+    def generate_csrf_jwt_token(self, x_csrf_token):
         secret = x_csrf_token + CSRF_TOKEN_SECRET
         
         return CustomJwtUtils().generate_jwt_token(
@@ -18,6 +17,5 @@ class CsrfTokenUtils():
             secret
         )
 
-    @staticmethod
-    def get_csrf_token_secret():
+    def get_csrf_token_secret(self):
         return CSRF_TOKEN_SECRET

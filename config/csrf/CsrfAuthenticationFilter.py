@@ -6,7 +6,7 @@ from utils import *
 from exception.types.CustomException import *
 
 class CsrfAuthenticationFilter():
-    CSRF_TOKEN_SECRET = CsrfTokenUtils.get_csrf_token_secret()
+    CSRF_TOKEN_SECRET = CsrfTokenUtils().get_csrf_token_secret()
 
     def filter(self):
         if(request.method in ["GET", "OPTIONS"]):
@@ -56,7 +56,7 @@ class CsrfAuthenticationFilter():
                 path="/",
                 max_age=0
             )
-        
+
         response.headers.add("Set-Cookie", csrf_jwt)
         response.headers.add("Set-Cookie", csrf_token)
         response.headers.add("Set-Cookie", csrf_expired_at)

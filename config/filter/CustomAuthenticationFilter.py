@@ -23,5 +23,7 @@ def CustomAuthenticationFilter(app):
             message.set_status(HTTPStatus.FORBIDDEN)
             message.set_message("invalid_csrf")
             message.set_memo(str(e))
+            
             return message.__dict__, message.status_code, response.headers
+
         

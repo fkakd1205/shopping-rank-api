@@ -21,5 +21,5 @@ class CsrfToken(Resource):
         csrfTokenService.get_csrf_token(response)
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
-
+        
         return message.__dict__, message.status_code, response.headers
