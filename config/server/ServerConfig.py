@@ -14,6 +14,8 @@ production_config = {
     "origin": {
         "auth-api": "https://auth.api.sellertool.io",
         "store-rank-api": "https://nrank.api.sellertool.io"
+
+        # Docker Setting
         # "auth-api": "http://host.docker.internal:9081",
         # "store-rank-api": "http://host.docker.internal:23081"
     }

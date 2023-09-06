@@ -1,2 +1,1 @@
-# shopping-rank-api
-shopping rank api
+# sellertool-v2-nrank-search-server
