@@ -85,7 +85,7 @@ class NRankRecordChangeStatus(Resource):
         nRankRecordInfoService.check_allowed_search_count()
         
         nRankRecordService.change_status(id, NRankRecordStatusEnum.PENDING)
-        message.set_data(nRankRecordInfoService.create_one_and_get_id(id))
+        nRankRecordInfoService.create_one(id)
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 
@@ -118,7 +118,7 @@ class NRankRecordWorkspaceUsageInfo(Resource):
     
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
-        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH
+        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH,
     })
     def get(self):
         message = MessageDto()

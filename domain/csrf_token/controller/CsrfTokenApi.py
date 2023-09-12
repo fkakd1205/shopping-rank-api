@@ -9,7 +9,7 @@ from decorators import *
 
 CsrfTokenApi = Namespace('CsrfTokenApi')
 
-@CsrfTokenApi.route('', methods=['GET', 'POST'])
+@CsrfTokenApi.route('', methods=['GET'])
 class CsrfToken(Resource):
     
     @required_login

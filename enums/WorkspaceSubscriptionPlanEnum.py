@@ -4,3 +4,4 @@ class WorkspaceSubscriptionPlanEnum(Enum):
     NONE = "NONE"
     PRIVATE = "PRIVATE"
     PUBLIC = "PUBLIC"
+    PLUS = "PLUS"

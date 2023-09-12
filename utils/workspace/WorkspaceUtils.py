@@ -17,7 +17,8 @@ class MemberPermissionUtils():
         results = {
             WorkspaceSubscriptionPlanEnum.NONE: 0,
             WorkspaceSubscriptionPlanEnum.PRIVATE: 5,
-            WorkspaceSubscriptionPlanEnum.PUBLIC: 50
+            WorkspaceSubscriptionPlanEnum.PUBLIC: 5,
+            WorkspaceSubscriptionPlanEnum.PLUS: 50
         }
         return results[plan]
         
@@ -28,6 +29,7 @@ class MemberPermissionUtils():
         results = {
             WorkspaceSubscriptionPlanEnum.NONE: 0,
             WorkspaceSubscriptionPlanEnum.PRIVATE: 5,   # 80 * 5위 (400위)
-            WorkspaceSubscriptionPlanEnum.PUBLIC: 15     # 80 * 15위 (1200위)
+            WorkspaceSubscriptionPlanEnum.PUBLIC: 5,   # 80 * 5위 (400위)
+            WorkspaceSubscriptionPlanEnum.PLUS: 15     # 80 * 15위 (1200위)
         }
         return results[plan]
