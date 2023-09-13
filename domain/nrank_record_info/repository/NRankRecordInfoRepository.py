@@ -7,8 +7,8 @@ from enums.NRankRecordInfoStatusEnum import NRankRecordInfoStatusEnum
 
 class NRankRecordInfoRepository():
 
-    def save(self, entity):
-        db_session.add(entity)
+    def save(self, model):
+        db_session.add(model)
 
     def search_one(self, id):
         query = select(NRankRecordInfoModel).where(NRankRecordInfoModel.id == id)

@@ -9,7 +9,7 @@ from domain.nrank_record_info.dto.NRankRecordInfoDto import NRankRecordInfoDto
 from domain.nrank_record.dto.NRankWorkspaceUsageInfoDto import NRankWorkspaceUsageInfoDto
 from domain.nrank_record_info.service.NRankRecordInfoService import NRankRecordInfoService
 
-from utils import DateTimeUtils, UserUtils, MemberPermissionUtils
+from utils import DateTimeUtils, MemberPermissionUtils
 from exception.types.CustomException import *
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
 
@@ -18,25 +18,23 @@ from decorators import transactional
 class NRankRecordService():
 
     @transactional
-    def check_duplication(self, dto):
+    def check_duplication(self, model):
         """check nrank record duplication in worksapce
         
         keyword & mall_name & workspace 가 동일한 경우 등록 제한
         """
         nrankRecordRepository = NRankRecordRepository()
-        model = nrankRecordRepository.search_one_by_keyword_and_mall_name(dto.keyword, dto.mall_name, dto.workspace_id)
-        if (model):
+        saved_model = nrankRecordRepository.search_one_by_keyword_and_mall_name(model.keyword, model.mall_name, model.workspace_id)
+        if (saved_model):
             raise CustomDuplicationException("이미 등록된 데이터입니다.")
     
     @transactional
     def create_one(self):
         nrankRecordRepository = NRankRecordRepository()
         memberPermissionUtils = MemberPermissionUtils()
-        userUtils = UserUtils()
 
         body = request.get_json()
         workspace_info = memberPermissionUtils.get_workspace_info()
-        user_id = userUtils.get_user_id_else_throw()
         
         dto = NRankRecordDto()
         dto.id = uuid.uuid4()
@@ -46,14 +44,14 @@ class NRankRecordService():
         dto.status_updated_at = None
         dto.workspace_id = workspace_info.workspaceId
         dto.created_at = DateTimeUtils.get_current_datetime()
-        dto.created_by_member_id = user_id
+        dto.created_by_member_id = workspace_info.workspaceMemberId
         dto.current_nrank_record_info_id = None
         dto.deleted_flag = False
 
-        # keyword & mall_name 중복검사
-        self.check_duplication(dto)
-        
         new_model = NRankRecordModel.to_model(dto)
+
+        # keyword & mall_name 중복검사
+        self.check_duplication(new_model)
         nrankRecordRepository.save(new_model)
 
     @transactional

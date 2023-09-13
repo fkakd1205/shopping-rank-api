@@ -7,6 +7,7 @@ from domain.nrank_record.controller.NRankRecordApi import NRankRecordApi
 from domain.nrank_record_detail.controller.NRankRecordDetailApi import NRankRecordDetailApi
 from domain.health_check.controller.HealthCheckApi import HealthCheckApi
 from domain.csrf_token.controller.CsrfTokenApi import CsrfTokenApi
+from domain.nrank_record_category.controller.NRankRecordCategoryApi import NRankRecordCategoryApi
 
 from utils.db.v2.DBUtils import init_db
 from utils.origin.OriginUtils import OriginUtils
@@ -35,6 +36,7 @@ api.add_namespace(NRankRecordApi, "/api/v1/nrank-records")
 api.add_namespace(NRankRecordDetailApi, "/api/v1/nrank-record-details")
 api.add_namespace(HealthCheckApi, "/healthCheck")
 api.add_namespace(CsrfTokenApi, "/api/v1/csrf")
+api.add_namespace(NRankRecordCategoryApi, "/api/v1/nrank-record-categories")
 
 # === global exception handler ===
 CustomExceptionHandler(api)

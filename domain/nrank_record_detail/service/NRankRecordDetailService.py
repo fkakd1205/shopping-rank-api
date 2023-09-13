@@ -220,7 +220,7 @@ class NRankRecordDetailService():
         # 2.
         record_model = nrankRecordRepository.search_one(create_req_dto.record_id)
         # 3.
-        if(record_model.current_nrank_record_info_id is not None):
+        if(record_model.current_nrank_record_info_id):
             last_info_model = nrankRecordInfoRepository.search_one(record_model.current_nrank_record_info_id)
             self.checkSearchableTime(last_info_model)
 

@@ -18,7 +18,7 @@ class NRankRecordInfoService():
         record_info_id = body['record_info_id']
 
         record_info_model = nrankRecordInfoRepository.search_one(record_info_id)
-        if(record_info_model is not None):
+        if(record_info_model):
             raise CustomDuplicationException("요청이 중복되었습니다. 잠시 후 다시 시도해주세요.")
 
         record_info_model = NRankRecordInfoModel()

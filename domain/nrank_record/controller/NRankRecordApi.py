@@ -7,7 +7,6 @@ from domain.nrank_record_info.service.NRankRecordInfoService import NRankRecordI
 
 from enums.WorkspaceAccessTypeEnum import WorkspaceAccessTypeEnum
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
-
 from decorators import *
 
 NRankRecordApi = Namespace('NRankRecordApi')

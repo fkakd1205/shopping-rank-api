@@ -204,7 +204,7 @@ class NRankRecordDetailService():
 
                 # 가격비교 쇼핑몰 검색
                 # item['lowMallList'] = null or []
-                if (item.get('lowMallList', None) is not None):
+                if (item.get('lowMallList', None)):
                     # 가격비교 상품들의 공통 필드
                     comparition_rank = 0
                     rank = int(item.get('rank', 0))
