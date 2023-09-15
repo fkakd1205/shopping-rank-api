@@ -25,19 +25,26 @@ class NRankRecordCategoryService():
 
         body = request.get_json()
         workspace_info = memberPermissionUtils.get_workspace_info()
+        category_name = body.get('name', '').strip()
 
         dto = NRankRecordCategoryDto()
         dto.id = uuid.uuid4()
-        dto.name = body['name']
+        dto.name = category_name
         dto.created_at = DateTimeUtils.get_current_datetime()
         dto.created_by_member_id = workspace_info.workspaceMemberId
         dto.deleted_flag = False
         dto.workspace_id = workspace_info.workspaceId
 
+        self.check_format(dto)
+
         new_model = NRankRecordCategoryModel.to_model(dto)
         self.check_duplication(new_model)
         nrankRecordCategoryRepository.save(new_model)
 
+    def check_format(self, dto):
+        if(dto.name == ''):
+            raise CustomNotMatchedFormatException("카테고리명은 공백이 불가능합니다.")
+        
     @transactional
     def search_list(self):
         nRankRecordCategoryRepository = NRankRecordCategoryRepository()

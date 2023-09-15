@@ -27,7 +27,7 @@ class NRankRecordService():
         saved_model = nrankRecordRepository.search_one_by_keyword_and_mall_name(model.keyword, model.mall_name, model.workspace_id)
         if (saved_model):
             raise CustomDuplicationException("이미 등록된 데이터입니다.")
-    
+
     @transactional
     def create_one(self):
         nrankRecordRepository = NRankRecordRepository()
@@ -35,11 +35,13 @@ class NRankRecordService():
 
         body = request.get_json()
         workspace_info = memberPermissionUtils.get_workspace_info()
-        
+        record_keyword = body.get('keyword', '').strip()
+        record_mall_name = body.get('mall_name', '').strip()
+
         dto = NRankRecordDto()
         dto.id = uuid.uuid4()
-        dto.keyword = body['keyword']
-        dto.mall_name = body['mall_name']
+        dto.keyword = record_keyword
+        dto.mall_name = record_mall_name
         dto.status = NRankRecordStatusEnum.NONE.value
         dto.status_updated_at = None
         dto.workspace_id = workspace_info.workspaceId
@@ -49,11 +51,20 @@ class NRankRecordService():
         dto.current_nrank_record_info_id = None
         dto.deleted_flag = False
 
+        self.check_format(dto)
+
         new_model = NRankRecordModel.to_model(dto)
 
         # keyword & mall_name 중복검사
         self.check_duplication(new_model)
         nrankRecordRepository.save(new_model)
+
+    def check_format(self, dto):
+        if(dto.keyword == ''):
+            raise CustomNotMatchedFormatException("키워드는 공백이 불가능합니다.")
+        
+        if(dto.mall_name == ''):
+            raise CustomNotMatchedFormatException("스토어명은 공백이 불가능합니다.")
 
     @transactional
     def search_list(self):
