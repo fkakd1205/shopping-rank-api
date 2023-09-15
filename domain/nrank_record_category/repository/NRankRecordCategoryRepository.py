@@ -18,7 +18,7 @@ class NRankRecordCategoryRepository():
         return db_session.execute(query).scalars().all()
     
     def search_one_by_name(self, name, workspace_id):
-        query = select(NRankRecordCategoryModel).where(NRankRecordCategoryModel.name == name, NRankRecordCategoryModel.workspace_id == workspace_id)
+        query = select(NRankRecordCategoryModel).where(NRankRecordCategoryModel.name == name, NRankRecordCategoryModel.deleted_flag == False, NRankRecordCategoryModel.workspace_id == workspace_id)
         return db_session.execute(query).scalar()
     
     def soft_delete_one(self, id):

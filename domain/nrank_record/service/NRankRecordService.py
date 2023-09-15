@@ -43,6 +43,7 @@ class NRankRecordService():
         dto.status = NRankRecordStatusEnum.NONE.value
         dto.status_updated_at = None
         dto.workspace_id = workspace_info.workspaceId
+        dto.nrank_record_category_id = None
         dto.created_at = DateTimeUtils.get_current_datetime()
         dto.created_by_member_id = workspace_info.workspaceMemberId
         dto.current_nrank_record_info_id = None
@@ -145,3 +146,13 @@ class NRankRecordService():
         usage_info_dto.searched_count = nRankRecordInfoService.get_searched_count()
         usage_info_dto.allowed_search_count = memberPermissionUtils.get_nrank_allowed_search_count()
         return usage_info_dto.__dict__
+
+    @transactional
+    def change_category_id(self, id):
+        body = request.get_json()
+        nRankRecordRepository = NRankRecordRepository()
+
+        record_model = nRankRecordRepository.search_one(id)
+        if(record_model is None): raise CustomNotFoundException("데이터가 존재하지 않습니다.")
+
+        record_model.nrank_record_category_id = body['nrank_record_category_id']

@@ -13,6 +13,7 @@ class NRankRecordModel(Base):
     status_updated_at = Column("status_updated_at", DateTime(timezone=True), nullable=True)
     mall_name = Column("mall_name", String(50), nullable=False)
     workspace_id = Column("workspace_id", String(36), nullable=False)
+    nrank_record_category_id = Column("nrank_record_category_id", String(36), nullable=True)
     created_at = Column("created_at", DateTime(timezone = True), nullable=True)
     created_by_member_id = Column("created_by_member_id", String(36), nullable=False)
     current_nrank_record_info_id = Column("current_nrank_record_info_id", String(36), nullable=False)
@@ -25,6 +26,7 @@ class NRankRecordModel(Base):
         self.status = NRankRecordStatusEnum.NONE.value
         self.status_updated_at = None
         self.workspace_id = None
+        self.nrank_record_category_id = None
         self.created_at = None
         self.created_by_member_id = None
         self.current_nrank_record_info_id = None
@@ -39,6 +41,7 @@ class NRankRecordModel(Base):
         model.status = dto.status
         model.status_updated_at = None
         model.workspace_id = dto.workspace_id
+        model.nrank_record_category_id = dto.nrank_record_category_id
         model.created_at = dto.created_at
         model.created_by_member_id = dto.created_by_member_id
         model.current_nrank_record_info_id = dto.current_nrank_record_info_id

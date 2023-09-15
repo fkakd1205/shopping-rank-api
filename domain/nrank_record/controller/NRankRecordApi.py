@@ -128,3 +128,22 @@ class NRankRecordWorkspaceUsageInfo(Resource):
         message.set_message("success")
 
         return message.__dict__, message.status_code
+
+@NRankRecordApi.route('/<id>/target:category', methods=['PATCH'])
+class NRankRecordChangeCategoryId(Resource):
+    
+    @required_login
+    @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
+        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH,
+        WorkspaceAccessTypeEnum.STORE_RANK_UPDATE
+    })
+    def patch(self, id):
+        message = MessageDto()
+
+        nRankRecordService = NRankRecordService()
+        
+        nRankRecordService.change_category_id(id)
+        message.set_status(HTTPStatus.OK)
+        message.set_message("success")
+
+        return message.__dict__, message.status_code
