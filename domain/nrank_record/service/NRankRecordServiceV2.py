@@ -87,7 +87,8 @@ class NRankRecordServiceV2():
             'search_status': request.args.get('search_status'),
         }
         filter = NRankRecordSearchFilter(params)
-        record_models = nRankRecordRepository.search_list_count_by_workspace_id(workspace_info.workspaceId, filter)
+        count = nRankRecordRepository.search_list_count_by_workspace_id(workspace_info.workspaceId, filter)
+        
         res_dto = PageableResDto.TotalSize()
-        res_dto.total_size = len(record_models)
+        res_dto.total_size = count
         return res_dto.__dict__
