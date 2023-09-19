@@ -3,6 +3,7 @@ from http import HTTPStatus
 
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record.service.NRankRecordService import NRankRecordService
+from domain.nrank_record.service.NRankRecordServiceV2 import NRankRecordServiceV2
 from domain.nrank_record_info.service.NRankRecordInfoService import NRankRecordInfoService
 
 from enums.WorkspaceAccessTypeEnum import WorkspaceAccessTypeEnum
@@ -11,7 +12,7 @@ from decorators import *
 
 NRankRecordApi = Namespace('NRankRecordApi')
 
-@NRankRecordApi.route('', methods=['GET', 'POST'])
+@NRankRecordApi.route('', methods=['POST'])
 class NRankRecord(Resource):
 
     @required_login
@@ -24,20 +25,6 @@ class NRankRecord(Resource):
         
         nRankRecordService = NRankRecordService()
         nRankRecordService.create_one()
-        message.set_status(HTTPStatus.OK)
-        message.set_message("success")
-
-        return message.__dict__, message.status_code
-    
-    @required_login
-    @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
-        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH
-    })
-    def get(self):
-        message = MessageDto()
-
-        nRankRecordService = NRankRecordService()
-        message.set_data(nRankRecordService.search_list())
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 
@@ -143,6 +130,40 @@ class NRankRecordChangeCategoryId(Resource):
         nRankRecordService = NRankRecordService()
         
         nRankRecordService.change_category_id(id)
+        message.set_status(HTTPStatus.OK)
+        message.set_message("success")
+
+        return message.__dict__, message.status_code
+
+@NRankRecordApi.route('/slice', methods=['GET'])
+class NRankRecordSlice(Resource):
+
+    @required_login
+    @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
+        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH
+    })
+    def get(self):
+        message = MessageDto()
+
+        nRankRecordService = NRankRecordServiceV2()
+        message.set_data(nRankRecordService.search_list())
+        message.set_status(HTTPStatus.OK)
+        message.set_message("success")
+
+        return message.__dict__, message.status_code
+    
+@NRankRecordApi.route('/count', methods=['GET'])
+class NRankRecordCount(Resource):
+
+    @required_login
+    @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
+        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH
+    })
+    def get(self):
+        message = MessageDto()
+
+        nRankRecordService = NRankRecordServiceV2()
+        message.set_data(nRankRecordService.search_list_count())
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 
