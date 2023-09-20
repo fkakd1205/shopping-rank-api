@@ -14,6 +14,7 @@ from exception.types.CustomException import *
 from decorators import transactional
 
 class NRankRecordServiceV2():
+    
     @transactional
     def search_list(self):
         """search list by workspace id

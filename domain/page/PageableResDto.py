@@ -4,7 +4,7 @@ from dataclasses import dataclass
 class PageableResDto():
     """pagenation response dto
     
-    number, size, content, number_of_elements
+    number, size, content
     """
     number = 0
     size = 0

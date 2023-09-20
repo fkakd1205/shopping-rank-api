@@ -12,14 +12,15 @@ from exception.types.CustomException import *
 
 class NRankRecordCategoryService():
 
-    @transactional
+    @transactional2(read_only=True)
     def check_duplication(self, model):
+        print("=== Service : check duplication ===")
         nrankRecordCategoryRepository = NRankRecordCategoryRepository()
         model = nrankRecordCategoryRepository.search_one_by_name(model.name, model.workspace_id)
         if(model):
             raise CustomDuplicationException("이미 등록된 데이터입니다.")
     
-    @transactional
+    @transactional2()
     def create_one(self):
         nrankRecordCategoryRepository = NRankRecordCategoryRepository()
         memberPermissionUtils = MemberPermissionUtils()
@@ -46,8 +47,9 @@ class NRankRecordCategoryService():
         if(dto.name == ''):
             raise CustomNotMatchedFormatException("카테고리명은 공백이 불가능합니다.")
         
-    @transactional
+    @transactional2(read_only=True)
     def search_list(self):
+        print("=== Service : search list ===")
         nRankRecordCategoryRepository = NRankRecordCategoryRepository()
         memberPermissionUtils = MemberPermissionUtils()
 
@@ -56,8 +58,9 @@ class NRankRecordCategoryService():
         dtos = list(map(lambda model: NRankRecordCategoryDto.to_dto(model), models))
         return dtos
     
-    @transactional
+    @transactional2()
     def update_one(self, id):
+        print("=== Service : update one ===")
         nRankRecordCategoryRepository = NRankRecordCategoryRepository()
         
         model = nRankRecordCategoryRepository.search_one(id)
@@ -70,7 +73,7 @@ class NRankRecordCategoryService():
         self.check_format(model)
         self.check_duplication(model)
 
-    @transactional
+    @transactional2()
     def delete_one(self, id):
         """delete nrank record category
         

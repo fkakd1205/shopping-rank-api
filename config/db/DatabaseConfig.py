@@ -11,9 +11,12 @@ configSetting = AES128Crypto(pwd)
 db_adapter = "pymysql"
 
 user = configSetting.decrypt(os.environ.get('DB_USER'))
+slave_user = configSetting.decrypt(os.environ.get('DB_SLAVE_USER'))
+
 password = configSetting.decrypt(os.environ.get('DB_PASSWORD'))
 host = configSetting.decrypt(os.environ.get('DB_HOST'))
 port = os.environ.get('DB_PORT')
 database = configSetting.decrypt(os.environ.get('DB_DATABASE'))
 
 db_url = f"mysql+{db_adapter}://{user}:{password}@{host}:{port}/{database}"
+slave_db_url = f"mysql+{db_adapter}://{slave_user}:{password}@{host}:{port}/{database}"
