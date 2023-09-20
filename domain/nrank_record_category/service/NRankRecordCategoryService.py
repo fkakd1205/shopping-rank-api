@@ -4,6 +4,7 @@ import uuid
 from domain.nrank_record_category.repository.NRankRecordCategoryRepository import NRankRecordCategoryRepository
 from domain.nrank_record_category.dto.NRankRecordCategoryDto import NRankRecordCategoryDto
 from domain.nrank_record_category.model.NRankRecordCategoryModel import NRankRecordCategoryModel
+from domain.nrank_record.repository.NRankRecordRepository import NRankRecordRepository
 
 from decorators import *
 from utils import *
@@ -66,12 +67,16 @@ class NRankRecordCategoryService():
         model.name = body['name']
         model.updated_at = DateTimeUtils.get_current_datetime()
 
+        self.check_format(model)
         self.check_duplication(model)
 
     @transactional
     def delete_one(self, id):
+        """delete nrank record category
+        
+        - delete nrank record category
+        - update related nrank record (nrank_record_category_id)
+        """
         nRankRecordCategoryRepository = NRankRecordCategoryRepository()
-        nRankRecordCategoryRepository.soft_delete_one(id)
-
-
+        nRankRecordCategoryRepository.soft_delete_one_and_related_all(id)
     

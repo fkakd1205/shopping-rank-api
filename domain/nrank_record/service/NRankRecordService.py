@@ -66,32 +66,33 @@ class NRankRecordService():
         if(dto.mall_name == ''):
             raise CustomNotMatchedFormatException("스토어명은 공백이 불가능합니다.")
 
-    @transactional
-    def search_list(self):
-        """search list by workspace id
+    # deprecated method.
+    # @transactional
+    # def search_list(self):
+    #     """search list by workspace id
 
-        1. nrank_record 조회
-        2. nrank_record id 추출
-        3. nrank_record_info 조회
-        4. nrank_record infos에 nrank_record_info 매핑
-        """
-        nRankRecordRepository = NRankRecordRepository()
-        nRankRecordInfoRepository = NRankRecordInfoRepository()
-        memberPermissionUtils = MemberPermissionUtils()
+    #     1. nrank_record 조회
+    #     2. nrank_record id 추출
+    #     3. nrank_record_info 조회
+    #     4. nrank_record infos에 nrank_record_info 매핑
+    #     """
+    #     nRankRecordRepository = NRankRecordRepository()
+    #     nRankRecordInfoRepository = NRankRecordInfoRepository()
+    #     memberPermissionUtils = MemberPermissionUtils()
 
-        workspace_info = memberPermissionUtils.get_workspace_info()
-        record_models = nRankRecordRepository.search_list_by_workspace_id(workspace_info.workspaceId)
-        record_ids = list(map(lambda model: model.id, record_models))
-        record_info_models = nRankRecordInfoRepository.search_list_by_record_ids(record_ids)
+    #     workspace_info = memberPermissionUtils.get_workspace_info()
+    #     record_models = nRankRecordRepository.search_list_by_workspace_id(workspace_info.workspaceId)
+    #     record_ids = list(map(lambda model: model.id, record_models))
+    #     record_info_models = nRankRecordInfoRepository.search_list_by_record_ids(record_ids)
 
-        record_related_record_info_dtos = self.set_record_and_related_record_infos(record_models, record_info_models)
-        return record_related_record_info_dtos
+    #     record_related_record_info_dtos = self.set_record_and_related_record_infos(record_models, record_info_models)
+    #     return record_related_record_info_dtos
 
     def set_record_and_related_record_infos(self, records, record_infos):
         """set nrank records related record infos
         
-        records -- nrank records
-        record_infos -- nrank records related nrank record infos
+        - records : nrank records
+        - record_infos : nrank records related nrank record infos
         """
         dtos = []
         record_info_dtos = list(map(lambda model: NRankRecordInfoDto.to_dto(model), record_infos))
@@ -108,6 +109,12 @@ class NRankRecordService():
 
     @transactional
     def delete_one(self, id):
+        """delete nrank record
+        
+        - delete nrank record
+        - delete related nrank record info
+        - delete related nrank record details
+        """
         nRankRecordRepository = NRankRecordRepository()
         nRankRecordRepository.soft_delete_one_and_related_all(id)
     
@@ -115,8 +122,8 @@ class NRankRecordService():
     def change_status(self, id, status):
         """change status for nrank record
         
-        id -- nrank record id
-        status -- NRankRecordStatusEnum
+        - id : nrank record id
+        - status : NRankRecordStatusEnum
         """
         
         nRankRecordRepository = NRankRecordRepository()
@@ -132,8 +139,8 @@ class NRankRecordService():
     def change_list_status(self, status):
         """change status for nrank records
         
-        status -- NRankRecordStatusEnum
-        body['ids'] -- nrank record id list
+        - status : NRankRecordStatusEnum
+        - body['ids'] : nrank record id list
         """
         body = request.get_json()
         ids = body['ids']

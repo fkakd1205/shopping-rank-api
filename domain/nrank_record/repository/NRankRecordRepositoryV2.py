@@ -11,7 +11,11 @@ from exception.types.CustomException import *
 class NRankRecordRepositoryV2():
 
     def search_list_by_workspace_id_by_page(self, workspace_id, filter, pageable):
-        query = select(NRankRecordModel).where(NRankRecordModel.workspace_id == workspace_id, NRankRecordModel.deleted_flag == False)
+        query = select(NRankRecordModel)\
+            .where(
+                NRankRecordModel.workspace_id == workspace_id,
+                NRankRecordModel.deleted_flag == False
+            )
         
         query = self.search_query_by_condition(filter, query)
         query = self.search_category(filter, query)
@@ -21,7 +25,11 @@ class NRankRecordRepositoryV2():
         return db_session.execute(query).scalars().all()
     
     def search_list_count_by_workspace_id(self, workspace_id, filter) -> (int):
-        query = select(func.count()).where(NRankRecordModel.workspace_id == workspace_id, NRankRecordModel.deleted_flag == False)
+        query = select(func.count())\
+            .where(
+                NRankRecordModel.workspace_id == workspace_id,
+                NRankRecordModel.deleted_flag == False
+            )
         
         query = self.search_query_by_condition(filter, query)
         query = self.search_category(filter, query)
@@ -75,6 +83,9 @@ class NRankRecordRepositoryV2():
         """
         order_by_condition = self.get_order_by_condition(pageable)
 
+        if(pageable.page < 0 or pageable.size < 0):
+            return query
+
         query = query.order_by(order_by_condition)\
             .offset(((pageable.page - 1) * pageable.size))\
             .limit(pageable.size)
@@ -87,7 +98,7 @@ class NRankRecordRepositoryV2():
         pageable
         - sort_column : 정렬 항목
         - sort_direction : 정렬 방향
-        """        
+        """
         if(pageable.sort_column is None or pageable.sort_direction is None):
             return NRankRecordModel.created_at.desc()
         

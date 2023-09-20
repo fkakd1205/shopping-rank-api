@@ -45,21 +45,19 @@ class NRankRecordServiceV2():
         record_models = nRankRecordRepository.search_list_by_workspace_id_by_page(workspace_info.workspaceId, filter, pageable)
         record_ids = list(map(lambda model: model.id, record_models))
         record_info_models = nRankRecordInfoRepository.search_list_by_record_ids(record_ids)
-
         record_related_record_info_dtos = self.set_record_and_related_record_infos(record_models, record_info_models)
 
         res_dto = PageableResDto()
-        res_dto.content = record_related_record_info_dtos
         res_dto.number = pageable.page - 1
         res_dto.size = pageable.size
-        res_dto.number_of_elements = len(record_related_record_info_dtos)
+        res_dto.content = record_related_record_info_dtos
         return res_dto.__dict__
 
     def set_record_and_related_record_infos(self, records, record_infos):
         """set nrank records related record infos
         
-        records -- nrank records
-        record_infos -- nrank records related nrank record infos
+        - records : nrank records
+        - record_infos : nrank records related nrank record infos
         """
         dtos = []
         record_info_dtos = list(map(lambda model: NRankRecordInfoDto.to_dto(model), record_infos))
@@ -88,7 +86,5 @@ class NRankRecordServiceV2():
         }
         filter = NRankRecordSearchFilter(params)
         count = nRankRecordRepository.search_list_count_by_workspace_id(workspace_info.workspaceId, filter)
-        
-        res_dto = PageableResDto.TotalSize()
-        res_dto.total_size = count
+        res_dto = PageableResDto.TotalSize(count)
         return res_dto.__dict__

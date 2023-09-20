@@ -165,31 +165,31 @@ class NRankRecordDetailService():
                 item = responseObj['item']
                 included_ad_rank += 1
                 detail_id =  uuid.uuid4()
-                    
+                
                 if ('adId' in item):
                     create_req_dto.total_ad_products[included_ad_rank] = detail_id
 
-                if (item.get('mallName', None) == create_req_dto.mall_name):
+                if (item.get('mallName') == create_req_dto.mall_name):
                     model = NRankRecordDetailModel()
                     model.id = detail_id
                     model.mall_name = create_req_dto.mall_name
-                    model.rank = int(item.get('rank', 0))
-                    model.product_title = item.get('productTitle', '')
-                    model.price = item.get('price', None)
+                    model.rank = int(item.get('rank') or 0)
+                    model.product_title = item.get('productTitle') or ''
+                    model.price = item.get('price') or None
                     # rank % 80 결과가 40보다 작으면 (page_index * 2) - 1, 40보다 크면 (page_index * 2)
                     model.page = ((page_index * 2) - 1) if ((model.rank % DEFAULT_PAGINGSIZE) <= (DEFAULT_PAGINGSIZE / 2)) else (page_index * 2)
-                    model.mall_product_id = item.get('mallProductId', None)
-                    model.review_count = item.get('reviewCount', None)
-                    model.score_info = item.get('scoreInfo', None)
-                    model.registration_date = item.get('openDate', None)
-                    model.thumbnail_url = item.get('imageUrl', None)
-                    model.purchase_count = item.get('purchaseCnt', None)
-                    model.keep_count = item.get('keepCnt', None)
-                    model.delivery_fee = item.get('deliveryFeeContent', None)
-                    model.category1_name = item.get('category1Name', None)
-                    model.category2_name = item.get('category2Name', None)
-                    model.category3_name = item.get('category3Name', None)
-                    model.category4_name = item.get('category4Name', None)
+                    model.mall_product_id = item.get('mallProductId') or None
+                    model.review_count = item.get('reviewCount') or None
+                    model.score_info = item.get('scoreInfo') or None
+                    model.registration_date = item.get('openDate') or None
+                    model.thumbnail_url = item.get('imageUrl') or None
+                    model.purchase_count = item.get('purchaseCnt') or None
+                    model.keep_count = item.get('keepCnt') or None
+                    model.delivery_fee = item.get('deliveryFeeContent') or None
+                    model.category1_name = item.get('category1Name') or None
+                    model.category2_name = item.get('category2Name') or None
+                    model.category3_name = item.get('category3Name') or None
+                    model.category4_name = item.get('category4Name') or None
                     model.nrank_record_info_id = create_req_dto.record_info_id
 
                     if('adId' in item):
@@ -204,28 +204,28 @@ class NRankRecordDetailService():
 
                 # 가격비교 쇼핑몰 검색
                 # item['lowMallList'] = null or []
-                if (item.get('lowMallList', None)):
+                if (item.get('lowMallList')):
                     # 가격비교 상품들의 공통 필드
                     comparition_rank = 0
-                    rank = int(item.get('rank', 0))
-                    product_title = item.get('productTitle', '')
-                    review_count = item.get('reviewCount', None)
-                    score_info = item.get('scoreInfo', None)
-                    registration_date = item.get('openDate', None)
-                    thumbnail_url = item.get('imageUrl', None)
-                    purchase_count = item.get('purchaseCnt', None)
-                    keep_count = item.get('keepCnt', None)
-                    delivery_fee = item.get('deliveryFeeContent', None)
-                    category1_name = item.get('category1Name', None)
-                    category2_name = item.get('category2Name', None)
-                    category3_name = item.get('category3Name', None)
-                    category4_name = item.get('category4Name', None)
-                    low_mall_count = item.get('mallCount', None)
+                    rank = int(item.get('rank') or 0)
+                    product_title = item.get('productTitle') or ''
+                    review_count = item.get('reviewCount') or None
+                    score_info = item.get('scoreInfo') or None
+                    registration_date = item.get('openDate') or None
+                    thumbnail_url = item.get('imageUrl') or None
+                    purchase_count = item.get('purchaseCnt') or None
+                    keep_count = item.get('keepCnt') or None
+                    delivery_fee = item.get('deliveryFeeContent') or None
+                    category1_name = item.get('category1Name') or None
+                    category2_name = item.get('category2Name') or None
+                    category3_name = item.get('category3Name') or None
+                    category4_name = item.get('category4Name') or None
+                    low_mall_count = item.get('mallCount') or None
                     page = ((page_index * 2) - 1) if ((rank % DEFAULT_PAGINGSIZE) <= (DEFAULT_PAGINGSIZE / 2)) else (page_index * 2)
 
                     for low_item in item['lowMallList']:
                         comparition_rank += 1
-                        if (low_item.get('name', None) == create_req_dto.mall_name):
+                        if (low_item.get('name') == create_req_dto.mall_name):
                             model = NRankRecordDetailModel()
                             model.id = uuid.uuid4()
                             model.mall_name = create_req_dto.mall_name
@@ -234,9 +234,9 @@ class NRankRecordDetailService():
                             model.price_comparision_yn = YnEnum.Y.value
                             model.comparision_rank = comparition_rank
                             model.product_title = product_title
-                            model.price = low_item.get('price', None)
+                            model.price = low_item.get('price') or None
                             model.page = page
-                            model.mall_product_id = low_item.get('mallPid', None)
+                            model.mall_product_id = low_item.get('mallPid') or None
                             model.review_count = review_count
                             model.score_info = score_info
                             model.registration_date = registration_date

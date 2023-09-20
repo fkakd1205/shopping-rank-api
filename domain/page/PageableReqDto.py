@@ -1,6 +1,10 @@
 from enums.PageSortDirectionEnum import PageSortDirectionEnum
 
 class PageableReqDto():
+    """pagenation request dto
+    
+    sort_column, sort_direction, page, size
+    """
     def __init__(self, pageable):
         self.sort_column = pageable.get('sort_column')
         self.sort_direction = PageSortDirectionEnum(pageable.get('sort_direction') or 'desc')
