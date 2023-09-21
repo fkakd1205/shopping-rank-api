@@ -34,14 +34,14 @@ SEARCHABLE_DIFF_SECONDS = 60 * 10
 
 class NRankRecordDetailService():
 
-    @transactional
+    @transactional(read_only=True)
     def search_list_by_record_info_id(self, record_info_id):
         nrankRecordDetailRepository = NRankRecordDetailRepository()
         detail_entities = nrankRecordDetailRepository.search_list_by_record_info_id(record_info_id)
         detail_dtos = list(map(lambda entity: NRankRecordDetailDto.to_dto(entity), detail_entities))
         return detail_dtos
-    
-    @transactional
+
+    @transactional()
     def create_list(self, req_dto):
         """search naver shopping ranking and create rank details
         

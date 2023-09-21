@@ -28,8 +28,8 @@ class NRankRecordCategoryRepository():
         query = select(NRankRecordCategoryModel)\
             .where(
                 NRankRecordCategoryModel.name == name,
-                NRankRecordCategoryModel.deleted_flag == False,
-                NRankRecordCategoryModel.workspace_id == workspace_id
+                NRankRecordCategoryModel.workspace_id == workspace_id,
+                NRankRecordCategoryModel.deleted_flag == False
             )
         
         return get_db_session().execute(query).scalar()
@@ -43,7 +43,7 @@ class NRankRecordCategoryRepository():
         """
         query = text("""
             UPDATE nrank_record_category category
-            JOIN nrank_record record ON record.nrank_record_category_id = category.id
+            LEFT OUTER JOIN nrank_record record ON record.nrank_record_category_id = category.id
             SET category.deleted_flag = True, record.nrank_record_category_id = Null
             WHERE category.id = :id
         """)

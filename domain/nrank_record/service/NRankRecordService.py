@@ -17,7 +17,7 @@ from decorators import transactional
 
 class NRankRecordService():
 
-    @transactional
+    @transactional(read_only=True)
     def check_duplication(self, model):
         """check nrank record duplication in worksapce
         
@@ -28,7 +28,7 @@ class NRankRecordService():
         if (saved_model):
             raise CustomDuplicationException("이미 등록된 데이터입니다.")
 
-    @transactional
+    @transactional()
     def create_one(self):
         nrankRecordRepository = NRankRecordRepository()
         memberPermissionUtils = MemberPermissionUtils()
@@ -62,9 +62,17 @@ class NRankRecordService():
     def check_format(self, dto):
         if(dto.keyword == ''):
             raise CustomNotMatchedFormatException("키워드는 공백이 불가능합니다.")
+
+        if(len(dto.keyword) > 50):
+            raise CustomNotMatchedFormatException("키워드는 50글자 이하로 입력해주세요.")    
         
         if(dto.mall_name == ''):
             raise CustomNotMatchedFormatException("스토어명은 공백이 불가능합니다.")
+        
+        if(len(dto.mall_name) > 50):
+            raise CustomNotMatchedFormatException("스토어명은 50글자 이하로 입력해주세요.")    
+
+    
 
     # deprecated method.
     # @transactional
@@ -107,7 +115,7 @@ class NRankRecordService():
             dtos.append(NRankRecordDto.RelatedNRankRecordInfos(record_dto, infos).__dict__)
         return dtos
 
-    @transactional
+    @transactional()
     def delete_one(self, id):
         """delete nrank record
         
@@ -118,7 +126,7 @@ class NRankRecordService():
         nRankRecordRepository = NRankRecordRepository()
         nRankRecordRepository.soft_delete_one_and_related_all(id)
     
-    @transactional
+    @transactional()
     def change_status(self, id, status):
         """change status for nrank record
         
@@ -135,7 +143,7 @@ class NRankRecordService():
         record_model.status = status.value
         record_model.status_updated_at = current_datetime
 
-    @transactional
+    @transactional()
     def change_list_status(self, status):
         """change status for nrank records
         
@@ -154,7 +162,7 @@ class NRankRecordService():
             record_model.status = status.value
             record_model.status_updated_at = current_datetime
 
-    @transactional
+    @transactional(read_only=True)
     def get_workspace_usage_info(self):
         nRankRecordInfoService = NRankRecordInfoService()
         memberPermissionUtils = MemberPermissionUtils()
@@ -165,7 +173,7 @@ class NRankRecordService():
         usage_info_dto.allowed_search_count = memberPermissionUtils.get_nrank_allowed_search_count()
         return usage_info_dto.__dict__
 
-    @transactional
+    @transactional()
     def change_category_id(self, id):
         body = request.get_json()
         nRankRecordRepository = NRankRecordRepository()

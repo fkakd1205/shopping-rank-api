@@ -10,7 +10,7 @@ from enums.NRankRecordInfoStatusEnum import NRankRecordInfoStatusEnum
 
 class NRankRecordInfoService():
     
-    @transactional
+    @transactional()
     def create_one(self, record_id):
         nrankRecordInfoRepository = NRankRecordInfoRepository()
         current_datetime = DateTimeUtils.get_current_datetime()
@@ -30,7 +30,7 @@ class NRankRecordInfoService():
         nrankRecordInfoRepository.save(record_info_model)
     
     
-    @transactional
+    @transactional()
     def change_list_status_to_fail(self):
         body = request.get_json()
         record_ids = body['ids']
@@ -47,7 +47,7 @@ class NRankRecordInfoService():
             record_info.status = fail_status
             record_info.deleted_flag = True
 
-    @transactional
+    @transactional(read_only=True)
     def check_allowed_search_count(self):
         memberUtils = MemberPermissionUtils()
         searched_cnt = self.get_searched_count()
@@ -56,7 +56,7 @@ class NRankRecordInfoService():
         if(searched_cnt >= allowed_search_cnt):
             raise CustomMethodNotAllowedException("금일 요청 가능한 횟수를 초과했습니다.")
         
-    @transactional
+    @transactional(read_only=True)
     def get_searched_count(self):
         memberUtils = MemberPermissionUtils()
         nrankRecordInfoRepository = NRankRecordInfoRepository()

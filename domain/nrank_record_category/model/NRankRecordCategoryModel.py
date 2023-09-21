@@ -1,5 +1,6 @@
 from utils import Base
-from sqlalchemy import Column, BigInteger, Integer, String, DateTime, Boolean
+from sqlalchemy import Column, BigInteger, String, DateTime, Boolean, CheckConstraint
+
 
 class NRankRecordCategoryModel(Base):
     __tablename__ = 'nrank_record_category'

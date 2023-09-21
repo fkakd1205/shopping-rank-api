@@ -1,8 +1,11 @@
 from domain.user.repository.UserRepository import UserRepository
 from exception.types.CustomException import CustomInvalidUserException
 
+from decorators import *
+
 class UserService():
     
+    @transactional(read_only=True)
     def search_one_by_username(self, username):
         userRepository = UserRepository()
         user_model = userRepository.search_one_by_username(username)

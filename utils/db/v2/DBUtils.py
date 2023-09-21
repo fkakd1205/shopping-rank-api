@@ -1,11 +1,11 @@
-from flask import g
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from config.environment.CustomLoadDotEnv import custom_load_dotenv
 
+from config.environment.CustomLoadDotEnv import custom_load_dotenv
 from config.db.DatabaseConfig import db_url, slave_db_url
+from config.thread_local.ThreadLocalStorage import thread_local
 
 custom_load_dotenv()
 
@@ -35,5 +35,6 @@ def init_db(app):
     app.teardown_appcontext(close_db)
 
 def get_db_session():
-    is_read_only = g.get('read_only', False)
+    global thread_local
+    is_read_only = getattr(thread_local, 'read_only', False)
     return slave_db_session if is_read_only else db_session

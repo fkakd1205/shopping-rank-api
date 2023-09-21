@@ -191,7 +191,7 @@ class NRankRecordDetailService():
         except AttributeError as e:
             raise CustomInvalidValueException(e)
     
-    @transactional
+    @transactional()
     def create_list(self, req_dto):
         create_req_dto = NRankRecordDetailCreateReqDto()
         create_req_dto.page_size = req_dto['page_size']
@@ -287,6 +287,7 @@ class NRankRecordDetailService():
 
         return ranking_results
 
+    @transactional()
     def create_nrank_record_info(self, record_info, results):
         nrankRecordInfoRepository = NRankRecordInfoRepository()
         ad_thumbnail_url = None
@@ -304,6 +305,7 @@ class NRankRecordDetailService():
         record_info.created_at = DateTimeUtils.get_current_datetime()
         nrankRecordInfoRepository.save(record_info)
 
+    @transactional(read_only=True)
     def search_list_by_record_info_id(self, record_info_id):
         nrankRecordDetailRepository = NRankRecordDetailRepository()
         

@@ -17,10 +17,10 @@ class NRankRecordRepositoryV2():
                 NRankRecordModel.deleted_flag == False
             )
         
-        query = self.search_query_by_condition(filter, query)
-        query = self.search_category(filter, query)
-        query = self.search_status(filter, query)
-        query = self.search_page(pageable, query)
+        query = self.set_query_by_condition(filter, query)
+        query = self.eq_category(filter, query)
+        query = self.eq_status(filter, query)
+        query = self.eq_page(pageable, query)
 
         return db_session.execute(query).scalars().all()
     
@@ -31,13 +31,13 @@ class NRankRecordRepositoryV2():
                 NRankRecordModel.deleted_flag == False
             )
         
-        query = self.search_query_by_condition(filter, query)
-        query = self.search_category(filter, query)
-        query = self.search_status(filter, query)
+        query = self.set_query_by_condition(filter, query)
+        query = self.eq_category(filter, query)
+        query = self.eq_status(filter, query)
 
         return db_session.execute(query).scalar()
     
-    def search_query_by_condition(self, filter, query):
+    def set_query_by_condition(self, filter, query):
         """search condition & search query(검색 필드 및 입력갑) 검색
         
         filter
@@ -52,7 +52,7 @@ class NRankRecordRepositoryV2():
         
         return query.where(getattr(NRankRecordModel, filter.search_condition).like(f"%{filter.search_query}%"))
 
-    def search_category(self, filter, query):
+    def eq_category(self, filter, query):
         """search category(카테고리) 검색
         
         filter
@@ -63,7 +63,7 @@ class NRankRecordRepositoryV2():
     
         return query.where(NRankRecordModel.nrank_record_category_id == filter.search_category_id)
     
-    def search_status(self, filter, query):
+    def eq_status(self, filter, query):
         """search status(랭킹 내역 상태) 검색
         
         filter
@@ -74,7 +74,7 @@ class NRankRecordRepositoryV2():
 
         return query.where(NRankRecordModel.status == NRankRecordStatusEnum(filter.search_status).value)
     
-    def search_page(self, pageable, query):
+    def eq_page(self, pageable, query):
         """search page(페이지 조건) 검색
         
         pageable

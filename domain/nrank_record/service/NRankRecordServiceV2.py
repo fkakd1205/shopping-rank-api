@@ -15,7 +15,7 @@ from decorators import transactional
 
 class NRankRecordServiceV2():
     
-    @transactional
+    @transactional(read_only=True)
     def search_list(self):
         """search list by workspace id
 
@@ -73,7 +73,7 @@ class NRankRecordServiceV2():
             dtos.append(NRankRecordDto.RelatedNRankRecordInfos(record_dto, infos).__dict__)
         return dtos
 
-    @transactional
+    @transactional(read_only=True)
     def search_list_count(self):
         nRankRecordRepository = NRankRecordRepositoryV2()
         memberPermissionUtils = MemberPermissionUtils()
