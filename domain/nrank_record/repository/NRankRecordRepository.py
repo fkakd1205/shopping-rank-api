@@ -1,4 +1,4 @@
-from utils import db_session
+from utils import get_db_session
 from sqlalchemy import select, text
 
 from domain.nrank_record.model.NRankRecordModel import NRankRecordModel
@@ -6,7 +6,7 @@ from domain.nrank_record.model.NRankRecordModel import NRankRecordModel
 class NRankRecordRepository():
 
     def save(self, entity):
-        db_session.add(entity)
+        get_db_session().add(entity)
 
     def search_list_by_workspace_id(self, workspace_id):
         query = select(NRankRecordModel)\
@@ -15,7 +15,7 @@ class NRankRecordRepository():
                 NRankRecordModel.deleted_flag == False
             )
         
-        return db_session.execute(query).scalars().all()
+        return get_db_session().execute(query).scalars().all()
     
     def search_one_by_keyword_and_mall_name(self, keyword, mall_name, workspace_id):
         query = select(NRankRecordModel)\
@@ -26,13 +26,13 @@ class NRankRecordRepository():
                 NRankRecordModel.workspace_id == workspace_id
             )
         
-        return db_session.execute(query).scalar()
+        return get_db_session().execute(query).scalar()
     
     def search_one(self, id):
         query = select(NRankRecordModel)\
             .where(NRankRecordModel.id == id)
         
-        return db_session.execute(query).scalar()
+        return get_db_session().execute(query).scalar()
 
     def soft_delete_one_and_related_all(self, id):
         """soft delete one and related nrank record infos and nrank record details
@@ -49,11 +49,11 @@ class NRankRecordRepository():
         """)
         params = {"id" : id}
         
-        db_session.execute(query, params)
+        get_db_session().execute(query, params)
 
     def search_list_by_ids(self, ids):
         query = select(NRankRecordModel)\
             .where(NRankRecordModel.id.in_(ids))
         
-        return db_session.execute(query).scalars().all()
+        return get_db_session().execute(query).scalars().all()
     

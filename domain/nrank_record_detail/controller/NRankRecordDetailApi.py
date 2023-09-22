@@ -5,11 +5,13 @@ from flask import request
 
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record_detail.dto.NRankRecordDetailCreateReqDto import NRankRecordDetailCreateReqDto
-from domain.nrank_record_detail.service.NRankRecordDetailServiceV2 import NRankRecordDetailService
+from domain.nrank_record_detail.service.NRankRecordDetailServiceV3 import NRankRecordDetailService
 
 from utils import MemberPermissionUtils
 from enums.WorkspaceAccessTypeEnum import WorkspaceAccessTypeEnum
 from decorators import *
+from config.server.ServerConfig import config
+from exception.types.CustomException import *
 
 NRankRecordDetailApi = Namespace('NRankRecordDetailApi')
 
@@ -18,15 +20,15 @@ class NRankRecordDetail(Resource):
     
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
-        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH,
-        WorkspaceAccessTypeEnum.STORE_RANK_CREATE,
-        WorkspaceAccessTypeEnum.STORE_RANK_UPDATE
+        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH
     })
+    @transactional(read_only=True)
     def post(self):
         message = MessageDto()
 
         nrankRecordDetailService = NRankRecordDetailService()
         memberPermissionUtils = MemberPermissionUtils()
+        workspace_info = memberPermissionUtils.get_workspace_info()
         page_size = memberPermissionUtils.get_nrank_search_page_size()
 
         body = request.get_json()
@@ -37,8 +39,10 @@ class NRankRecordDetail(Resource):
         create_req_dto.page_size = page_size
         create_req_dto.record_id = record_id
         create_req_dto.record_info_id = record_info_id
+        create_req_dto.workspace_id = workspace_info.workspaceId
 
-        threading.Thread(target=nrankRecordDetailService.create_list, args=(create_req_dto.__dict__, ), daemon=True).start()
+        req_dto = nrankRecordDetailService.nrank_request_setting(create_req_dto)
+        threading.Thread(target=nrankRecordDetailService.request_nrank, args=(req_dto.__dict__, request.cookies), daemon=True).start()
         message.set_status(HTTPStatus.ACCEPTED)
         message.set_message("accepted")
 
@@ -60,4 +64,54 @@ class NRankRecordDetailIncludeNRankRecordInfoId(Resource):
         message.set_message("success")
 
         return message.__dict__, message.status_code
+    
+# @NRankRecordDetailApi.route('/results', methods=['POST'])
+# class NRankRecordDetail(Resource):
+    
+#     @required_login
+#     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
+#         WorkspaceAccessTypeEnum.STORE_RANK_SEARCH,
+#         WorkspaceAccessTypeEnum.STORE_RANK_CREATE,
+#         WorkspaceAccessTypeEnum.STORE_RANK_UPDATE
+#     })
+#     def post(self):
+#         message = MessageDto()
+
+#         nrankRecordDetailService = NRankRecordDetailService()
+#         nrankRecordDetailService.create_list()
+#         message.set_status(HTTPStatus.ACCEPTED)
+#         message.set_message("accepted")
+
+#         return message.__dict__, message.status_code
+
+@NRankRecordDetailApi.route('/results', methods=['GET'])
+class NRankRecordDetail(Resource):
+    
+    @required_login
+    @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
+        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH,
+        WorkspaceAccessTypeEnum.STORE_RANK_CREATE,
+        WorkspaceAccessTypeEnum.STORE_RANK_UPDATE
+    })
+    def get(self):
+        message = MessageDto()
+
+        check_nrank_direct_key()
+
+        nrankRecordDetailService = NRankRecordDetailService()
+        nrankRecordDetailService.create_list()
+        message.set_status(HTTPStatus.ACCEPTED)
+        message.set_message("accepted")
+
+        return message.__dict__, message.status_code
+    
+def check_nrank_direct_key():
+    try:
+        server_direct_ac_key = config['nrankDirectAccessKey']
+        origin_direct_ac_key = request.headers['nrankDirectAccessKey']
+
+        if(server_direct_ac_key != origin_direct_ac_key):
+            raise
+    except:
+        raise CustomMethodNotAllowedException("거부된 요청입니다.")
         

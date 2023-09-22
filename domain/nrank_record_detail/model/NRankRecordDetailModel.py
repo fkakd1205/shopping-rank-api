@@ -67,3 +67,36 @@ class NRankRecordDetailModel(Base):
         
         self.nrank_record_info_id = None
         self.deleted_flag = False
+
+    def to_model(self, dto):
+        model = NRankRecordDetailModel()
+        model.id = dto.get('id')
+        model.mall_name = dto.get('mall_name')
+        model.rank = dto.get('rank')               # 노출 순위
+        model.product_title = dto.get('product_title')      # 상품명
+        model.price = dto.get('price')      # 가격
+        model.page = dto.get('page')       # 노출 페이지
+        model.mall_product_id = dto.get('mall_product_id')     # 상품 id
+        
+        model.advertising_yn = YnEnum(dto.get('advertising_yn', 'n')).value      # 광고 여부
+        model.included_ad_rank = dto.get('included_ad_rank')     # 실제 순위
+        model.price_comparision_yn = YnEnum(dto.get('price_comparision_yn', 'n')).value     # 가격 비교 여부
+        model.comparision_rank = dto.get('comparision_rank')        # 가격 비교 순위
+        model.low_mall_count = dto.get('low_mall_count')       # 가격비교 쇼핑몰 개수
+        
+        model.review_count = dto.get('review_count')    # 리뷰 개수
+        model.score_info = dto.get('score_info')      # 리뷰 평점
+        model.registration_date = dto.get('registration_date')        # 등록일
+        model.thumbnail_url = dto.get('thumbnail_url')      # 썸네일 이미지
+        model.purchase_count = dto.get('purchase_count')      # 구매 건수
+        model.keep_count = dto.get('keep_count')      # 찜 개수
+        model.delivery_fee = dto.get('delivery_fee')        # 배송비
+
+        model.category1_name = dto.get('category1_name')       # 카테고리1
+        model.category2_name = dto.get('category2_name')       # 카테고리2
+        model.category3_name = dto.get('category3_name')       # 카테고리3
+        model.category4_name = dto.get('category4_name')       # 카테고리4
+        
+        model.nrank_record_info_id = dto.get('nrank_record_info_id')
+        model.deleted_flag = dto.get('deleted_flag')
+        return model

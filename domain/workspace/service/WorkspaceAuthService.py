@@ -1,5 +1,4 @@
 from flask import request, g
-import os
 import requests
 import json
 from http import HTTPStatus

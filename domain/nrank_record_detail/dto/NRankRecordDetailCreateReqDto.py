@@ -9,3 +9,4 @@ class NRankRecordDetailCreateReqDto():
     record_info_id = None
     ad_product_unit = 0
     total_ad_products = {}
+    workspace_id = None

@@ -1,4 +1,4 @@
-from utils import db_session
+from utils import get_db_session
 from sqlalchemy import select, func
 
 from domain.nrank_record.model.NRankRecordModel import NRankRecordModel
@@ -22,7 +22,7 @@ class NRankRecordRepositoryV2():
         query = self.eq_status(filter, query)
         query = self.eq_page(pageable, query)
 
-        return db_session.execute(query).scalars().all()
+        return get_db_session().execute(query).scalars().all()
     
     def search_list_count_by_workspace_id(self, workspace_id, filter) -> (int):
         query = select(func.count())\
@@ -35,7 +35,7 @@ class NRankRecordRepositoryV2():
         query = self.eq_category(filter, query)
         query = self.eq_status(filter, query)
 
-        return db_session.execute(query).scalar()
+        return get_db_session().execute(query).scalar()
     
     def set_query_by_condition(self, filter, query):
         """search condition & search query(검색 필드 및 입력갑) 검색

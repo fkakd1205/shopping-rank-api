@@ -56,6 +56,7 @@ class NRankRecordChangeStatus(Resource):
         WorkspaceAccessTypeEnum.STORE_RANK_UPDATE,
         WorkspaceAccessTypeEnum.STORE_RANK_CREATE
     })
+    @transactional()
     def patch(self, id):
         """change nrank record status to pending
         
@@ -86,6 +87,7 @@ class NRankRecordChangeStatus(Resource):
         WorkspaceAccessTypeEnum.STORE_RANK_UPDATE,
         WorkspaceAccessTypeEnum.STORE_RANK_DELETE
     })
+    @transactional()
     def patch(self):
         message = MessageDto()
 

@@ -2,19 +2,19 @@ from sqlalchemy import select, text
 
 from domain.nrank_record_info.model.NRankRecordInfoModel import NRankRecordInfoModel
 
-from utils import db_session
+from utils import get_db_session
 from enums.NRankRecordInfoStatusEnum import NRankRecordInfoStatusEnum
 
 class NRankRecordInfoRepository():
 
     def save(self, model):
-        db_session.add(model)
+        get_db_session().add(model)
 
     def search_one(self, id):
         query = select(NRankRecordInfoModel)\
             .where(NRankRecordInfoModel.id == id)
         
-        return db_session.execute(query).scalar()
+        return get_db_session().execute(query).scalar()
 
     def search_list_by_record_ids(self, record_ids):
         query = select(NRankRecordInfoModel)\
@@ -24,7 +24,7 @@ class NRankRecordInfoRepository():
                 NRankRecordInfoModel.status != NRankRecordInfoStatusEnum.FAIL.value
             )
         
-        return db_session.execute(query).scalars().all()
+        return get_db_session().execute(query).scalars().all()
     
     # 삭제된 것도 포함해야 함
     def search_count_by_period_and_workspace_id(self, start_date, end_date, workspace_id):
@@ -42,10 +42,10 @@ class NRankRecordInfoRepository():
             "end_date": end_date
         }
 
-        return db_session.execute(query, params).scalar()
+        return get_db_session().execute(query, params).scalar()
     
     def search_list_by_status(self, status):
         query = select(NRankRecordInfoModel)\
             .where(NRankRecordInfoModel.status == status.value)
         
-        return db_session.execute(query).scalars().all()
+        return get_db_session().execute(query).scalars().all()
