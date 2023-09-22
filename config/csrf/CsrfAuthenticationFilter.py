@@ -12,7 +12,8 @@ class CsrfAuthenticationFilter():
     def filter(self):
         whitelist = self.CSRF_WHITELIST_URL
         request_method = request.method
-        request_url = request.url
+        # request_url = request.url
+        request_path = request.path
         request_header = request.headers
         request_cookies = request.cookies
 
@@ -23,7 +24,7 @@ class CsrfAuthenticationFilter():
                 csrf_whitelist_urls = whitelist.get(request_method, [])
                 
                 # whitelist origin 통과
-                if(request_url in csrf_whitelist_urls):
+                if(request_path in csrf_whitelist_urls):
                     return
 
                 csrf_jwt_token = request_cookies.get(CustomCookieUtils.COOKIE_NAME_API_CSRF_TOKEN)
