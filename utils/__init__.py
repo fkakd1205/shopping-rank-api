@@ -8,4 +8,4 @@ from .proxy.ProxyUtils import ProxyUtils
 from .jwt.CsrfTokenUtils import CsrfTokenUtils
 from .jwt.CustomJWTUtils import CustomJwtUtils
 from .origin.OriginUtils import OriginUtils
-from .url.WhitelistUrlUtils import WhitelistUrlUtils
+from .url.WhitelistPathUtils import WhitelistPathUtils

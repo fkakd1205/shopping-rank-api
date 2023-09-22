@@ -7,12 +7,11 @@ from exception.types.CustomException import *
 
 class CsrfAuthenticationFilter():
     CSRF_TOKEN_SECRET = CsrfTokenUtils().get_csrf_token_secret()
-    CSRF_WHITELIST_URL = WhitelistUrlUtils().get_csrf_whitelist_url()
+    CSRF_WHITELIST_PATHS = WhitelistPathUtils().get_csrf_whitelist_path()
 
     def filter(self):
-        whitelist = self.CSRF_WHITELIST_URL
+        whitelist = self.CSRF_WHITELIST_PATHS
         request_method = request.method
-        # request_url = request.url
         request_path = request.path
         request_header = request.headers
         request_cookies = request.cookies
@@ -21,10 +20,10 @@ class CsrfAuthenticationFilter():
             return
         else:
             try:
-                csrf_whitelist_urls = whitelist.get(request_method, [])
+                csrf_whitelist_paths = whitelist.get(request_method, [])
                 
-                # whitelist origin 통과
-                if(request_path in csrf_whitelist_urls):
+                # whitelist path 통과
+                if(request_path in csrf_whitelist_paths):
                     return
 
                 csrf_jwt_token = request_cookies.get(CustomCookieUtils.COOKIE_NAME_API_CSRF_TOKEN)

@@ -3,28 +3,24 @@ from config.environment.CustomLoadDotEnv import custom_load_dotenv
 
 custom_load_dotenv()
 
-allow_url = {
+allow_path = {
     "production": {
         "POST": [
-            # "https://nrank.api.sellertool.io/api/v1/nrank-record-details/results"
             "/api/v1/nrank-record-details/results"
         ]
-
-        # Docker Setting
     },
     "development": {
         "POST": [
-            # "http://localhost:23081/api/v1/nrank-record-details/results"
             "/api/v1/nrank-record-details/results"
         ]
     }
 }
 
-url = allow_url[os.environ.get('FLASK_ENV')]
+path = allow_path[os.environ.get('FLASK_ENV')]
 
-class WhitelistUrlUtils():
+class WhitelistPathUtils():
     
     @staticmethod    
-    def get_csrf_whitelist_url():
-        return url
+    def get_csrf_whitelist_path():
+        return path
     

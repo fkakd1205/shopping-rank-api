@@ -65,11 +65,8 @@ def transactional(**options):
                 get_db_session().rollback()
                 raise
             finally:
-                print("==== close db ====")
+                # print("==== close db ====")
                 get_db_session().close()
-                # 루트 트랜잭션이 여러개라면 하나의 작업이 끝나고 in_transaction 초기화
-                # thread_local.in_transaction = None
-                # g.in_transaction = None
             
         return inner_wrapper
     return outer_wrapper
