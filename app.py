@@ -21,7 +21,7 @@ CORS(
     app,
     supports_credentials=True,
     resources={
-        r'*': {'origins': OriginUtils.get_white_list_origins()}
+        r'*': {'origins': OriginUtils.get_allowed_origins()}
     }
 )
 

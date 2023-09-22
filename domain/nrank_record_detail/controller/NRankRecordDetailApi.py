@@ -64,27 +64,8 @@ class NRankRecordDetailIncludeNRankRecordInfoId(Resource):
         message.set_message("success")
 
         return message.__dict__, message.status_code
-    
-# @NRankRecordDetailApi.route('/results', methods=['POST'])
-# class NRankRecordDetail(Resource):
-    
-#     @required_login
-#     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
-#         WorkspaceAccessTypeEnum.STORE_RANK_SEARCH,
-#         WorkspaceAccessTypeEnum.STORE_RANK_CREATE,
-#         WorkspaceAccessTypeEnum.STORE_RANK_UPDATE
-#     })
-#     def post(self):
-#         message = MessageDto()
 
-#         nrankRecordDetailService = NRankRecordDetailService()
-#         nrankRecordDetailService.create_list()
-#         message.set_status(HTTPStatus.ACCEPTED)
-#         message.set_message("accepted")
-
-#         return message.__dict__, message.status_code
-
-@NRankRecordDetailApi.route('/results', methods=['GET'])
+@NRankRecordDetailApi.route('/results', methods=['POST'])
 class NRankRecordDetail(Resource):
     
     @required_login
@@ -93,7 +74,7 @@ class NRankRecordDetail(Resource):
         WorkspaceAccessTypeEnum.STORE_RANK_CREATE,
         WorkspaceAccessTypeEnum.STORE_RANK_UPDATE
     })
-    def get(self):
+    def post(self):
         message = MessageDto()
 
         check_nrank_direct_key()
@@ -107,10 +88,10 @@ class NRankRecordDetail(Resource):
     
 def check_nrank_direct_key():
     try:
-        server_direct_ac_key = config['nrankDirectAccessKey']
-        origin_direct_ac_key = request.headers['nrankDirectAccessKey']
+        server_ac_key = config['nrankDirectAccessKey']
+        origin_ac_key = request.headers['nrankDirectAccessKey']
 
-        if(server_direct_ac_key != origin_direct_ac_key):
+        if(server_ac_key != origin_ac_key):
             raise
     except:
         raise CustomMethodNotAllowedException("거부된 요청입니다.")

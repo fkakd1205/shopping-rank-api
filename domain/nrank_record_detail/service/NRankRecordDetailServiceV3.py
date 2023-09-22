@@ -75,43 +75,6 @@ class NRankRecordDetailService():
         create_req_dto.record_info_id = record_info_model.id
         return create_req_dto
 
-    # def request_nrank(self, req_dto, cookies):
-    #     """search naver shopping ranking
-        
-    #     네이버 랭킹 조회 요청
-    #     """
-    #     create_req_dto = NRankRecordDetailCreateReqDto()
-    #     create_req_dto.keyword = req_dto['keyword']
-    #     create_req_dto.mall_name = req_dto['mall_name']
-    #     create_req_dto.page_size = req_dto['page_size']
-    #     create_req_dto.record_id = req_dto['record_id']
-    #     create_req_dto.record_info_id = req_dto['record_info_id']
-    #     create_req_dto.workspace_id = req_dto['workspace_id']
-
-    #     # 4.
-    #     results = asyncio.run(self.request_shopping_ranking(create_req_dto))
-    #     ws_id = create_req_dto.workspace_id
-
-    #     request_url = config['origin']['store-rank-api'] + '/api/v1/nrank-record-details/results'
-    #     request_headers = {
-    #         'wsId': ws_id,
-    #         'referer': config['origin']['store-rank-api'],
-    #         'Content-Type': 'application/json',
-    #         'X-XSRF-TOKEN': str(cookies.get(CustomCookieUtils.COOKIE_NAME_X_API_CSRF_TOKEN))
-    #     }
-
-    #     detail_create_req_dto = {
-    #         'create_req_dto': create_req_dto.__dict__,
-    #         'nrank_record_details': results
-    #     }
-
-    #     requests.post(url=request_url, 
-    #         headers=request_headers,
-    #         cookies=cookies,
-    #         data=json.dumps(detail_create_req_dto),
-    #         verify=False
-    #     )
-
     def request_nrank(self, req_dto, cookies):
         """search naver shopping ranking
         
@@ -131,10 +94,10 @@ class NRankRecordDetailService():
 
         request_url = config['origin']['store-rank-api'] + '/api/v1/nrank-record-details/results'
         request_headers = {
-            'nrankDirectAccessKey': config['nrankDirectAccessKey'],
             'wsId': ws_id,
             'referer': config['origin']['store-rank-api'],
-            'Content-Type': 'application/json',
+            'nrankDirectAccessKey': config['nrankDirectAccessKey'],
+            'Content-Type': 'application/json'
         }
 
         detail_create_req_dto = {
@@ -142,7 +105,7 @@ class NRankRecordDetailService():
             'nrank_record_details': results
         }
 
-        requests.get(url=request_url, 
+        requests.post(url=request_url, 
             headers=request_headers,
             cookies=cookies,
             data=json.dumps(detail_create_req_dto),

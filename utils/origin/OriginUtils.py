@@ -38,5 +38,5 @@ origins = allow_origins[os.environ.get('FLASK_ENV')]
 class OriginUtils():
     
     @staticmethod    
-    def get_white_list_origins():
+    def get_allowed_origins():
         return origins

@@ -10,7 +10,7 @@ development_config = {
         "auth-api": "http://localhost:9081",
         "store-rank-api": "http://localhost:23081"
     },
-    "nrankDirectAccessKey": nrankDirectAccessKey
+    "nrankDirectAccessKey": nrankDirectAccessKey,
 }
 
 production_config = {
@@ -22,7 +22,7 @@ production_config = {
         # "auth-api": "http://host.docker.internal:9081",
         # "store-rank-api": "http://host.docker.internal:23081"
     },
-    "nrankDirectAccessKey": nrankDirectAccessKey
+    "nrankDirectAccessKey": nrankDirectAccessKey,
 }
 
 app_config = {
