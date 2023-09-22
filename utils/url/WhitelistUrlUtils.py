@@ -5,20 +5,16 @@ custom_load_dotenv()
 
 allow_url = {
     "production": {
-        "GET": [],
         "POST": [
             "https://nrank.api.sellertool.io/api/v1/nrank-record-details/results"
-        ],
-        "PATCH": []
+        ]
 
         # Docker Setting
     },
     "development": {
-        "GET": [],
         "POST": [
             "http://localhost:23081/api/v1/nrank-record-details/results"
-        ],
-        "PATCH": []
+        ]
     }
 }
 

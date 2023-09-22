@@ -20,7 +20,7 @@ class CsrfAuthenticationFilter():
             return
         else:
             try:
-                csrf_whitelist_urls = whitelist[request_method]
+                csrf_whitelist_urls = whitelist.get(request_method, [])
                 
                 # whitelist origin 통과
                 if(request_url in csrf_whitelist_urls):
