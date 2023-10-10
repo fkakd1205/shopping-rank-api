@@ -58,7 +58,7 @@ class NRankRecordCategoryService():
         dtos = list(map(lambda model: NRankRecordCategoryDto.to_dto(model), models))
         return dtos
     
-    @transactional(read_only=True)
+    @transactional()
     def update_one(self, id):
         nRankRecordCategoryRepository = NRankRecordCategoryRepository()
         
