@@ -3,7 +3,6 @@ from http import HTTPStatus
 
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record.service.NRankRecordService import NRankRecordService
-from domain.nrank_record.service.NRankRecordServiceV2 import NRankRecordServiceV2
 from domain.nrank_record_info.service.NRankRecordInfoService import NRankRecordInfoService
 
 from enums.WorkspaceAccessTypeEnum import WorkspaceAccessTypeEnum
@@ -147,7 +146,7 @@ class NRankRecordSlice(Resource):
     def get(self):
         message = MessageDto()
 
-        nRankRecordService = NRankRecordServiceV2()
+        nRankRecordService = NRankRecordService()
         message.set_data(nRankRecordService.search_list())
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
@@ -164,7 +163,7 @@ class NRankRecordCount(Resource):
     def get(self):
         message = MessageDto()
 
-        nRankRecordService = NRankRecordServiceV2()
+        nRankRecordService = NRankRecordService()
         message.set_data(nRankRecordService.search_list_count())
         message.set_status(HTTPStatus.OK)
         message.set_message("success")

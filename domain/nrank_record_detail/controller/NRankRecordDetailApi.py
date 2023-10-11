@@ -91,6 +91,8 @@ def check_nrank_direct_key():
         server_ac_key = config['nrankDirectAccessKey']
         origin_ac_key = request.headers['nrankDirectAccessKey']
 
+        if(server_ac_key is None or origin_ac_key is None):
+            raise
         if(server_ac_key != origin_ac_key):
             raise
     except:

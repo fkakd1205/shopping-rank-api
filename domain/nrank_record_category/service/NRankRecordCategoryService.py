@@ -35,9 +35,10 @@ class NRankRecordCategoryService():
         dto.deleted_flag = False
         dto.workspace_id = workspace_info.workspaceId
 
-        self.check_format(dto)
+        # self.check_format(dto)
 
         new_model = NRankRecordCategoryModel.to_model(dto)
+        self.check_format(new_model)
         self.check_duplication(new_model)
         nrankRecordCategoryRepository.save(new_model)
 

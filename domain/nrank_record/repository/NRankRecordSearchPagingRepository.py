@@ -8,9 +8,21 @@ from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
 
 from exception.types.CustomException import *
 
-class NRankRecordRepositoryV2():
+class NRankRecordSearchPagingRepository():
 
     def search_list_by_workspace_id_by_page(self, workspace_id, filter, pageable):
+        """search list by page
+        
+        filter
+        - search_condition
+        - search_query
+        - search_category_id
+        - search_status
+
+        pageable
+        - offset
+        - size
+        """
         query = select(NRankRecordModel)\
             .where(
                 NRankRecordModel.workspace_id == workspace_id,
@@ -25,6 +37,17 @@ class NRankRecordRepositoryV2():
         return get_db_session().execute(query).scalars().all()
     
     def search_list_count_by_workspace_id(self, workspace_id, filter) -> (int):
+        """search list count
+        
+        filter
+        - search_condition
+        - search_query
+        - search_category_id
+        - search_status
+
+        Return
+        - int
+        """
         query = select(func.count())\
             .where(
                 NRankRecordModel.workspace_id == workspace_id,
