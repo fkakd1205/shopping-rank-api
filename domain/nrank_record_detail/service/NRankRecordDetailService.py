@@ -235,6 +235,7 @@ class NRankRecordDetailService():
                     dto.price = item.get('price') or None
                     # rank % 80 결과가 40보다 작으면 (page_index * 2) - 1, 40보다 크면 (page_index * 2)
                     dto.page = ((page_index * 2) - 1) if ((dto.rank % DEFAULT_PAGINGSIZE) <= (DEFAULT_PAGINGSIZE / 2)) else (page_index * 2)
+                    dto.item_id = item.get('id') or None
                     dto.mall_product_id = item.get('mallProductId') or None
                     dto.review_count = item.get('reviewCount') or None
                     dto.score_info = item.get('scoreInfo') or None
@@ -278,7 +279,9 @@ class NRankRecordDetailService():
                     category3_name = item.get('category3Name') or None
                     category4_name = item.get('category4Name') or None
                     low_mall_count = item.get('mallCount') or None
-                    mall_product_id = item.get('id') or None
+                    item_id = item.get('id') or None
+                    mall_product_id = item.get('mallPid') or None
+
                     page = ((page_index * 2) - 1) if ((rank % DEFAULT_PAGINGSIZE) <= (DEFAULT_PAGINGSIZE / 2)) else (page_index * 2)
 
                     for low_item in item['lowMallList']:
@@ -295,6 +298,7 @@ class NRankRecordDetailService():
                             dto.price = low_item.get('price') or None
                             dto.page = page
                             # dto.mall_product_id = low_item.get('mallPid') or None
+                            dto.item_id = item_id
                             dto.mall_product_id = mall_product_id
                             dto.review_count = review_count
                             dto.score_info = score_info
