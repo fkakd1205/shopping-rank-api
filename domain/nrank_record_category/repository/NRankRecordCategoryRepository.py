@@ -47,6 +47,6 @@ class NRankRecordCategoryRepository():
             SET category.deleted_flag = True, record.nrank_record_category_id = Null
             WHERE category.id = :id
         """)
-        params = {"id": id}
+        params = { "id": id }
 
         return get_db_session().execute(query, params)

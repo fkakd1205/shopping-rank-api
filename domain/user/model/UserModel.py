@@ -1,4 +1,4 @@
-from utils.db.v2.DBUtils import Base
+from utils.db.DBUtils import Base
 from sqlalchemy import Column, BigInteger, Integer, String, DateTime, Boolean
 
 class UserModel(Base):

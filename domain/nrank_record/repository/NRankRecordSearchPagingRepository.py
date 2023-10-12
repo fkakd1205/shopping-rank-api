@@ -10,7 +10,7 @@ from exception.types.CustomException import *
 
 class NRankRecordSearchPagingRepository():
 
-    def search_list_by_workspace_id_by_page(self, workspace_id, filter, pageable):
+    def search_list_by_page(self, workspace_id, filter, pageable):
         """search list by page
         
         filter

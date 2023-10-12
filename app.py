@@ -9,8 +9,7 @@ from domain.health_check.controller.HealthCheckApi import HealthCheckApi
 from domain.csrf_token.controller.CsrfTokenApi import CsrfTokenApi
 from domain.nrank_record_category.controller.NRankRecordCategoryApi import NRankRecordCategoryApi
 
-from utils.db.v2.DBUtils import init_db
-from utils.origin.OriginUtils import OriginUtils
+from utils import init_db, OriginUtils
 from config.filter.CustomAuthenticationFilter import CustomAuthenticationFilter
 from exception.CustomExceptionHandler import CustomExceptionHandler
 

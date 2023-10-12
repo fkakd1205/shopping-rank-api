@@ -22,7 +22,7 @@ class NRankRecordInfoService():
             raise CustomDuplicationException("요청이 중복되었습니다. 잠시 후 다시 시도해주세요.")
 
         record_info_model = NRankRecordInfoModel()
-        record_info_model.id = body['record_info_id']
+        record_info_model.id = record_info_id
         record_info_model.status = NRankRecordInfoStatusEnum.NONE.value
         record_info_model.created_at = current_datetime
         record_info_model.nrank_record_id = record_id

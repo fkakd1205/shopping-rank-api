@@ -5,7 +5,7 @@ from flask import request
 
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record_detail.dto.NRankRecordDetailCreateReqDto import NRankRecordDetailCreateReqDto
-from domain.nrank_record_detail.service.NRankRecordDetailServiceV3 import NRankRecordDetailService
+from domain.nrank_record_detail.service.NRankRecordDetailService import NRankRecordDetailService
 
 from utils import MemberPermissionUtils
 from enums.WorkspaceAccessTypeEnum import WorkspaceAccessTypeEnum
@@ -24,6 +24,11 @@ class NRankRecordDetail(Resource):
     })
     @transactional(read_only=True)
     def post(self):
+        """네이버 쇼핑 랭킹 요청 항목 세팅 및 응답 결과를 저장하는 api 요청
+        
+        NRankRecordDetailService : nrank_request_setting => 네이버 쇼핑 랭킹 요청 시 필요한 항목들 세팅
+        NRankRecordDetailService : request_nrank => 네이버 쇼핑 랭킹 api 요청 및 조회 결과를 저장하는 api 요청
+        """
         message = MessageDto()
 
         nrankRecordDetailService = NRankRecordDetailService()
@@ -75,10 +80,17 @@ class NRankRecordDetail(Resource):
         WorkspaceAccessTypeEnum.STORE_RANK_UPDATE
     })
     def post(self):
+        """랭킹 조회 결과를 저장하는 api
+        
+        1. direct access key 값 검사
+        2. nrank record detail 저장
+        """
         message = MessageDto()
 
+        # 1.
         check_nrank_direct_key()
 
+        # 2.
         nrankRecordDetailService = NRankRecordDetailService()
         nrankRecordDetailService.create_list()
         message.set_status(HTTPStatus.ACCEPTED)

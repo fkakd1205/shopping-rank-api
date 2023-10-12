@@ -1,4 +1,4 @@
-from utils.db.v2.DBUtils import get_db_session
+from utils.db.DBUtils import get_db_session
 from sqlalchemy import select
 
 from domain.user.model.UserModel import UserModel

@@ -86,7 +86,7 @@ class NRankRecordService():
         Return
         - PagealbeResDto
         """
-        nRankRecordRepository = NRankRecordSearchPagingRepository()
+        nRankRecordSearchPagingRepository = NRankRecordSearchPagingRepository()
         nRankRecordInfoRepository = NRankRecordInfoRepository()
         memberPermissionUtils = MemberPermissionUtils()
         workspace_info = memberPermissionUtils.get_workspace_info()
@@ -105,9 +105,8 @@ class NRankRecordService():
         filter = NRankRecordSearchFilter(params)
         pageable = PageableReqDto.Size20To100(params)
 
-        record_models = nRankRecordRepository.search_list_by_workspace_id_by_page(workspace_info.workspaceId, filter, pageable)
+        record_models = nRankRecordSearchPagingRepository.search_list_by_page(workspace_info.workspaceId, filter, pageable)
         record_ids = list(map(lambda model: model.id, record_models))
-        # record_info_models = nRankRecordInfoRepository.search_list_by_record_ids(record_ids)
         record_info_models = nRankRecordInfoRepository.search_latest_list_by_record_ids(record_ids)
         record_related_record_info_dtos = self.set_record_and_related_record_infos(record_models, record_info_models)
 
@@ -143,7 +142,7 @@ class NRankRecordService():
         Return
         - PageableResDto.TotalSize
         """
-        nRankRecordRepository = NRankRecordSearchPagingRepository()
+        nRankRecordSearchPagingRepository = NRankRecordSearchPagingRepository()
         memberPermissionUtils = MemberPermissionUtils()
         workspace_info = memberPermissionUtils.get_workspace_info()
     
@@ -154,7 +153,7 @@ class NRankRecordService():
             'search_status': request.args.get('search_status'),
         }
         filter = NRankRecordSearchFilter(params)
-        count = nRankRecordRepository.search_list_count_by_workspace_id(workspace_info.workspaceId, filter)
+        count = nRankRecordSearchPagingRepository.search_list_count_by_workspace_id(workspace_info.workspaceId, filter)
         res_dto = PageableResDto.TotalSize(count)
         return res_dto.__dict__
 
@@ -176,7 +175,6 @@ class NRankRecordService():
         - id : nrank record id
         - status : NRankRecordStatusEnum
         """
-        
         nRankRecordRepository = NRankRecordRepository()
         current_datetime = DateTimeUtils.get_current_datetime()
 
