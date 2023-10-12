@@ -147,7 +147,7 @@ class NRankRecordSlice(Resource):
         message = MessageDto()
 
         nRankRecordService = NRankRecordService()
-        message.set_data(nRankRecordService.search_list())
+        message.set_data(nRankRecordService.search_list_and_related_latest_infos())
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 

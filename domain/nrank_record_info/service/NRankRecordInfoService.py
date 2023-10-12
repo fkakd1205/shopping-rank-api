@@ -38,7 +38,6 @@ class NRankRecordInfoService():
         nRankRecordInfoRepository = NRankRecordInfoRepository()
 
         record_info_models = nRankRecordInfoRepository.search_list_by_record_ids(record_ids)
-        # if(record_info_models is None): raise CustomNotFoundException("데이터가 존재하지 않습니다.")
         if(record_info_models is None): return
         
         fail_info_model = list(filter(lambda info: info.status == NRankRecordInfoStatusEnum.NONE.value, record_info_models))

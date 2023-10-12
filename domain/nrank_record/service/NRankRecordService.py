@@ -74,7 +74,7 @@ class NRankRecordService():
             raise CustomNotMatchedFormatException("스토어명은 50글자 이하로 입력해주세요.")
         
     @transactional(read_only=True)
-    def search_list(self) -> (PageableResDto):
+    def search_list_and_related_latest_infos(self) -> (PageableResDto):
         """search list by workspace id
 
         1. nrank_record 조회
@@ -107,7 +107,8 @@ class NRankRecordService():
 
         record_models = nRankRecordRepository.search_list_by_workspace_id_by_page(workspace_info.workspaceId, filter, pageable)
         record_ids = list(map(lambda model: model.id, record_models))
-        record_info_models = nRankRecordInfoRepository.search_list_by_record_ids(record_ids)
+        # record_info_models = nRankRecordInfoRepository.search_list_by_record_ids(record_ids)
+        record_info_models = nRankRecordInfoRepository.search_latest_list_by_record_ids(record_ids)
         record_related_record_info_dtos = self.set_record_and_related_record_infos(record_models, record_info_models)
 
         res_dto = PageableResDto()
@@ -132,7 +133,7 @@ class NRankRecordService():
                 if(record_dto.id == record_info_dto.nrank_record_id):
                     infos.append(record_info_dto.__dict__)
                 
-            dtos.append(NRankRecordDto.RelatedNRankRecordInfos(record_dto, infos).__dict__)
+            dtos.append(NRankRecordDto.RelatedLatestNRankRecordInfos(record_dto, infos).__dict__)
         return dtos
 
     @transactional(read_only=True)
