@@ -107,7 +107,9 @@ class NRankRecordService():
 
         record_models = nRankRecordSearchPagingRepository.search_list_by_page(workspace_info.workspaceId, filter, pageable)
         record_ids = list(map(lambda model: model.id, record_models))
-        record_info_models = nRankRecordInfoRepository.search_latest_list_by_record_ids(record_ids)
+        record_info_models = []
+        if(len(record_ids) > 0):
+            record_info_models = nRankRecordInfoRepository.search_latest_list_by_record_ids(record_ids)
         record_related_record_info_dtos = self.set_record_and_related_record_infos(record_models, record_info_models)
 
         res_dto = PageableResDto()
