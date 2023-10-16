@@ -74,3 +74,9 @@ class NRankRecordInfoRepository():
             .where(NRankRecordInfoModel.status == status.value)
         
         return get_db_session().execute(query).scalars().all()
+    
+    def search_list_by_ids(self, ids):
+        query = select(NRankRecordInfoModel)\
+            .where(NRankRecordInfoModel.id.in_(ids))
+        
+        return get_db_session().execute(query).scalars().all()

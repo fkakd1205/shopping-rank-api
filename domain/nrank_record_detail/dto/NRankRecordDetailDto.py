@@ -65,3 +65,12 @@ class NRankRecordDetailDto():
         dto.nrank_record_info_id = model.nrank_record_info_id
         dto.deleted_flag = model.deleted_flag
         return dto.__dict__
+    
+    # TODO :: dataclass 사용 시 default값 안채워짐. 확인해보기
+    class AnalysisByDatetime():
+        def __init__(self):
+            self.datetime = None
+            self.advertising_yn = 'n'
+            self.price_comparision_yn = 'n'
+            self.rank = None
+            self.comparision_rank = None

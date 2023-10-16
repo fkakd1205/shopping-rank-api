@@ -110,3 +110,19 @@ def check_nrank_direct_key():
     except:
         raise CustomMethodNotAllowedException("거부된 요청입니다.")
         
+@NRankRecordDetailApi.route('/search', methods=['POST'])
+class NRankRecordDetail(Resource):
+    
+    @required_login
+    @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
+        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH
+    })
+    def post(self):
+        message = MessageDto()
+
+        nrankRecordDetailService = NRankRecordDetailService()
+        message.set_data(nrankRecordDetailService.search_list_by_info_ids_and_mall_product_id())
+        message.set_status(HTTPStatus.OK)
+        message.set_message("success")
+
+        return message.__dict__, message.status_code

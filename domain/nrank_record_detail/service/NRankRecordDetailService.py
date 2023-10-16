@@ -19,7 +19,6 @@ from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
 from enums.YnEnum import YnEnum
 from enums.NRankRecordInfoStatusEnum import NRankRecordInfoStatusEnum
 from exception.types.CustomException import *
-from utils import DateTimeUtils, ProxyUtils
 from exception.types.CustomException import CustomInvalidValueException
 from decorators import transactional
 from config.server.ServerConfig import config
@@ -391,3 +390,15 @@ class NRankRecordDetailService():
                 break
         
         return thumbnail_url or ad_thumbnail_url
+    
+    @transactional(read_only=True)
+    def search_list_by_info_ids_and_mall_product_id(self):
+        nRankRecordDetailRepository = NRankRecordDetailRepository()
+
+        body = request.get_json()
+        info_ids = body['info_ids']
+        mall_product_id = body['detail_mall_product_id']
+
+        detail_models = nRankRecordDetailRepository.search_list_by_record_info_ids_and_mall_product_id(info_ids, mall_product_id)
+        detail_dtos = list(map(lambda model: NRankRecordDetailDto.to_dto(model), detail_models))
+        return detail_dtos
