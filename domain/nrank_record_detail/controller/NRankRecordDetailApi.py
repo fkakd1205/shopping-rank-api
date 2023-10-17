@@ -121,7 +121,7 @@ class NRankRecordDetail(Resource):
         message = MessageDto()
 
         nrankRecordDetailService = NRankRecordDetailService()
-        message.set_data(nrankRecordDetailService.search_list_by_info_ids_and_mall_product_id())
+        message.set_data(nrankRecordDetailService.search_list_by_filter())
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 

@@ -32,6 +32,23 @@ class NRankRecordDto():
         dto.deleted_flag = model.deleted_flag
         return dto
     
+    class RelatedCurrentNRankRecordInfo():
+        def __init__(self, record_dto, record_info_dto):
+            self.id = record_dto.id
+            self.keyword = record_dto.keyword
+            self.mall_name = record_dto.mall_name
+            self.status = record_dto.status
+            self.status_updated_at = record_dto.status_updated_at
+            self.workspace_id = record_dto.workspace_id
+            self.nrank_record_category_id = record_dto.nrank_record_category_id
+            self.created_at = record_dto.created_at
+            self.created_by_member_id = record_dto.created_by_member_id
+            self.current_nrank_record_info_id = record_dto.current_nrank_record_info_id
+            self.deleted_flag = record_dto.deleted_flag
+            
+            self.nrank_record_info = record_info_dto
+
+    # deprecated
     class RelatedLatestNRankRecordInfos():
         def __init__(self, record_dto, record_info_dtos = []):
             self.id = record_dto.id

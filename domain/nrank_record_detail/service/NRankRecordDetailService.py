@@ -22,6 +22,7 @@ from exception.types.CustomException import *
 from exception.types.CustomException import CustomInvalidValueException
 from decorators import transactional
 from config.server.ServerConfig import config
+from utils import DateTimeUtils, ProxyUtils
 
 NAVER_SHOPPING_RANK_URL = "https://search.shopping.naver.com/search/all"
 DEFAULT_PAGINGSIZE = 80
@@ -120,6 +121,7 @@ class NRankRecordDetailService():
         nrankRecordInfoRepository = NRankRecordInfoRepository()
         nrankRecordRepository = NRankRecordRepository()
 
+        # filter 클래스 생성
         body = request.get_json()
         req_dto = body['create_req_dto']
         results = body['nrank_record_details']
@@ -279,7 +281,7 @@ class NRankRecordDetailService():
                     category4_name = item.get('category4Name') or None
                     low_mall_count = item.get('mallCount') or None
                     item_id = item.get('id') or None
-                    mall_product_id = item.get('mallPid') or None
+                    # mall_product_id = item.get('mallPid') or None
 
                     page = ((page_index * 2) - 1) if ((rank % DEFAULT_PAGINGSIZE) <= (DEFAULT_PAGINGSIZE / 2)) else (page_index * 2)
 
@@ -296,9 +298,9 @@ class NRankRecordDetailService():
                             dto.product_title = product_title
                             dto.price = low_item.get('price') or None
                             dto.page = page
-                            # dto.mall_product_id = low_item.get('mallPid') or None
+                            dto.mall_product_id = low_item.get('mallPid') or None
                             dto.item_id = item_id
-                            dto.mall_product_id = mall_product_id
+                            # dto.mall_product_id = mall_product_id
                             dto.review_count = review_count
                             dto.score_info = score_info
                             dto.registration_date = registration_date
@@ -391,14 +393,19 @@ class NRankRecordDetailService():
         
         return thumbnail_url or ad_thumbnail_url
     
+    # TODO :: filter 클래스 생성 및 주석
     @transactional(read_only=True)
-    def search_list_by_info_ids_and_mall_product_id(self):
+    def search_list_by_filter(self):
         nRankRecordDetailRepository = NRankRecordDetailRepository()
 
         body = request.get_json()
         info_ids = body['info_ids']
         mall_product_id = body['detail_mall_product_id']
+        item_id = body['detail_item_id']
+        
+        if(info_ids is None or mall_product_id is None):
+            raise CustomInvalidValueException("검색이 불가능한 항목입니다.")
 
-        detail_models = nRankRecordDetailRepository.search_list_by_record_info_ids_and_mall_product_id(info_ids, mall_product_id)
+        detail_models = nRankRecordDetailRepository.search_list_by_record_info_ids_and_pid_and_iid(info_ids, mall_product_id, item_id)
         detail_dtos = list(map(lambda model: NRankRecordDetailDto.to_dto(model), detail_models))
         return detail_dtos

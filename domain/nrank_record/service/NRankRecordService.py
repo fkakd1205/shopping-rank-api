@@ -73,6 +73,7 @@ class NRankRecordService():
         if(len(model.mall_name) > 50):
             raise CustomNotMatchedFormatException("스토어명은 50글자 이하로 입력해주세요.")
         
+    # deprecated
     @transactional(read_only=True)
     def search_list_and_related_latest_infos(self) -> (PageableResDto):
         """search list by workspace id
@@ -117,6 +118,49 @@ class NRankRecordService():
         res_dto.size = pageable.size
         res_dto.content = record_related_record_info_dtos
         return res_dto.__dict__
+    
+    @transactional(read_only=True)
+    def search_list_and_related_info(self):
+        """search list by workspace id
+
+        1. nrank_record 조회
+        2. nrank_record id 추출
+        3. nrank_record_info 조회 - 조회가 성공적으로 완료되었으며, 삭제되지 않은 info
+        4. nrank_record infos에 nrank_record_info 매핑
+        5. PageableResDto 세팅
+
+        Return
+        - PagealbeResDto
+        """
+        nRankRecordSearchPagingRepository = NRankRecordSearchPagingRepository()
+        nRankRecordInfoRepository = NRankRecordInfoRepository()
+        memberPermissionUtils = MemberPermissionUtils()
+        workspace_info = memberPermissionUtils.get_workspace_info()
+    
+        params = {
+            'search_condition': request.args.get('search_condition'),
+            'search_query': request.args.get('search_query'),
+            'search_category_id': request.args.get('search_category_id'),
+            'search_status': request.args.get('search_status'),
+
+            'sort_column': request.args.get('sort_column'),
+            'sort_direction': request.args.get('sort_direction'),
+            'page': request.args.get('page'),
+            'size': request.args.get('size')
+        }
+        filter = NRankRecordSearchFilter(params)
+        pageable = PageableReqDto.Size20To100(params)
+
+        record_models = nRankRecordSearchPagingRepository.search_list_by_page(workspace_info.workspaceId, filter, pageable)
+        record_ids = list(map(lambda model: model.id, record_models))
+        record_info_models = nRankRecordInfoRepository.search_list_by_record_ids(record_ids)
+        record_related_record_info_dto = self.set_record_and_related_current_record_info(record_models, record_info_models)
+
+        res_dto = PageableResDto()
+        res_dto.number = pageable.page - 1
+        res_dto.size = pageable.size
+        res_dto.content = record_related_record_info_dto
+        return res_dto.__dict__
 
     def set_record_and_related_record_infos(self, records, record_infos):
         """set nrank records related record infos
@@ -135,6 +179,26 @@ class NRankRecordService():
                     infos.append(record_info_dto.__dict__)
                 
             dtos.append(NRankRecordDto.RelatedLatestNRankRecordInfos(record_dto, infos).__dict__)
+        return dtos
+    
+    def set_record_and_related_current_record_info(self, records, record_infos):
+        """set nrank records related currnet record info
+        
+        - records : nrank records
+        - record_info : nrank records related current nrank record info
+        """
+        dtos = []
+        record_info_dtos = list(map(lambda model: NRankRecordInfoDto.to_dto(model), record_infos))
+
+        for record in records:
+            record_dto = NRankRecordDto.to_dto(record)
+            info = None
+
+            for record_info_dto in record_info_dtos:
+                if(record_dto.id == record_info_dto.nrank_record_id):
+                    info = record_info_dto.__dict__
+
+            dtos.append(NRankRecordDto.RelatedCurrentNRankRecordInfo(record_dto, info).__dict__)
         return dtos
 
     @transactional(read_only=True)

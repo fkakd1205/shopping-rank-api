@@ -5,7 +5,7 @@ from domain.nrank_record_info.model.NRankRecordInfoModel import NRankRecordInfoM
 from utils import get_db_session
 from enums.NRankRecordInfoStatusEnum import NRankRecordInfoStatusEnum
 
-NRANK_INFO_MAX_SEARCH_UNIT = 30
+NRANK_INFO_MAX_SEARCH_UNIT = 20
 
 class NRankRecordInfoRepository():
 
@@ -28,6 +28,19 @@ class NRankRecordInfoRepository():
         
         return get_db_session().execute(query).scalars().all()
     
+    def search_latest_list_by_record_id(self, record_id):
+        query = select(NRankRecordInfoModel)\
+            .where(
+                NRankRecordInfoModel.nrank_record_id == record_id,
+                NRankRecordInfoModel.deleted_flag == False,
+                NRankRecordInfoModel.status != NRankRecordInfoStatusEnum.FAIL.value
+            )\
+            .order_by(NRankRecordInfoModel.created_at.desc())\
+            .limit(NRANK_INFO_MAX_SEARCH_UNIT)
+        
+        return get_db_session().execute(query).scalars().all()
+
+    # deprecated
     def search_latest_list_by_record_ids(self, record_ids):
         """nrank record별 최근 생성된 nrank record info를 특정 개수만큼 조회한다"""
     

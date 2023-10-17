@@ -7,7 +7,7 @@ from domain.nrank_record_category.service.NRankRecordCategoryService import NRan
 from enums.WorkspaceAccessTypeEnum import WorkspaceAccessTypeEnum
 from decorators import *
 
-NRankRecordCategoryApi = Namespace('NRankRecordApi')
+NRankRecordCategoryApi = Namespace('NRankRecordCategoryApi')
 
 @NRankRecordCategoryApi.route('', methods=['GET', 'POST'])
 class NRankRecordCategory(Resource):

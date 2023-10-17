@@ -2,6 +2,7 @@ from flask import request
 
 from domain.nrank_record_info.model.NRankRecordInfoModel import NRankRecordInfoModel
 from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankRecordInfoRepository
+from domain.nrank_record_info.dto.NRankRecordInfoDto import NRankRecordInfoDto
 
 from decorators import *
 from utils import *
@@ -67,4 +68,10 @@ class NRankRecordInfoService():
         end_date = DateTimeUtils.get_utc_end_date(date)
         searched_cnt = nrankRecordInfoRepository.search_count_by_period_and_workspace_id(start_date, end_date, ws_id)
         return searched_cnt
-
+    
+    @transactional(read_only=True)
+    def search_list(self, record_id):
+        nRankRecordInfoRepository = NRankRecordInfoRepository()
+        info_models = nRankRecordInfoRepository.search_latest_list_by_record_id(record_id)
+        info_dtos = list(map(lambda model: NRankRecordInfoDto.to_dto(model).__dict__, info_models))
+        return info_dtos
