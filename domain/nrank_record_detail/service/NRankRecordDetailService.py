@@ -14,6 +14,7 @@ from domain.nrank_record_detail.repository.NRankRecordDetailRepository import NR
 from domain.nrank_record.repository.NRankRecordRepository import NRankRecordRepository
 from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankRecordInfoRepository
 from domain.nrank_record_detail.dto.NRankRecordDetailCreateReqDto import NRankRecordDetailCreateReqDto
+from domain.nrank_record_detail.dto.NRankRecordDetailSearchReqDto import NRankRecordDetailSearchReqDto
 
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
 from enums.YnEnum import YnEnum
@@ -76,14 +77,7 @@ class NRankRecordDetailService():
 
     def request_nrank(self, req_dto, cookies):
         """search naver shopping ranking 요청 및 저장 api 호출"""
-        create_req_dto = NRankRecordDetailCreateReqDto()
-        create_req_dto.keyword = req_dto['keyword']
-        create_req_dto.mall_name = req_dto['mall_name']
-        create_req_dto.page_size = req_dto['page_size']
-        create_req_dto.record_id = req_dto['record_id']
-        create_req_dto.record_info_id = req_dto['record_info_id']
-        create_req_dto.workspace_id = req_dto['workspace_id']
-
+        create_req_dto = NRankRecordDetailCreateReqDto.RequestNRank(req_dto)
         results = asyncio.run(self.request_shopping_ranking(create_req_dto))
         ws_id = create_req_dto.workspace_id
 
@@ -123,19 +117,12 @@ class NRankRecordDetailService():
 
         # filter 클래스 생성
         body = request.get_json()
-        req_dto = body['create_req_dto']
-        results = body['nrank_record_details']
+        rank_result_dto = NRankRecordDetailCreateReqDto.RankResult(body)
+        req_dto = rank_result_dto.create_req_dto
+        results = rank_result_dto.nrank_record_details
         current_datetime = DateTimeUtils.get_current_datetime()
 
-        create_req_dto = NRankRecordDetailCreateReqDto()
-        create_req_dto.keyword = req_dto['keyword']
-        create_req_dto.mall_name = req_dto['mall_name']
-        create_req_dto.page_size = req_dto['page_size']
-        create_req_dto.record_id = req_dto['record_id']
-        create_req_dto.record_info_id = req_dto['record_info_id']
-        create_req_dto.workspace_id = req_dto['workspace_id']
-        create_req_dto.total_ad_products = req_dto['total_ad_products'] or None
-
+        create_req_dto = NRankRecordDetailCreateReqDto.RequestNRank(req_dto)
         record_info_model = nrankRecordInfoRepository.search_one(create_req_dto.record_info_id)
         record_model = nrankRecordRepository.search_one(create_req_dto.record_id)
 
@@ -281,7 +268,6 @@ class NRankRecordDetailService():
                     category4_name = item.get('category4Name') or None
                     low_mall_count = item.get('mallCount') or None
                     item_id = item.get('id') or None
-                    # mall_product_id = item.get('mallPid') or None
 
                     page = ((page_index * 2) - 1) if ((rank % DEFAULT_PAGINGSIZE) <= (DEFAULT_PAGINGSIZE / 2)) else (page_index * 2)
 
@@ -300,7 +286,6 @@ class NRankRecordDetailService():
                             dto.page = page
                             dto.mall_product_id = low_item.get('mallPid') or None
                             dto.item_id = item_id
-                            # dto.mall_product_id = mall_product_id
                             dto.review_count = review_count
                             dto.score_info = score_info
                             dto.registration_date = registration_date
@@ -393,19 +378,16 @@ class NRankRecordDetailService():
         
         return thumbnail_url or ad_thumbnail_url
     
-    # TODO :: filter 클래스 생성 및 주석
     @transactional(read_only=True)
     def search_list_by_filter(self):
         nRankRecordDetailRepository = NRankRecordDetailRepository()
 
         body = request.get_json()
-        info_ids = body['info_ids']
-        mall_product_id = body['detail_mall_product_id']
-        item_id = body['detail_item_id']
-        
-        if(info_ids is None or mall_product_id is None):
+        req_dto = NRankRecordDetailSearchReqDto.IncludedRecordInfoIdsAndMallProductIdAndItemId(body)
+
+        if(req_dto.info_ids is None or req_dto.detail_mall_product_id is None):
             raise CustomInvalidValueException("검색이 불가능한 항목입니다.")
 
-        detail_models = nRankRecordDetailRepository.search_list_by_record_info_ids_and_pid_and_iid(info_ids, mall_product_id, item_id)
+        detail_models = nRankRecordDetailRepository.search_list_by_record_info_ids_and_pid_and_iid(req_dto.info_ids, req_dto.detail_mall_product_id, req_dto.detail_item_id)
         detail_dtos = list(map(lambda model: NRankRecordDetailDto.to_dto(model), detail_models))
         return detail_dtos

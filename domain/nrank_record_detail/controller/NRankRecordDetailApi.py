@@ -6,6 +6,7 @@ from flask import request
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record_detail.dto.NRankRecordDetailCreateReqDto import NRankRecordDetailCreateReqDto
 from domain.nrank_record_detail.service.NRankRecordDetailService import NRankRecordDetailService
+from domain.nrank_record_detail.dto.NRankRecordDetailSearchReqDto import NRankRecordDetailSearchReqDto
 
 from utils import MemberPermissionUtils
 from enums.WorkspaceAccessTypeEnum import WorkspaceAccessTypeEnum
@@ -37,14 +38,15 @@ class NRankRecordDetail(Resource):
         page_size = memberPermissionUtils.get_nrank_search_page_size()
 
         body = request.get_json()
-        record_id = body['record_id']
-        record_info_id = body['record_info_id']
+        search_req_dto = NRankRecordDetailSearchReqDto.IncludedRecordIdAndRecordInfoId(body)
 
-        create_req_dto = NRankRecordDetailCreateReqDto()
-        create_req_dto.page_size = page_size
-        create_req_dto.record_id = record_id
-        create_req_dto.record_info_id = record_info_id
-        create_req_dto.workspace_id = workspace_info.workspaceId
+        search_req_dto = {
+            'page_size': page_size,
+            'record_id': search_req_dto.record_id,
+            'record_info_id': search_req_dto.record_info_id,
+            'workspace_id': workspace_info.workspaceId
+        }
+        create_req_dto = NRankRecordDetailCreateReqDto.RequestNRank(search_req_dto)
 
         req_dto = nrankRecordDetailService.nrank_request_setting(create_req_dto)
         threading.Thread(target=nrankRecordDetailService.request_nrank, args=(req_dto.__dict__, request.cookies), daemon=True).start()

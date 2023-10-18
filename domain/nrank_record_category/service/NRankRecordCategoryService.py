@@ -4,6 +4,7 @@ import uuid
 from domain.nrank_record_category.repository.NRankRecordCategoryRepository import NRankRecordCategoryRepository
 from domain.nrank_record_category.dto.NRankRecordCategoryDto import NRankRecordCategoryDto
 from domain.nrank_record_category.model.NRankRecordCategoryModel import NRankRecordCategoryModel
+from domain.nrank_record_category.dto.NRankRecordCategoryCreateReqDto import NRankRecordCategoryCreateReqDto
 
 from decorators import *
 from utils import *
@@ -65,7 +66,9 @@ class NRankRecordCategoryService():
         if(model is None): raise CustomNotFoundException("데이터가 존재하지 않습니다.")
 
         body = request.get_json()
-        model.name = body['name']
+        req_dto = NRankRecordCategoryCreateReqDto.IncludedName(body)
+
+        model.name = req_dto.name
         model.updated_at = DateTimeUtils.get_current_datetime()
    
         self.check_format(model)

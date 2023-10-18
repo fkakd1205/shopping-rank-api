@@ -39,32 +39,8 @@ class NRankRecordInfoRepository():
             .limit(NRANK_INFO_MAX_SEARCH_UNIT)
         
         return get_db_session().execute(query).scalars().all()
-
-    # deprecated
-    def search_latest_list_by_record_ids(self, record_ids):
-        """nrank record별 최근 생성된 nrank record info를 특정 개수만큼 조회한다"""
     
-        query = text("""
-            SELECT *
-            FROM (
-                SELECT *, RANK() OVER (PARTITION BY info.nrank_record_id ORDER BY info.created_at DESC) AS search_order
-                FROM nrank_record_info info
-                WHERE info.nrank_record_id in :record_ids
-                     AND info.deleted_flag = false
-                     AND info.status != 'FAIL'
-            ) as result
-            WHERE result.search_order <= :max_search_unit
-            ORDER BY result.created_at ASC
-        """
-        )
-        params = {
-            "record_ids": record_ids,
-            "max_search_unit": NRANK_INFO_MAX_SEARCH_UNIT
-        }
-
-        return get_db_session().execute(query, params)
-    
-    # 삭제된 것도 포함해야 함
+    # 삭제된 것도 포함
     def search_count_by_period_and_workspace_id(self, start_date, end_date, workspace_id):
         query = text("""
             SELECT COUNT(info.id)
