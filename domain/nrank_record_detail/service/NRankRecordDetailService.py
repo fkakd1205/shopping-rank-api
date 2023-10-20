@@ -324,8 +324,8 @@ class NRankRecordDetailService():
         광고 상품들끼리의 순위를 계산
         광고 상품 개수를 구한다
         """
-        # 순위별로 광고상품 정렬
-        sorted_ad_products = dict(sorted(create_req_dto.total_ad_products.items()))
+        # 순위별로 광고상품 정렬 (숫자로 정렬하기 위해 int로 형변환)
+        sorted_ad_products = dict(sorted(create_req_dto.total_ad_products.items(), key=lambda x: int(x[0])))
 
         ad_detail_ids = sorted_ad_products.values()
 
