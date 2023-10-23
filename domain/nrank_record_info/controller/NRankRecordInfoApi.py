@@ -9,7 +9,9 @@ from decorators import *
 
 NRankRecordInfoApi = Namespace('NRankRecordInfoApi')
 
-@NRankRecordInfoApi.route('/nrank-record/<record_id>', methods=['GET'])
+INFO_LIMIT_SIZE_FOR_NRARNK_SEARCH_MODAL = 20
+
+@NRankRecordInfoApi.route('/for:nrankSearchModal/nrank-record/<record_id>', methods=['GET'])
 class NRankRecordInfo(Resource):
 
     @required_login
@@ -20,7 +22,9 @@ class NRankRecordInfo(Resource):
         message = MessageDto()
 
         nRankRecordInfoService = NRankRecordInfoService()
-        message.set_data(nRankRecordInfoService.search_list(record_id))
+        limit_size = INFO_LIMIT_SIZE_FOR_NRARNK_SEARCH_MODAL
+        
+        message.set_data(nRankRecordInfoService.search_list_by_record_id(record_id, limit_size))
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 

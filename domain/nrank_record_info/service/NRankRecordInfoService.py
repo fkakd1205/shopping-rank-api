@@ -63,9 +63,17 @@ class NRankRecordInfoService():
         searched_cnt = nrankRecordInfoRepository.search_count_by_period_and_workspace_id(start_date, end_date, ws_id)
         return searched_cnt
     
+    # TODO :: 추후에 limit_size가 필요없는 api가 필요한 경우 다음과 같이 작성
+    # @transactional(read_only=True)
+    # def search_list_by_record_id(self, record_id):
+    #     nRankRecordInfoRepository = NRankRecordInfoRepository()
+    #     info_models = nRankRecordInfoRepository.search_list_by_record_id(record_id,)
+    #     info_dtos = list(map(lambda model: NRankRecordInfoDto.to_dto(model).__dict__, info_models))
+    #     return info_dtos
+    
     @transactional(read_only=True)
-    def search_list(self, record_id):
+    def search_list_by_record_id(self, record_id, limit_size):
         nRankRecordInfoRepository = NRankRecordInfoRepository()
-        info_models = nRankRecordInfoRepository.search_latest_list_by_record_id(record_id)
+        info_models = nRankRecordInfoRepository.search_limit_list_by_record_id(record_id, limit_size)
         info_dtos = list(map(lambda model: NRankRecordInfoDto.to_dto(model).__dict__, info_models))
         return info_dtos

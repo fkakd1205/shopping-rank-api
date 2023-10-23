@@ -21,7 +21,6 @@ class NRankRecordCategoryService():
     def create_one(self, name):
         nrankRecordCategoryRepository = NRankRecordCategoryRepository()
         memberPermissionUtils = MemberPermissionUtils()
-
         workspace_info = memberPermissionUtils.get_workspace_info()
 
         dto = NRankRecordCategoryDto()
@@ -48,8 +47,8 @@ class NRankRecordCategoryService():
     def search_list(self):
         nRankRecordCategoryRepository = NRankRecordCategoryRepository()
         memberPermissionUtils = MemberPermissionUtils()
-
         workspace_info = memberPermissionUtils.get_workspace_info()
+
         models = nRankRecordCategoryRepository.search_list_by_workspace_id(workspace_info.workspaceId)
         dtos = list(map(lambda model: NRankRecordCategoryDto.to_dto(model), models))
         return dtos

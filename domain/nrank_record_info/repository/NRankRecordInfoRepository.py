@@ -5,8 +5,6 @@ from domain.nrank_record_info.model.NRankRecordInfoModel import NRankRecordInfoM
 from utils import get_db_session
 from enums.NRankRecordInfoStatusEnum import NRankRecordInfoStatusEnum
 
-NRANK_INFO_MAX_SEARCH_UNIT = 20
-
 class NRankRecordInfoRepository():
 
     def save(self, model):
@@ -28,7 +26,7 @@ class NRankRecordInfoRepository():
         
         return get_db_session().execute(query).scalars().all()
     
-    def search_latest_list_by_record_id(self, record_id):
+    def search_limit_list_by_record_id(self, record_id, limit_size):
         query = select(NRankRecordInfoModel)\
             .where(
                 NRankRecordInfoModel.nrank_record_id == record_id,
@@ -36,7 +34,7 @@ class NRankRecordInfoRepository():
                 NRankRecordInfoModel.status != NRankRecordInfoStatusEnum.FAIL.value
             )\
             .order_by(NRankRecordInfoModel.created_at.desc())\
-            .limit(NRANK_INFO_MAX_SEARCH_UNIT)
+            .limit(limit_size)
         
         return get_db_session().execute(query).scalars().all()
     

@@ -55,7 +55,7 @@ class NRankRecordIncludeId(Resource):
 
         return message.__dict__, message.status_code
     
-@NRankRecordApi.route('/<record_id>/target:status/action:pending', methods=['PATCH'])
+@NRankRecordApi.route('/<record_id>/target:status/action:pending', methods=['POST'])
 class NRankRecordChangeStatus(Resource):
     
     @required_login
@@ -65,7 +65,7 @@ class NRankRecordChangeStatus(Resource):
         WorkspaceAccessTypeEnum.STORE_RANK_CREATE
     })
     @transactional()
-    def patch(self, record_id):
+    def post(self, record_id):
         """change nrank record status to pending
         
         1. 랭킹 조회 횟수 검사
