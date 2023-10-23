@@ -116,25 +116,6 @@ class NRankRecordService():
         res_dto.size = pageable.size
         res_dto.content = record_related_record_info_dto
         return res_dto.__dict__
-
-    def set_record_and_related_record_infos(self, records, record_infos):
-        """set nrank records related record infos
-        
-        - records : nrank records
-        - record_infos : nrank records related nrank record infos
-        """
-        dtos = []
-        record_info_dtos = list(map(lambda model: NRankRecordInfoDto.to_dto(model), record_infos))
-
-        for record in records:
-            record_dto = NRankRecordDto.to_dto(record)
-            infos = []
-            for record_info_dto in record_info_dtos:
-                if(record_dto.id == record_info_dto.nrank_record_id):
-                    infos.append(record_info_dto.__dict__)
-                
-            dtos.append(NRankRecordDto.RelatedLatestNRankRecordInfos(record_dto, infos).__dict__)
-        return dtos
     
     def set_record_and_related_current_record_info(self, records, record_infos):
         """set nrank records related currnet record info

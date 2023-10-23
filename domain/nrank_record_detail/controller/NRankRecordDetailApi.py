@@ -111,27 +111,8 @@ def check_nrank_direct_key():
             raise
     except:
         raise CustomMethodNotAllowedException("거부된 요청입니다.")
-    
-# deprecated
-# @NRankRecordDetailApi.route('/search', methods=['POST'])
-# class NRankRecordDetail(Resource):
-    
-#     @required_login
-#     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
-#         WorkspaceAccessTypeEnum.STORE_RANK_SEARCH
-#     })
-#     def post(self):
-#         message = MessageDto()
 
-#         nrankRecordDetailService = NRankRecordDetailService()
-#         message.set_data(nrankRecordDetailService.search_list_by_filter())
-#         message.set_status(HTTPStatus.OK)
-#         message.set_message("success")
-
-#         return message.__dict__, message.status_code
-    
-
-@NRankRecordDetailApi.route('/search', methods=['POST'])
+@NRankRecordDetailApi.route('/search/record-infos', methods=['POST'])
 class NRankRecordDetail(Resource):
     
     @required_login
@@ -142,9 +123,11 @@ class NRankRecordDetail(Resource):
         message = MessageDto()
 
         nrankRecordDetailService = NRankRecordDetailService()
-        message.set_data(nrankRecordDetailService.search_list_by_filter())
+        body = request.get_json()
+        req_dto = NRankRecordDetailSearchReqDto.IncludedRecordInfoIds(body)
+
+        message.set_data(nrankRecordDetailService.search_list_by_record_info_ids(req_dto.record_info_ids))
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 
         return message.__dict__, message.status_code
-    

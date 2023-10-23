@@ -378,31 +378,9 @@ class NRankRecordDetailService():
         
         return thumbnail_url or ad_thumbnail_url
     
-    # deprecated..
-    # @transactional(read_only=True)
-    # def search_list_by_filter(self):
-    #     nRankRecordDetailRepository = NRankRecordDetailRepository()
-
-    #     body = request.get_json()
-    #     req_dto = NRankRecordDetailSearchReqDto.IncludedRecordInfoIdsAndMallProductIdAndItemId(body)
-
-    #     if(not req_dto.info_ids or req_dto.detail_mall_product_id is None or req_dto.detail_item_id is None):
-    #         raise CustomInvalidValueException("검색이 불가능한 항목입니다.")
-
-    #     detail_models = nRankRecordDetailRepository.search_list_by_record_info_ids_and_pid_and_iid(req_dto.info_ids, req_dto.detail_mall_product_id, req_dto.detail_item_id)
-    #     detail_dtos = list(map(lambda model: NRankRecordDetailDto.to_dto(model), detail_models))
-    #     return detail_dtos
-    
     @transactional(read_only=True)
-    def search_list_by_filter(self):
-        nRankRecordDetailRepository = NRankRecordDetailRepository()
-
-        body = request.get_json()
-        req_dto = NRankRecordDetailSearchReqDto.IncludedRecordInfoIdsAndMallProductIdsAndItemIds(body)
-
-        if(not req_dto.info_ids or not req_dto.detail_mall_product_ids or not req_dto.detail_item_ids):
-            raise CustomInvalidValueException("검색이 불가능한 항목입니다.")
-        
-        detail_models = nRankRecordDetailRepository.search_list_by_record_info_ids_and_mpids_and_iids(req_dto.info_ids, req_dto.detail_mall_product_ids, req_dto.detail_item_ids)
-        detail_dtos = list(map(lambda model: NRankRecordDetailDto.to_dto(model), detail_models))
+    def search_list_by_record_info_ids(self, info_ids):
+        nrankRecordDetailRepository = NRankRecordDetailRepository()
+        detail_entities = nrankRecordDetailRepository.search_list_by_record_info_ids(info_ids)
+        detail_dtos = list(map(lambda entity: NRankRecordDetailDto.to_dto(entity), detail_entities))
         return detail_dtos
