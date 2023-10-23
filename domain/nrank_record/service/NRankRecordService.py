@@ -1,4 +1,3 @@
-from flask import request
 import uuid
 
 from domain.nrank_record.dto.NRankRecordDto import NRankRecordDto
@@ -9,10 +8,7 @@ from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankR
 from domain.nrank_record_info.dto.NRankRecordInfoDto import NRankRecordInfoDto
 from domain.nrank_record.dto.NRankWorkspaceUsageInfoDto import NRankWorkspaceUsageInfoDto
 from domain.nrank_record_info.service.NRankRecordInfoService import NRankRecordInfoService
-from domain.page.PageableReqDto import PageableReqDto
 from domain.page.PageableResDto import PageableResDto
-from domain.nrank_record.filter.NRankRecordSearchFilter import NRankRecordSearchFilter
-from domain.nrank_record.dto.NRankRecordCreateReqDto import NRankRecordCreateReqDto
 
 from utils import DateTimeUtils, MemberPermissionUtils
 from exception.types.CustomException import *
@@ -23,30 +19,26 @@ from decorators import transactional
 class NRankRecordService():
 
     @transactional(read_only=True)
-    def check_duplication(self, model):
+    def check_duplication(self, dto):
         """check nrank record duplication in worksapce
         
         keyword & mall_name & workspace 가 동일한 경우 등록 제한
         """
         nrankRecordRepository = NRankRecordRepository()
-        saved_model = nrankRecordRepository.search_one_by_keyword_and_mall_name(model.keyword, model.mall_name, model.workspace_id)
+        saved_model = nrankRecordRepository.search_one_by_keyword_and_mall_name(dto.keyword, dto.mall_name, dto.workspace_id)
         if (saved_model):
             raise CustomDuplicationException("이미 등록된 데이터입니다.")
 
     @transactional()
-    def create_one(self):
+    def create_one(self, keyword, mall_name):
         nrankRecordRepository = NRankRecordRepository()
         memberPermissionUtils = MemberPermissionUtils()
-
-        body = request.get_json()
         workspace_info = memberPermissionUtils.get_workspace_info()
-        record_keyword = body.get('keyword', '').strip()
-        record_mall_name = body.get('mall_name', '').strip()
 
         dto = NRankRecordDto()
         dto.id = uuid.uuid4()
-        dto.keyword = record_keyword
-        dto.mall_name = record_mall_name
+        dto.keyword = (keyword or '').strip()
+        dto.mall_name = (mall_name or '').strip()
         dto.status = NRankRecordStatusEnum.NONE.value
         dto.status_updated_at = None
         dto.workspace_id = workspace_info.workspaceId
@@ -56,26 +48,26 @@ class NRankRecordService():
         dto.current_nrank_record_info_id = None
         dto.deleted_flag = False
 
+        self.check_format(dto)
+        self.check_duplication(dto)
         new_model = NRankRecordModel.to_model(dto)
-        self.check_format(new_model)
-        self.check_duplication(new_model)
         nrankRecordRepository.save(new_model)
 
-    def check_format(self, model):
-        if(model.keyword == ''):
+    def check_format(self, dto):
+        if(dto.keyword == ''):
             raise CustomNotMatchedFormatException("키워드는 공백이 불가능합니다.")
 
-        if(len(model.keyword) > 50):
+        if(len(dto.keyword) > 50):
             raise CustomNotMatchedFormatException("키워드는 50글자 이하로 입력해주세요.")    
         
-        if(model.mall_name == ''):
+        if(dto.mall_name == ''):
             raise CustomNotMatchedFormatException("스토어명은 공백이 불가능합니다.")
         
-        if(len(model.mall_name) > 50):
+        if(len(dto.mall_name) > 50):
             raise CustomNotMatchedFormatException("스토어명은 50글자 이하로 입력해주세요.")
     
     @transactional(read_only=True)
-    def search_list_and_related_info(self):
+    def search_list_and_related_info(self, filter, pageable):
         """search list by workspace id
 
         1. nrank_record 조회
@@ -91,20 +83,6 @@ class NRankRecordService():
         nRankRecordInfoRepository = NRankRecordInfoRepository()
         memberPermissionUtils = MemberPermissionUtils()
         workspace_info = memberPermissionUtils.get_workspace_info()
-    
-        params = {
-            'search_condition': request.args.get('search_condition'),
-            'search_query': request.args.get('search_query'),
-            'search_category_id': request.args.get('search_category_id'),
-            'search_status': request.args.get('search_status'),
-
-            'sort_column': request.args.get('sort_column'),
-            'sort_direction': request.args.get('sort_direction'),
-            'page': request.args.get('page'),
-            'size': request.args.get('size')
-        }
-        filter = NRankRecordSearchFilter(params)
-        pageable = PageableReqDto.Size20To100(params)
 
         record_models = nRankRecordSearchPagingRepository.search_list_by_page(workspace_info.workspaceId, filter, pageable)
         record_ids = list(map(lambda model: model.id, record_models))
@@ -138,7 +116,7 @@ class NRankRecordService():
         return dtos
 
     @transactional(read_only=True)
-    def search_list_count(self) -> (PageableResDto.TotalSize):
+    def search_list_count(self, filter) -> (PageableResDto.TotalSize):
         """search list count
         
         Return
@@ -148,13 +126,6 @@ class NRankRecordService():
         memberPermissionUtils = MemberPermissionUtils()
         workspace_info = memberPermissionUtils.get_workspace_info()
     
-        params = {
-            'search_condition': request.args.get('search_condition'),
-            'search_query': request.args.get('search_query'),
-            'search_category_id': request.args.get('search_category_id'),
-            'search_status': request.args.get('search_status'),
-        }
-        filter = NRankRecordSearchFilter(params)
         count = nRankRecordSearchPagingRepository.search_list_count_by_workspace_id(workspace_info.workspaceId, filter)
         res_dto = PageableResDto.TotalSize(count)
         return res_dto.__dict__
@@ -187,19 +158,16 @@ class NRankRecordService():
         record_model.status_updated_at = current_datetime
 
     @transactional()
-    def change_list_status(self, status):
+    def change_list_status(self, ids, status):
         """change status for nrank records
         
         - status : NRankRecordStatusEnum
         - NRankRecordCreateReqDto : nrank record id list
         """
-        body = request.get_json()
-        req_dto = NRankRecordCreateReqDto.IncludedIds(body)
-        
         nRankRecordRepository = NRankRecordRepository()
         current_datetime = DateTimeUtils.get_current_datetime()
 
-        record_models = nRankRecordRepository.search_list_by_ids(req_dto.ids)
+        record_models = nRankRecordRepository.search_list_by_ids(ids)
         if(record_models is None): raise CustomNotFoundException("데이터가 존재하지 않습니다.")
         
         for record_model in record_models:
@@ -218,12 +186,10 @@ class NRankRecordService():
         return usage_info_dto.__dict__
 
     @transactional()
-    def change_category_id(self, id):
-        body = request.get_json()
-        req_dto = NRankRecordCreateReqDto.IncludedCategoryId(body)
+    def change_category_id(self, id, category_id):
         nRankRecordRepository = NRankRecordRepository()
 
         record_model = nRankRecordRepository.search_one(id)
         if(record_model is None): raise CustomNotFoundException("데이터가 존재하지 않습니다.")
 
-        record_model.nrank_record_category_id = req_dto.nrank_record_category_id
+        record_model.nrank_record_category_id = category_id

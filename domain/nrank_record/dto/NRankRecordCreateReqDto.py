@@ -1,4 +1,14 @@
 class NRankRecordCreateReqDto():
+    
+    class IncludedKeywordAndMallName():
+        keyword = None
+        mall_name = None
+        
+        def __init__(self, req):
+            self.keyword = req.get('keyword', None)
+            self.mall_name = req.get('mall_name', None)
+        
+
     class IncludedIds():
         ids = None
         

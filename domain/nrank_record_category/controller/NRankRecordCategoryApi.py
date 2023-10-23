@@ -1,8 +1,10 @@
 from flask_restx import Namespace, Resource
 from http import HTTPStatus
+from flask import request
 
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record_category.service.NRankRecordCategoryService import NRankRecordCategoryService
+from domain.nrank_record_category.dto.NRankRecordCategoryCreateReqDto import NRankRecordCategoryCreateReqDto
 
 from enums.WorkspaceAccessTypeEnum import WorkspaceAccessTypeEnum
 from decorators import *
@@ -20,6 +22,7 @@ class NRankRecordCategory(Resource):
         message = MessageDto()
 
         nRankRecordCategoryService = NRankRecordCategoryService()
+
         message.set_data(nRankRecordCategoryService.search_list())
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
@@ -35,7 +38,10 @@ class NRankRecordCategory(Resource):
         message = MessageDto()
 
         nRankRecordCategoryService = NRankRecordCategoryService()
-        nRankRecordCategoryService.create_one()
+        body = request.get_json()
+        req_dto = NRankRecordCategoryCreateReqDto.IncludedName(body)
+
+        nRankRecordCategoryService.create_one(req_dto.name)
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 
@@ -53,7 +59,10 @@ class NRankRecordCategoryIncludedId(Resource):
         message = MessageDto()
 
         nRankRecordCategoryService = NRankRecordCategoryService()
-        nRankRecordCategoryService.update_one(id)
+        body = request.get_json()
+        req_dto = NRankRecordCategoryCreateReqDto.IncludedName(body)
+
+        nRankRecordCategoryService.update_one(id, req_dto.name)
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 

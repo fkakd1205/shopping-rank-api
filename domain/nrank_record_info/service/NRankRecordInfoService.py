@@ -1,9 +1,6 @@
-from flask import request
-
 from domain.nrank_record_info.model.NRankRecordInfoModel import NRankRecordInfoModel
 from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankRecordInfoRepository
 from domain.nrank_record_info.dto.NRankRecordInfoDto import NRankRecordInfoDto
-from domain.nrank_record_info.dto.NRankRecordInfoCreateReqDto import NRankRecordInfoCreateReqDto
 
 from decorators import *
 from utils import *
@@ -13,33 +10,29 @@ from enums.NRankRecordInfoStatusEnum import NRankRecordInfoStatusEnum
 class NRankRecordInfoService():
     
     @transactional()
-    def create_one(self, record_id):
+    def create_one(self, record_id, record_info_id):
         nrankRecordInfoRepository = NRankRecordInfoRepository()
         current_datetime = DateTimeUtils.get_current_datetime()
-        body = request.get_json()
-        req_dto = NRankRecordInfoCreateReqDto.IncludedRecordInfoId(body)
 
-        record_info_model = nrankRecordInfoRepository.search_one(req_dto.record_info_id)
+        record_info_model = nrankRecordInfoRepository.search_one(record_info_id)
         if(record_info_model):
             raise CustomDuplicationException("요청이 중복되었습니다. 잠시 후 다시 시도해주세요.")
 
-        record_info_model = NRankRecordInfoModel()
-        record_info_model.id = req_dto.record_info_id
-        record_info_model.status = NRankRecordInfoStatusEnum.NONE.value
-        record_info_model.created_at = current_datetime
-        record_info_model.nrank_record_id = record_id
-        record_info_model.deleted_flag = False
-        nrankRecordInfoRepository.save(record_info_model)
-    
+        dto = NRankRecordInfoDto()
+        dto.id = record_info_id
+        dto.status = NRankRecordInfoStatusEnum.NONE.value
+        dto.created_at = current_datetime
+        dto.nrank_record_id = record_id
+        dto.deleted_flag = False
+        new_model = NRankRecordInfoModel.to_model(dto)
+        nrankRecordInfoRepository.save(new_model)
     
     @transactional()
-    def change_list_status_to_fail(self):
-        body = request.get_json()
-        req_dto = NRankRecordInfoCreateReqDto.IncludedRecordIds(body)
+    def change_list_status_to_fail(self, record_ids):
         fail_status = NRankRecordInfoStatusEnum.FAIL.value
         nRankRecordInfoRepository = NRankRecordInfoRepository()
 
-        record_info_models = nRankRecordInfoRepository.search_list_by_record_ids(req_dto.record_ids)
+        record_info_models = nRankRecordInfoRepository.search_list_by_record_ids(record_ids)
         if(record_info_models is None): return
         
         fail_info_model = list(filter(lambda info: info.status == NRankRecordInfoStatusEnum.NONE.value, record_info_models))
