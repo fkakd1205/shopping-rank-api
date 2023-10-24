@@ -66,7 +66,6 @@ class NRankRecordDetailDto():
         dto.deleted_flag = model.deleted_flag
         return dto.__dict__
     
-    # TODO :: dataclass 사용 시 default값 안채워짐. 확인해보기
     class AnalysisByDatetime():
         def __init__(self):
             self.datetime = None

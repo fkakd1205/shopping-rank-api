@@ -6,12 +6,12 @@ custom_load_dotenv()
 allow_path = {
     "production": {
         "POST": [
-            "/api/v1/nrank-record-details/results"
+            "/api/v1/nrank-record-details/for:nrankSearchModal/action:save"
         ]
     },
     "development": {
         "POST": [
-            "/api/v1/nrank-record-details/results"
+            "/api/v1/nrank-record-details/for:nrankSearchModal/action:save"
         ]
     }
 }

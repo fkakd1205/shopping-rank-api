@@ -63,7 +63,7 @@ class NRankRecordCategoryService():
         if(model is None): raise CustomNotFoundException("데이터가 존재하지 않습니다.")
 
         dto = NRankRecordCategoryDto()
-        dto.name = name
+        dto.name = (name or '').strip()
         dto.updated_at = DateTimeUtils.get_current_datetime()
         dto.workspace_id = workspace_info.workspaceId
 

@@ -32,7 +32,7 @@ class NRankRecordDto():
         dto.deleted_flag = model.deleted_flag
         return dto
     
-    class RelatedCurrentNRankRecordInfo():
+    class IncludedLatestNRankRecordInfo():
         def __init__(self, record_dto, record_info_dto):
             self.id = record_dto.id
             self.keyword = record_dto.keyword

@@ -9,11 +9,11 @@ class NRankRecordCreateReqDto():
             self.mall_name = req.get('mall_name', None)
         
 
-    class IncludedIds():
-        ids = None
+    class IncludedRecordIds():
+        record_ids = None
         
         def __init__(self, req):
-            self.ids = req.get('ids', None)
+            self.record_ids = req.get('record_ids', None)
 
     class IncludedCategoryId():
         nrank_record_category_id = None

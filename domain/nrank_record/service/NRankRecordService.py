@@ -67,7 +67,7 @@ class NRankRecordService():
             raise CustomNotMatchedFormatException("스토어명은 50글자 이하로 입력해주세요.")
     
     @transactional(read_only=True)
-    def search_list_and_related_info(self, filter, pageable):
+    def search_list_and_latest_info(self, filter, pageable):
         """search list by workspace id
 
         1. nrank_record 조회
@@ -87,7 +87,7 @@ class NRankRecordService():
         record_models = nRankRecordSearchPagingRepository.search_list_by_page(workspace_info.workspaceId, filter, pageable)
         record_ids = list(map(lambda model: model.id, record_models))
         record_info_models = nRankRecordInfoRepository.search_list_by_record_ids(record_ids)
-        record_related_record_info_dto = self.set_record_and_related_current_record_info(record_models, record_info_models)
+        record_related_record_info_dto = self.set_record_and_latest_record_info(record_models, record_info_models)
 
         res_dto = PageableResDto()
         res_dto.number = pageable.page - 1
@@ -95,11 +95,11 @@ class NRankRecordService():
         res_dto.content = record_related_record_info_dto
         return res_dto.__dict__
     
-    def set_record_and_related_current_record_info(self, records, record_infos):
+    def set_record_and_latest_record_info(self, records, record_infos):
         """set nrank records related currnet record info
         
         - records : nrank records
-        - record_info : nrank records related current nrank record info
+        - record_info : nrank records related latest nrank record info
         """
         dtos = []
         record_info_dtos = list(map(lambda model: NRankRecordInfoDto.to_dto(model), record_infos))
@@ -112,7 +112,7 @@ class NRankRecordService():
                 if(record_dto.id == record_info_dto.nrank_record_id):
                     info = record_info_dto.__dict__
 
-            dtos.append(NRankRecordDto.RelatedCurrentNRankRecordInfo(record_dto, info).__dict__)
+            dtos.append(NRankRecordDto.IncludedLatestNRankRecordInfo(record_dto, info).__dict__)
         return dtos
 
     @transactional(read_only=True)

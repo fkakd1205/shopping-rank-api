@@ -25,6 +25,12 @@ class NRankRecord(Resource):
         WorkspaceAccessTypeEnum.STORE_RANK_CREATE
     })
     def post(self):
+        """create one for nrank record
+        
+        body : (NRankRecordCreateReqDto.IncludedKeywordAndMallName)
+        - keyword
+        - mall_name
+        """
         message = MessageDto()
         
         nRankRecordService = NRankRecordService()
@@ -38,7 +44,7 @@ class NRankRecord(Resource):
         return message.__dict__, message.status_code
 
 @NRankRecordApi.route('/<id>', methods=['DELETE'])
-class NRankRecordIncludeId(Resource):
+class NRankRecord(Resource):
     
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
@@ -56,7 +62,7 @@ class NRankRecordIncludeId(Resource):
         return message.__dict__, message.status_code
     
 @NRankRecordApi.route('/<record_id>/target:status/action:pending', methods=['POST'])
-class NRankRecordChangeStatus(Resource):
+class NRankRecord(Resource):
     
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
@@ -66,12 +72,16 @@ class NRankRecordChangeStatus(Resource):
     })
     @transactional()
     def post(self, record_id):
-        """change nrank record status to pending
-        
+        """change nrank record status to pending & create one for nrank record info
         1. 랭킹 조회 횟수 검사
         2. change status
-        3. create info and return id
-        id -- record_id
+        3. create one for nrank record info (body로 전달받은 record info id 값 사용)
+
+        body: (NRankRecordInfoCreateReqDto.IncludedRecordInfoId)
+        - record_info_id
+        
+        params:
+        - record_id
         """
         message = MessageDto()
 
@@ -89,7 +99,7 @@ class NRankRecordChangeStatus(Resource):
         return message.__dict__, message.status_code
 
 @NRankRecordApi.route('/target:status/action:fail', methods=['PATCH'])
-class NRankRecordChangeStatus(Resource):
+class NRankRecord(Resource):
     
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
@@ -99,17 +109,22 @@ class NRankRecordChangeStatus(Resource):
     })
     @transactional()
     def patch(self):
+        """change nrank records & related nrank record infos status to fail
+        
+        body: (NRankRecordInfoCreateReqDto.IncludedRecordIds)
+        - record_ids
+        """
         message = MessageDto()
 
         nRankRecordService = NRankRecordService()
         body = request.get_json()
-        record_req_dto = NRankRecordCreateReqDto.IncludedIds(body)
+        record_req_dto = NRankRecordCreateReqDto.IncludedRecordIds(body)
 
         nRankRecordInfoService = NRankRecordInfoService()
         body = request.get_json()
         record_info_req_dto = NRankRecordInfoCreateReqDto.IncludedRecordIds(body)
         
-        nRankRecordService.change_list_status(record_req_dto.ids, NRankRecordStatusEnum.FAIL)
+        nRankRecordService.change_list_status(record_req_dto.record_ids, NRankRecordStatusEnum.FAIL)
         nRankRecordInfoService.change_list_status_to_fail(record_info_req_dto.record_ids)
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
@@ -117,7 +132,7 @@ class NRankRecordChangeStatus(Resource):
         return message.__dict__, message.status_code
     
 @NRankRecordApi.route('/workspace-usage-info', methods=['GET'])
-class NRankRecordWorkspaceUsageInfo(Resource):
+class NRankRecord(Resource):
     
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
@@ -127,7 +142,6 @@ class NRankRecordWorkspaceUsageInfo(Resource):
         message = MessageDto()
 
         nRankRecordService = NRankRecordService()
-        
         message.set_data(nRankRecordService.get_workspace_usage_info())
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
@@ -135,7 +149,7 @@ class NRankRecordWorkspaceUsageInfo(Resource):
         return message.__dict__, message.status_code
 
 @NRankRecordApi.route('/<id>/target:category', methods=['PATCH'])
-class NRankRecordChangeCategoryId(Resource):
+class NRankRecord(Resource):
     
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
@@ -156,8 +170,20 @@ class NRankRecordChangeCategoryId(Resource):
         return message.__dict__, message.status_code
 
 @NRankRecordApi.route('/slice', methods=['GET'])
-class NRankRecordSlice(Resource):
-
+class NRankRecord(Resource):
+    """search page for nrank record
+    검색 조건에 따라 nrank record를 조회한다
+    
+    params: (NRankRecordSearchFilter), (PageableReqDto.Size20To100)
+    - search_condition
+    - search_query
+    - search_category_id
+    - search_status
+    - sort_column
+    - sort_direction
+    - page
+    - size
+    """
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
         WorkspaceAccessTypeEnum.STORE_RANK_SEARCH
@@ -180,20 +206,29 @@ class NRankRecordSlice(Resource):
         filter = NRankRecordSearchFilter(params)
         pageable = PageableReqDto.Size20To100(params)
 
-        message.set_data(nRankRecordService.search_list_and_related_info(filter, pageable))
+        message.set_data(nRankRecordService.search_list_and_latest_info(filter, pageable))
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 
         return message.__dict__, message.status_code
     
 @NRankRecordApi.route('/count', methods=['GET'])
-class NRankRecordCount(Resource):
+class NRankRecord(Resource):
 
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
         WorkspaceAccessTypeEnum.STORE_RANK_SEARCH
     })
     def get(self):
+        """search page for nrank record
+        검색 조건에 따라 조회된 nrank record의 count를 반환한다
+    
+        params: (NRankRecordSearchFilter)
+        - search_condition
+        - search_query
+        - search_category_id
+        - search_status
+        """
         message = MessageDto()
 
         nRankRecordService = NRankRecordService()

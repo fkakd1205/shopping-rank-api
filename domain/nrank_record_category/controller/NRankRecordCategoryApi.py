@@ -48,7 +48,7 @@ class NRankRecordCategory(Resource):
         return message.__dict__, message.status_code
 
 @NRankRecordCategoryApi.route('/<id>', methods=['PUT', 'DELETE'])
-class NRankRecordCategoryIncludedId(Resource):
+class NRankRecordCategory(Resource):
     
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {

@@ -19,6 +19,12 @@ class NRankRecordInfo(Resource):
         WorkspaceAccessTypeEnum.STORE_RANK_SEARCH
     })
     def get(self, record_id):
+        """search limit list for nrank record info
+        nrankSearchModal에서 사용되는 특정 api
+        
+        params:
+        - record_id
+        """
         message = MessageDto()
 
         nRankRecordInfoService = NRankRecordInfoService()

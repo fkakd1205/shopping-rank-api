@@ -77,7 +77,7 @@ class NRankRecordDetailService():
         results = asyncio.run(self.request_shopping_ranking(create_req_dto))
         ws_id = create_req_dto.workspace_id
 
-        request_url = config['origin']['store-rank-api'] + '/api/v1/nrank-record-details/results'
+        request_url = config['origin']['store-rank-api'] + '/api/v1/nrank-record-details/for:nrankSearchModal/action:save'
         request_headers = {
             'wsId': ws_id,
             'referer': config['origin']['store-rank-api'],
@@ -100,12 +100,12 @@ class NRankRecordDetailService():
 
     @transactional()
     def create_list(self, create_req_dto, detail_dtos):
-        """create rank details
-        
+        """create list for record details & update related record and record info
+
         1. 광고 상품 순위 설정
-        2. nrank_record_detail 저장
-        3. 조회된 결과로 nrank_record_info 설정 및 저장
-        4. nrank_record의 current_nrank_record_info_id 업데이트
+        2. record details 저장
+        3. record info 수정
+        4. record 수정
         """
         nrankRecordDetailRepository = NRankRecordDetailRepository()
         nrankRecordInfoRepository = NRankRecordInfoRepository()
@@ -120,9 +120,8 @@ class NRankRecordDetailService():
         if(create_req_dto.total_ad_products):
             self.update_rank_for_ad_product(create_req_dto, detail_dtos)
 
-        nrank_detail_models = list(map(lambda dto: NRankRecordDetailModel().to_model(dto), detail_dtos))
-            
         # 2.
+        nrank_detail_models = list(map(lambda dto: NRankRecordDetailModel().to_model(dto), detail_dtos))
         nrankRecordDetailRepository.bulk_save(nrank_detail_models)
 
         # 3.
