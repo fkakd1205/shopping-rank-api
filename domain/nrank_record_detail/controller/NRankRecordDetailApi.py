@@ -6,6 +6,7 @@ from flask import request
 from domain.message.dto.MessageDto import MessageDto
 from domain.nrank_record_detail.dto.NRankRecordDetailCreateReqDto import NRankRecordDetailCreateReqDto
 from domain.nrank_record_detail.service.NRankRecordDetailService import NRankRecordDetailService
+from domain.nrank_record_detail.dto.NRankRecordDetailSearchReqDto import NRankRecordDetailSearchReqDto
 
 from utils import MemberPermissionUtils
 from enums.WorkspaceAccessTypeEnum import WorkspaceAccessTypeEnum
@@ -15,7 +16,7 @@ from exception.types.CustomException import *
 
 NRankRecordDetailApi = Namespace('NRankRecordDetailApi')
 
-@NRankRecordDetailApi.route('', methods=['POST'])
+@NRankRecordDetailApi.route('/for:nrankSearchModal/action:request', methods=['POST'])
 class NRankRecordDetail(Resource):
     
     @required_login
@@ -24,10 +25,14 @@ class NRankRecordDetail(Resource):
     })
     @transactional(read_only=True)
     def post(self):
-        """네이버 쇼핑 랭킹 요청 항목 세팅 및 응답 결과를 저장하는 api 요청
+        """네이버 쇼핑 api 요청 & 응답 결과를 저장하는 api에 redirect.
+        nrankSearchModal에서 사용되는 특정 api
         
-        NRankRecordDetailService : nrank_request_setting => 네이버 쇼핑 랭킹 요청 시 필요한 항목들 세팅
-        NRankRecordDetailService : request_nrank => 네이버 쇼핑 랭킹 api 요청 및 조회 결과를 저장하는 api 요청
+        body: (NRankRecordDetailCreateReqDto.RequestNRank)
+        - record_id, record_info_id
+
+        NRankRecordDetailService : nrank_request_setting => 네이버 쇼핑 api 요청을 위한 항목 세팅
+        NRankRecordDetailService : request_nrank => 네이버 쇼핑 랭킹 api 요청 & 조회 결과를 저장하는 api로 redirect 요청
         """
         message = MessageDto()
 
@@ -37,24 +42,21 @@ class NRankRecordDetail(Resource):
         page_size = memberPermissionUtils.get_nrank_search_page_size()
 
         body = request.get_json()
-        record_id = body['record_id']
-        record_info_id = body['record_info_id']
-
-        create_req_dto = NRankRecordDetailCreateReqDto()
+        create_req_dto = NRankRecordDetailCreateReqDto.RequestNRank(body)
         create_req_dto.page_size = page_size
-        create_req_dto.record_id = record_id
-        create_req_dto.record_info_id = record_info_id
         create_req_dto.workspace_id = workspace_info.workspaceId
 
-        req_dto = nrankRecordDetailService.nrank_request_setting(create_req_dto)
-        threading.Thread(target=nrankRecordDetailService.request_nrank, args=(req_dto.__dict__, request.cookies), daemon=True).start()
+        res_dto = nrankRecordDetailService.nrank_request_setting(create_req_dto)
+        rank_req_dto = NRankRecordDetailCreateReqDto.RequestNRank(res_dto.__dict__)
+
+        threading.Thread(target=nrankRecordDetailService.request_nrank, args=(rank_req_dto, request.cookies), daemon=True).start()
         message.set_status(HTTPStatus.ACCEPTED)
         message.set_message("accepted")
 
         return message.__dict__, message.status_code
     
 @NRankRecordDetailApi.route('/nrank-record-info/<record_info_id>', methods=['GET'])
-class NRankRecordDetailIncludeNRankRecordInfoId(Resource):
+class NRankRecordDetail(Resource):
 
     @required_login
     @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
@@ -70,7 +72,7 @@ class NRankRecordDetailIncludeNRankRecordInfoId(Resource):
 
         return message.__dict__, message.status_code
 
-@NRankRecordDetailApi.route('/results', methods=['POST'])
+@NRankRecordDetailApi.route('/for:nrankSearchModal/action:save', methods=['POST'])
 class NRankRecordDetail(Resource):
     
     @required_login
@@ -80,10 +82,14 @@ class NRankRecordDetail(Resource):
         WorkspaceAccessTypeEnum.STORE_RANK_UPDATE
     })
     def post(self):
-        """랭킹 조회 결과를 저장하는 api
-        
+        """랭킹 조회 결과를 전달받아 저장하는 api.
+        nrankSearchModal에서 사용되는 특정 api
         1. direct access key 값 검사
         2. nrank record detail 저장
+
+        body: (NRankRecordDetailCreateReqDto.RankResult)
+        - create_req_dto 
+        - nrank_record_details
         """
         message = MessageDto()
 
@@ -92,13 +98,49 @@ class NRankRecordDetail(Resource):
 
         # 2.
         nrankRecordDetailService = NRankRecordDetailService()
-        nrankRecordDetailService.create_list()
+        body = request.get_json()
+        rank_result_dto = NRankRecordDetailCreateReqDto.RankResult(body)
+        create_req_dto = NRankRecordDetailCreateReqDto.RequestNRank(rank_result_dto.create_req_dto)
+
+        nrankRecordDetailService.create_list(create_req_dto, rank_result_dto.nrank_record_details)
         message.set_status(HTTPStatus.ACCEPTED)
         message.set_message("accepted")
 
         return message.__dict__, message.status_code
     
+@NRankRecordDetailApi.route('/search/record-infos', methods=['POST'])
+class NRankRecordDetail(Resource):
+    
+    @required_login
+    @required_workspace_auth(checkAccessTypeFlag = True, requiredAccessTypes = {
+        WorkspaceAccessTypeEnum.STORE_RANK_SEARCH
+    })
+    def post(self):
+        """search list for record details by record info ids
+        
+        
+        body: (NRankRecordDetailSearchReqDto.IncludedRecordInfoIds)
+        - record_info_ids
+        """ 
+        message = MessageDto()
+
+        nrankRecordDetailService = NRankRecordDetailService()
+        body = request.get_json()
+        req_dto = NRankRecordDetailSearchReqDto.IncludedRecordInfoIds(body)
+
+        message.set_data(nrankRecordDetailService.search_list_by_record_info_ids(req_dto.record_info_ids))
+        message.set_status(HTTPStatus.OK)
+        message.set_message("success")
+
+        return message.__dict__, message.status_code
+    
 def check_nrank_direct_key():
+    """check for nrank direct key
+    환경변수에 저장된 nrankDirectAccessKey와 요청 헤더의 nrankDirectAccessKey가 동일한지 검사한다.
+
+    header
+    - nrankDirectAccessKey
+    """
     try:
         server_ac_key = config['nrankDirectAccessKey']
         origin_ac_key = request.headers['nrankDirectAccessKey']
@@ -109,4 +151,3 @@ def check_nrank_direct_key():
             raise
     except:
         raise CustomMethodNotAllowedException("거부된 요청입니다.")
-        

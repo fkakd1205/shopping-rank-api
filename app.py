@@ -8,6 +8,7 @@ from domain.nrank_record_detail.controller.NRankRecordDetailApi import NRankReco
 from domain.health_check.controller.HealthCheckApi import HealthCheckApi
 from domain.csrf_token.controller.CsrfTokenApi import CsrfTokenApi
 from domain.nrank_record_category.controller.NRankRecordCategoryApi import NRankRecordCategoryApi
+from domain.nrank_record_info.controller.NRankRecordInfoApi import NRankRecordInfoApi
 
 from utils import init_db, OriginUtils
 from config.filter.CustomAuthenticationFilter import CustomAuthenticationFilter
@@ -32,10 +33,11 @@ CustomAuthenticationFilter(app)
 
 # === register controller ===
 api.add_namespace(NRankRecordApi, "/api/v1/nrank-records")
+api.add_namespace(NRankRecordInfoApi, "/api/v1/nrank-record-infos")
 api.add_namespace(NRankRecordDetailApi, "/api/v1/nrank-record-details")
+api.add_namespace(NRankRecordCategoryApi, "/api/v1/nrank-record-categories")
 api.add_namespace(HealthCheckApi, "/healthCheck")
 api.add_namespace(CsrfTokenApi, "/api/v1/csrf")
-api.add_namespace(NRankRecordCategoryApi, "/api/v1/nrank-record-categories")
 
 # === global exception handler ===
 CustomExceptionHandler(api)

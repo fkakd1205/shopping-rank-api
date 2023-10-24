@@ -10,10 +10,10 @@ class NRankRecordDetailDto():
     product_title = None      # 상품명
     price = 0      # 가격
     page = 0       # 노출 페이지
+    item_id = None     # item id
     mall_product_id = None     # 상품 id
         
     advertising_yn = YnEnum.N.value      # 광고 여부
-    included_ad_rank = 0     # 광고 포함 노출 순위
     price_comparision_yn = YnEnum.N.value     # 가격 비교 여부
     comparision_rank = 0        # 가격 비교 순위
     low_mall_count = 0       # 가격비교 쇼핑몰 개수
@@ -43,9 +43,9 @@ class NRankRecordDetailDto():
         dto.product_title = model.product_title
         dto.price = model.price
         dto.page = model.page
+        dto.item_id = model.item_id
         dto.mall_product_id = model.mall_product_id
         dto.advertising_yn = model.advertising_yn
-        dto.included_ad_rank = model.included_ad_rank
         dto.price_comparision_yn = model.price_comparision_yn
         dto.comparision_rank = model.comparision_rank
         dto.low_mall_count = model.low_mall_count
@@ -63,3 +63,11 @@ class NRankRecordDetailDto():
         dto.nrank_record_info_id = model.nrank_record_info_id
         dto.deleted_flag = model.deleted_flag
         return dto.__dict__
+    
+    class AnalysisByDatetime():
+        def __init__(self):
+            self.datetime = None
+            self.advertising_yn = 'n'
+            self.price_comparision_yn = 'n'
+            self.rank = None
+            self.comparision_rank = None

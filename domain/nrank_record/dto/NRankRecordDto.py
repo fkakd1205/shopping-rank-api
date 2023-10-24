@@ -32,8 +32,8 @@ class NRankRecordDto():
         dto.deleted_flag = model.deleted_flag
         return dto
     
-    class RelatedLatestNRankRecordInfos():
-        def __init__(self, record_dto, record_info_dtos = []):
+    class IncludedLatestNRankRecordInfo():
+        def __init__(self, record_dto, record_info_dto):
             self.id = record_dto.id
             self.keyword = record_dto.keyword
             self.mall_name = record_dto.mall_name
@@ -46,4 +46,4 @@ class NRankRecordDto():
             self.current_nrank_record_info_id = record_dto.current_nrank_record_info_id
             self.deleted_flag = record_dto.deleted_flag
             
-            self.infos = record_info_dtos
+            self.nrank_record_info = record_info_dto

@@ -6,23 +6,21 @@ import uuid
 from fake_useragent import UserAgent
 from aiohttp.client_exceptions import ClientProxyConnectionError, ClientOSError, ClientHttpProxyError
 import requests
-from flask import request
 
 from domain.nrank_record_detail.dto.NRankRecordDetailDto import NRankRecordDetailDto
 from domain.nrank_record_detail.model.NRankRecordDetailModel import NRankRecordDetailModel
 from domain.nrank_record_detail.repository.NRankRecordDetailRepository import NRankRecordDetailRepository
 from domain.nrank_record.repository.NRankRecordRepository import NRankRecordRepository
 from domain.nrank_record_info.repository.NRankRecordInfoRepository import NRankRecordInfoRepository
-from domain.nrank_record_detail.dto.NRankRecordDetailCreateReqDto import NRankRecordDetailCreateReqDto
 
 from enums.NRankRecordStatusEnum import NRankRecordStatusEnum
 from enums.YnEnum import YnEnum
 from enums.NRankRecordInfoStatusEnum import NRankRecordInfoStatusEnum
 from exception.types.CustomException import *
-from utils import DateTimeUtils, ProxyUtils
 from exception.types.CustomException import CustomInvalidValueException
 from decorators import transactional
 from config.server.ServerConfig import config
+from utils import DateTimeUtils, ProxyUtils
 
 NAVER_SHOPPING_RANK_URL = "https://search.shopping.naver.com/search/all"
 DEFAULT_PAGINGSIZE = 80
@@ -44,7 +42,7 @@ class NRankRecordDetailService():
         return detail_dtos
 
     @transactional(read_only=True)
-    def nrank_request_setting(self, create_req_dto):
+    def nrank_request_setting(self, req_dto):
         """naver shopping ranking request setting
         shopping ranking api를 요청하기 전 request dto 세팅
         
@@ -56,14 +54,14 @@ class NRankRecordDetailService():
         nrankRecordRepository = NRankRecordRepository()
 
         # 1.
-        record_info_model = nrankRecordInfoRepository.search_one(create_req_dto.record_info_id)
+        record_info_model = nrankRecordInfoRepository.search_one(req_dto.record_info_id)
         if((record_info_model is None) or (record_info_model.status != NRankRecordInfoStatusEnum.NONE.value)) :
             raise CustomMethodNotAllowedException("올바르지 않은 요청입니다.")
 
         # 2.
-        record_model = nrankRecordRepository.search_one(create_req_dto.record_id)
-        create_req_dto.keyword = record_model.keyword
-        create_req_dto.mall_name = record_model.mall_name
+        record_model = nrankRecordRepository.search_one(req_dto.record_id)
+        req_dto.keyword = record_model.keyword
+        req_dto.mall_name = record_model.mall_name
 
         # 3.
         if(record_model.current_nrank_record_info_id):
@@ -71,23 +69,15 @@ class NRankRecordDetailService():
             if(last_info_model):
                 self.check_searchable_time(last_info_model.created_at)
 
-        create_req_dto.record_info_id = record_info_model.id
-        return create_req_dto
+        req_dto.record_info_id = record_info_model.id
+        return req_dto
 
-    def request_nrank(self, req_dto, cookies):
+    def request_nrank(self, create_req_dto, cookies):
         """search naver shopping ranking 요청 및 저장 api 호출"""
-        create_req_dto = NRankRecordDetailCreateReqDto()
-        create_req_dto.keyword = req_dto['keyword']
-        create_req_dto.mall_name = req_dto['mall_name']
-        create_req_dto.page_size = req_dto['page_size']
-        create_req_dto.record_id = req_dto['record_id']
-        create_req_dto.record_info_id = req_dto['record_info_id']
-        create_req_dto.workspace_id = req_dto['workspace_id']
-
         results = asyncio.run(self.request_shopping_ranking(create_req_dto))
         ws_id = create_req_dto.workspace_id
 
-        request_url = config['origin']['store-rank-api'] + '/api/v1/nrank-record-details/results'
+        request_url = config['origin']['store-rank-api'] + '/api/v1/nrank-record-details/for:nrankSearchModal/action:save'
         request_headers = {
             'wsId': ws_id,
             'referer': config['origin']['store-rank-api'],
@@ -109,42 +99,29 @@ class NRankRecordDetailService():
         )
 
     @transactional()
-    def create_list(self):
-        """create rank details
-        
+    def create_list(self, create_req_dto, detail_dtos):
+        """create list for record details & update related record and record info
+
         1. 광고 상품 순위 설정
-        2. nrank_record_detail 저장
-        3. 조회된 결과로 nrank_record_info 설정 및 저장
-        4. nrank_record의 current_nrank_record_info_id 업데이트
+        2. record details 저장
+        3. record info 수정
+        4. record 수정
         """
         nrankRecordDetailRepository = NRankRecordDetailRepository()
         nrankRecordInfoRepository = NRankRecordInfoRepository()
         nrankRecordRepository = NRankRecordRepository()
 
-        body = request.get_json()
-        req_dto = body['create_req_dto']
-        results = body['nrank_record_details']
         current_datetime = DateTimeUtils.get_current_datetime()
-
-        create_req_dto = NRankRecordDetailCreateReqDto()
-        create_req_dto.keyword = req_dto['keyword']
-        create_req_dto.mall_name = req_dto['mall_name']
-        create_req_dto.page_size = req_dto['page_size']
-        create_req_dto.record_id = req_dto['record_id']
-        create_req_dto.record_info_id = req_dto['record_info_id']
-        create_req_dto.workspace_id = req_dto['workspace_id']
-        create_req_dto.total_ad_products = req_dto['total_ad_products'] or None
 
         record_info_model = nrankRecordInfoRepository.search_one(create_req_dto.record_info_id)
         record_model = nrankRecordRepository.search_one(create_req_dto.record_id)
 
         # 1.
         if(create_req_dto.total_ad_products):
-            self.update_rank_for_ad_product(create_req_dto, results)
+            self.update_rank_for_ad_product(create_req_dto, detail_dtos)
 
-        nrank_detail_models = list(map(lambda dto: NRankRecordDetailModel().to_model(dto), results))
-            
         # 2.
+        nrank_detail_models = list(map(lambda dto: NRankRecordDetailModel().to_model(dto), detail_dtos))
         nrankRecordDetailRepository.bulk_save(nrank_detail_models)
 
         # 3.
@@ -235,6 +212,7 @@ class NRankRecordDetailService():
                     dto.price = item.get('price') or None
                     # rank % 80 결과가 40보다 작으면 (page_index * 2) - 1, 40보다 크면 (page_index * 2)
                     dto.page = ((page_index * 2) - 1) if ((dto.rank % DEFAULT_PAGINGSIZE) <= (DEFAULT_PAGINGSIZE / 2)) else (page_index * 2)
+                    dto.item_id = item.get('id') or None
                     dto.mall_product_id = item.get('mallProductId') or None
                     dto.review_count = item.get('reviewCount') or None
                     dto.score_info = item.get('scoreInfo') or None
@@ -255,7 +233,6 @@ class NRankRecordDetailService():
                         dto.thumbnail_url = item.get('adImageUrl', dto.thumbnail_url)
                         dto.page = None
                         dto.rank = 0
-                        dto.included_ad_rank = included_ad_rank
 
                     dtos.append(dto.__dict__)
 
@@ -278,7 +255,8 @@ class NRankRecordDetailService():
                     category3_name = item.get('category3Name') or None
                     category4_name = item.get('category4Name') or None
                     low_mall_count = item.get('mallCount') or None
-                    mall_product_id = item.get('id') or None
+                    item_id = item.get('id') or None
+
                     page = ((page_index * 2) - 1) if ((rank % DEFAULT_PAGINGSIZE) <= (DEFAULT_PAGINGSIZE / 2)) else (page_index * 2)
 
                     for low_item in item['lowMallList']:
@@ -288,14 +266,13 @@ class NRankRecordDetailService():
                             dto.id = str(uuid.uuid4())
                             dto.mall_name = create_req_dto.mall_name
                             dto.rank = rank
-                            dto.included_ad_rank = included_ad_rank
                             dto.price_comparision_yn = YnEnum.Y.value
                             dto.comparision_rank = comparition_rank
                             dto.product_title = product_title
                             dto.price = low_item.get('price') or None
                             dto.page = page
-                            # dto.mall_product_id = low_item.get('mallPid') or None
-                            dto.mall_product_id = mall_product_id
+                            dto.mall_product_id = low_item.get('mallPid') or None
+                            dto.item_id = item_id
                             dto.review_count = review_count
                             dto.score_info = score_info
                             dto.registration_date = registration_date
@@ -334,8 +311,8 @@ class NRankRecordDetailService():
         광고 상품들끼리의 순위를 계산
         광고 상품 개수를 구한다
         """
-        # 순위별로 광고상품 정렬
-        sorted_ad_products = dict(sorted(create_req_dto.total_ad_products.items()))
+        # 순위별로 광고상품 정렬 (숫자로 정렬하기 위해 int로 형변환)
+        sorted_ad_products = dict(sorted(create_req_dto.total_ad_products.items(), key=lambda x: int(x[0])))
 
         ad_detail_ids = sorted_ad_products.values()
 
@@ -387,3 +364,10 @@ class NRankRecordDetailService():
                 break
         
         return thumbnail_url or ad_thumbnail_url
+    
+    @transactional(read_only=True)
+    def search_list_by_record_info_ids(self, info_ids):
+        nrankRecordDetailRepository = NRankRecordDetailRepository()
+        detail_entities = nrankRecordDetailRepository.search_list_by_record_info_ids(info_ids)
+        detail_dtos = list(map(lambda entity: NRankRecordDetailDto.to_dto(entity), detail_entities))
+        return detail_dtos

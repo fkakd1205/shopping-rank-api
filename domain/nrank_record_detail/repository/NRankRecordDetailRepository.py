@@ -13,4 +13,9 @@ class NRankRecordDetailRepository():
             .where(NRankRecordDetailModel.nrank_record_info_id == record_info_id)
         
         return get_db_session().execute(query).scalars().all()
+       
+    def search_list_by_record_info_ids(self, info_ids):
+        query = select(NRankRecordDetailModel)\
+            .where(NRankRecordDetailModel.nrank_record_info_id.in_(info_ids))
         
+        return get_db_session().execute(query).scalars().all()
