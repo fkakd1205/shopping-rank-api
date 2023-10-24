@@ -17,7 +17,6 @@ class NRankRecordDetailModel(Base):
     mall_product_id = Column("mall_product_id", String(15), nullable=True)
 
     advertising_yn = Column("advertising_yn", String(1), nullable=False)
-    included_ad_rank = Column("included_ad_rank", Integer, nullable=True)
     price_comparision_yn = Column("price_comparision_yn", String(1), nullable=False)
     comparision_rank = Column("comparision_rank", Integer, nullable=True)
     low_mall_count = Column("low_mall_count", Integer, nullable=True)
@@ -49,7 +48,6 @@ class NRankRecordDetailModel(Base):
         self.mall_product_id = None     # 상품 id
         
         self.advertising_yn = YnEnum.N.value      # 광고 여부
-        self.included_ad_rank = 0     # 실제 순위
         self.price_comparision_yn = YnEnum.N.value     # 가격 비교 여부
         self.comparision_rank = 0        # 가격 비교 순위
         self.low_mall_count = 0       # 가격비교 쇼핑몰 개수
@@ -82,7 +80,6 @@ class NRankRecordDetailModel(Base):
         model.mall_product_id = dto.get('mall_product_id')     # 상품 id
         
         model.advertising_yn = YnEnum(dto.get('advertising_yn', 'n')).value      # 광고 여부
-        model.included_ad_rank = dto.get('included_ad_rank')     # 실제 순위
         model.price_comparision_yn = YnEnum(dto.get('price_comparision_yn', 'n')).value     # 가격 비교 여부
         model.comparision_rank = dto.get('comparision_rank')        # 가격 비교 순위
         model.low_mall_count = dto.get('low_mall_count')       # 가격비교 쇼핑몰 개수

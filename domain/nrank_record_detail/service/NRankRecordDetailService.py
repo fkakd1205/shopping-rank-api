@@ -233,7 +233,6 @@ class NRankRecordDetailService():
                         dto.thumbnail_url = item.get('adImageUrl', dto.thumbnail_url)
                         dto.page = None
                         dto.rank = 0
-                        dto.included_ad_rank = included_ad_rank
 
                     dtos.append(dto.__dict__)
 
@@ -267,7 +266,6 @@ class NRankRecordDetailService():
                             dto.id = str(uuid.uuid4())
                             dto.mall_name = create_req_dto.mall_name
                             dto.rank = rank
-                            dto.included_ad_rank = included_ad_rank
                             dto.price_comparision_yn = YnEnum.Y.value
                             dto.comparision_rank = comparition_rank
                             dto.product_title = product_title

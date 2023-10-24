@@ -61,7 +61,7 @@ class NRankRecord(Resource):
 
         return message.__dict__, message.status_code
     
-@NRankRecordApi.route('/<record_id>/target:status/action:pending', methods=['POST'])
+@NRankRecordApi.route('/for:nrankSearchModal/action:searchStart', methods=['POST'])
 class NRankRecord(Resource):
     
     @required_login
@@ -71,17 +71,15 @@ class NRankRecord(Resource):
         WorkspaceAccessTypeEnum.STORE_RANK_CREATE
     })
     @transactional()
-    def post(self, record_id):
+    def post(self):
         """change nrank record status to pending & create one for nrank record info
         1. 랭킹 조회 횟수 검사
         2. change status
         3. create one for nrank record info (body로 전달받은 record info id 값 사용)
 
-        body: (NRankRecordInfoCreateReqDto.IncludedRecordInfoId)
-        - record_info_id
-        
-        params:
+        body: (NRankRecordInfoCreateReqDto.IncludedRecordIdAndRecordInfoId)
         - record_id
+        - record_info_id
         """
         message = MessageDto()
 
@@ -89,10 +87,10 @@ class NRankRecord(Resource):
         nRankRecordInfoService = NRankRecordInfoService()
         nRankRecordInfoService.check_allowed_search_count()
         body = request.get_json()
-        req_dto = NRankRecordInfoCreateReqDto.IncludedRecordInfoId(body)
+        req_dto = NRankRecordCreateReqDto.IncludedRecordIdAndRecordInfoId(body)
         
-        nRankRecordService.change_status(record_id, NRankRecordStatusEnum.PENDING)
-        nRankRecordInfoService.create_one(record_id, req_dto.record_info_id)
+        nRankRecordService.change_status(req_dto.record_id, NRankRecordStatusEnum.PENDING)
+        nRankRecordInfoService.create_one(req_dto.record_id, req_dto.record_info_id)
         message.set_status(HTTPStatus.OK)
         message.set_message("success")
 

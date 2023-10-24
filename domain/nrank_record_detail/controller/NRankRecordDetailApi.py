@@ -16,7 +16,7 @@ from exception.types.CustomException import *
 
 NRankRecordDetailApi = Namespace('NRankRecordDetailApi')
 
-@NRankRecordDetailApi.route('/for:nrankSearchModal/action:check', methods=['POST'])
+@NRankRecordDetailApi.route('/for:nrankSearchModal/action:request', methods=['POST'])
 class NRankRecordDetail(Resource):
     
     @required_login
