@@ -1,5 +1,8 @@
 from enums.PageSortDirectionEnum import PageSortDirectionEnum
 
+DEFAULT_SIZE_20 = 20
+MAX_SIZE_100 = 100
+
 class PageableReqDto():
     """pagenation request dto
     

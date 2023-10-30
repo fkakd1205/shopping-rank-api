@@ -190,17 +190,7 @@ class NRankRecord(Resource):
         message = MessageDto()
 
         nRankRecordService = NRankRecordService()
-        params = {
-            'search_condition': request.args.get('search_condition'),
-            'search_query': request.args.get('search_query'),
-            'search_category_id': request.args.get('search_category_id'),
-            'search_status': request.args.get('search_status'),
-
-            'sort_column': request.args.get('sort_column'),
-            'sort_direction': request.args.get('sort_direction'),
-            'page': request.args.get('page'),
-            'size': request.args.get('size')
-        }
+        params = request.args
         filter = NRankRecordSearchFilter(params)
         pageable = PageableReqDto.Size20To100(params)
 
@@ -230,12 +220,7 @@ class NRankRecord(Resource):
         message = MessageDto()
 
         nRankRecordService = NRankRecordService()
-        params = {
-            'search_condition': request.args.get('search_condition'),
-            'search_query': request.args.get('search_query'),
-            'search_category_id': request.args.get('search_category_id'),
-            'search_status': request.args.get('search_status'),
-        }
+        params = request.args
         filter = NRankRecordSearchFilter(params)
 
         message.set_data(nRankRecordService.search_list_count(filter))
